@@ -81,7 +81,7 @@ The state of the art for DukeMTMC is available on [`MOTChallenge`](https://motch
 
 ## Discussion
 
-MTMCT and ReID share many similarities because both problems rely on appearance and space-time information. The two problems are _different_ and seem to require different loss functions. In MTMCT the decisions made by the tracker are hard: Two person images either have the same identity or not. In ReID the decisions are soft: The gallery images are ranked without making hard decisions. MTMCT requires a loss that correctly classifies all pairs of observations. ReID instead only requires to a pair of images correctly for any  I query. I will illustrate two ideal feature spaces, one for ReID and one for MTMCT, and argue that the MTMCT classification condition is stronger. 
+MTMCT and ReID share many similarities because both problems rely on appearance and space-time information. The two problems are _different_ and seem to require different loss functions. In MTMCT the decisions made by the tracker are hard: Two person images either have the same identity or not. In ReID the decisions are soft: The gallery images are ranked without making hard decisions. MTMCT training requires a loss that correctly classifies all pairs of observations. ReID instead only requires a loss that correctly ranks a pair of images by which is most similar to the query. I will illustrate two ideal feature spaces, one for ReID and one for MTMCT, and argue that the MTMCT classification condition is stronger. 
 
 <div align="center">
   <img src="http://vision.cs.duke.edu/DukeMTMC/img/classification.png" width="400px" />
@@ -94,7 +94,7 @@ In MTMCT the ideal feature space should satisfy the classification condition glo
   <img src="http://vision.cs.duke.edu/DukeMTMC/img/ranking.png" width="400px" />
 </div>
 
-For correct ranking in ReID it is sufficient that for any query the positive examples are ranked higher than all the negative examples. In the above example the ranking condition is satisfied and guarantees corrent ReID ranking for any query. Yet there exists no threshold that correctly classifies all pairs. Therefore the ReID the ranking condition is _weaker_ than the classification condition. 
+For correct ranking in ReID it is sufficient that for any query the positive examples are ranked higher than all the negative examples. In the above example the ranking condition is satisfied and guarantees corrent ReID ranking for any query. Yet there exists no threshold that correctly classifies all pairs. Therefore the ReID ranking condition is _weaker_ than the MTMCT classification condition. 
 
 
 
