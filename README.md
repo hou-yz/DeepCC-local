@@ -79,6 +79,24 @@ Simply run `sh train.sh` to train a model. After training completes, run `sh con
 
 The state of the art for DukeMTMC is available on [`MOTChallenge`](https://motchallenge.net/results/DukeMTMCT/). Submission instructions can be found on this [`page`](http://vision.cs.duke.edu/DukeMTMC/details.html#evaluation). 
 
+## Discussion
+
+MTMCT and ReID share many similarities because both problems rely on appearance and space-time information. The two problems are _different_ and seem to require different loss functions. In MTMCT the decisions made by the tracker are hard: Two person images either have the same identity or not. In ReID the decisions are soft: The gallery images are ranked without making hard decisions. MTMCT requires a loss that correctly classifies all pairs of observations. ReID instead only requires to a pair of images correctly for any  I query. I will illustrate two ideal feature spaces, one for ReID and one for MTMCT, and argue that the MTMCT classification condition is stronger. 
+
+<div align="center">
+  <img src="http://vision.cs.duke.edu/DukeMTMC/img/classification.png" width="400px" />
+</div>
+
+
+In MTMCT the ideal feature space should satisfy the classification condition globally, meaning that the largest class variance among _all_ identities should be smaller that the smallest separation margin between _any_ pairs of identities. When this condition holds, a threshold (the maximum class variance) can be found to correctly classify any pair of features as positives or negatives. The classification condition also _implies_ correct ranking in ReID for any given query.
+
+<div align="center">
+  <img src="http://vision.cs.duke.edu/DukeMTMC/img/ranking.png" width="400px" />
+</div>
+
+For correct ranking in ReID it is sufficient that for any query the positive examples are ranked higher than all the negative examples. In the above example the ranking condition is satisfied and guarantees corrent ReID ranking for any query. Yet there exists no threshold that correctly classifies all pairs. Therefore the ReID the ranking condition is _weaker_ than the classification condition. 
+
+
 
 ## <a name="Citing"></a> Citing
 
