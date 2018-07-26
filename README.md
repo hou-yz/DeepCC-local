@@ -1,19 +1,19 @@
 # DeepCC (Under Construction)
-**People Tracking and Re-Identification from Multiple Cameras**
+**Features for Multi-Target Multi-Camera Tracking and Re-Identification**
 
-_Ergys Ristani_
+_Ergys Ristani, Carlo Tomasi_
 
-[[`Thesis PDF`](http://vision.cs.duke.edu/DukeMTMC/data/misc/Ristani_dissertation.pdf)] [[`DukeMTMC Project Page`](http://vision.cs.duke.edu/DukeMTMC)] [[`BibTeX`](#Citing)]
+[[Paper](http://openaccess.thecvf.com/content_cvpr_2018/papers/Ristani_Features_for_Multi-Target_CVPR_2018_paper.pdf)] [[PhD Thesis](http://vision.cs.duke.edu/DukeMTMC/data/misc/Ristani_dissertation.pdf)] [[DukeMTMC Project Page](http://vision.cs.duke.edu/DukeMTMC)] [[BibTeX](#Citing)]
 
 ---
 <div align="center">
   <img src="http://vision.cs.duke.edu/DukeMTMC/img/splash.gif" width="900px" />
 </div>
 
-Multi-Target Multi-Camera Tracking (MTMCT) is the problem of determining who is where at all times given as input a set of video streams. The output is a set of person trajectories. Person re-identification (ReID) is the problem of retrieving the most similar observation to a query from a gallery of observations, with the goal that the query identity matches the identity of the top rank. A correct match is always assumed to be found in the gallery.
+Multi-Target Multi-Camera Tracking (MTMCT) is the problem of determining who is where at all times given a set of video streams as input. The output is a set of person trajectories. Person re-identification (ReID) retrieves from a gallery of observations the one most similar to the query, with the goal that the query's identity matches the identity of the top rank. A correct match is always assumed to be found in the gallery.
 
 
-In this repository, we provide MATLAB code to run and evaluate our tracker, as well as Keras code to learn appearance features with a weighted triplet loss. This code has been written over the past years as part of my PhD research, initially for multi-target tracking by correlation clustering (BIPCC), and lately extended to use deep features in multi-camera settings (DeepCC). We additionally provide tools to download and interact with the DukeMTMC dataset. 
+In this repository, we provide MATLAB code to run and evaluate our tracker, as well as Keras code to learn appearance features with our weighted triplet loss. This code has been written over the past years as part of my PhD research, initially for multi-target tracking by correlation clustering (BIPCC), and lately extended to use deep features in multi-camera settings (DeepCC). We additionally provide tools to download and interact with the DukeMTMC dataset. 
 
 ---
 
@@ -21,7 +21,7 @@ In this repository, we provide MATLAB code to run and evaluate our tracker, as w
 
 ### DukeMTMC 
 
-After cloning this repository you need to download the DukeMTMC dataset. Specify a folder of your choice in `downloadDukeMTMC.m` and run the relevant parts of the script, ommiting the cells which are tagged optional. For the tracker to run you only need to download videos, OpenPose detections, and precomputed detection features. You don't need to extract the frames (~1 TB) because we provide a method to read images directly from videos. 
+After cloning this repository you need to download the DukeMTMC dataset. Specify a folder of your choice in `downloadDukeMTMC.m` and run the relevant parts of the script, ommiting the cells which are tagged optional. For the tracker to run you only need to download videos, OpenPose detections, and precomputed detection features. 
 
 Please be patient as you are downloading ~160 GB of data. 
 
@@ -81,17 +81,17 @@ The state of the art for DukeMTMC is available on [`MOTChallenge`](https://motch
 
 ## Discussion
 
-MTMCT and ReID share many similarities because both problems rely on appearance and space-time information. The two problems are _different_ and seem to require different loss functions. In MTMCT the decisions made by the tracker are hard: Two person images either have the same identity or not. In ReID the decisions are soft: The gallery images are ranked without making hard decisions. MTMCT training requires a loss that correctly classifies all pairs of observations. ReID instead only requires a loss that correctly ranks a pair of images by which is most similar to the query. I will illustrate two ideal feature spaces, one for ReID and one for MTMCT, and argue that the MTMCT classification condition is stronger. 
+MTMCT and ReID share many similarities because both problems rely on appearance and space-time information. The two problems are _different_ and seem to require different loss functions. In MTMCT the decisions made by the tracker are hard: Two person images either have the same identity or not. In ReID the decisions are soft: The gallery images are ranked without making hard decisions. MTMCT training requires a loss that correctly classifies all pairs of observations. ReID instead only requires a loss that correctly ranks a pair of images by which is most similar to the query. Below I illustrate two ideal feature spaces, one for ReID and one for MTMCT, and argue that the MTMCT classification condition is stronger. 
 
 <div align="center">
   <img src="http://vision.cs.duke.edu/DukeMTMC/img/classification.png" width="400px" />
 </div>
 
 
-In MTMCT the ideal feature space should satisfy the classification condition globally, meaning that the largest class variance among _all_ identities should be smaller that the smallest separation margin between _any_ pairs of identities. When this condition holds, a threshold (the maximum class variance) can be found to correctly classify any pair of features as positives or negatives. The classification condition also _implies_ correct ranking in ReID for any given query.
+In MTMCT the ideal feature space should satisfy the classification condition globally, meaning that the largest class variance among _all_ identities should be smaller that the smallest separation margin between _any_ pair of identities. When this condition holds, a threshold (the maximum class variance) can be found to correctly classify any pair of features as co-identical or not. The classification condition also _implies_ correct ranking in ReID for any given query.
 
 <div align="center">
-  <img src="http://vision.cs.duke.edu/DukeMTMC/img/ranking.png" width="400px" />
+  <img src="http://vision.cs.duke.edu/DukeMTMC/img/ranking.png" width="500px" />
 </div>
 
 For correct ranking in ReID it is sufficient that for any query the positive examples are ranked higher than all the negative examples. In the above example the ranking condition is satisfied and guarantees corrent ReID ranking for any query. Yet there exists no threshold that correctly classifies all pairs. Therefore the ReID ranking condition is _weaker_ than the MTMCT classification condition. 
