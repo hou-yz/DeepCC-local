@@ -1,0 +1,53 @@
+Large Scale Correlation Clustering Software
+-------------------------------------------
+
+This license agreement concerns the software or data identified above,
+which may include source code, and any associated materials, text or speech files,
+associated media and "online" or electronic documentation and any updates provided (together, the "Software").
+
+By installing, copying, or otherwise using this Software, 
+you agree to be bound by the terms of this agreement. 
+If you do not agree, do not install copy or use the Software. 
+The Software is protected by copyright and other intellectual property laws and is licensed, not sold.
+
+SCOPE OF RIGHTS:
+You may use, copy, reproduce, and distribute this Software for any non-commercial purpose, 
+    subject to the restrictions in this agreement. 
+    Some purposes which can be non-commercial are teaching, academic research, public demonstrations and personal experimentation.
+    You may also distribute this Software with books or other teaching materials,
+    or publish the Software on websites, that are intended to teach the use of the Software for academic or other non-commercial purposes.
+
+You may not use or distribute this Software or any derivative works in any form for commercial purposes. 
+    Examples of commercial purposes would be running business operations, licensing, leasing, or selling the Software, 
+    distributing the Software for use with commercial products, 
+    using the Software in the creation or use of commercial products or any other activity which purpose is to procure a 
+    commercial gain to you or others.
+
+You may create derivative works of such portions of the Software and distribute the modified Software for non-commercial purposes,
+    as provided herein.
+
+In return, we simply require that you agree:
+1. That you will not remove any copyright or other notices from the Software.
+2. That if you distribute the Software or any derivative works of the Software, 
+   you will distribute them under the same terms and conditions as in this license, 
+   and you will not grant other rights to the Software or derivative works that are different from 
+   those provided by this agreement.
+3. That if you have created derivative works of the Software, and distribute such derivative works, 
+   you will cause the modified files to carry prominent notices so that recipients know that they are not receiving 
+   the original Software. Such notices must state: (i) that you have changed the Software; and (ii) the date of any changes.
+4. THAT THE SOFTWARE COMES "AS IS", WITH NO WARRANTIES. THIS MEANS NO EXPRESS, IMPLIED OR STATUTORY WARRANTY, 
+   INCLUDING WITHOUT LIMITATION, WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, 
+   ANY WARRANTY AGAINST INTERFERENCE WITH YOUR ENJOYMENT OF THE SOFTWARE OR ANY WARRANTY OF TITLE OR NON-INFRINGEMENT. 
+   THERE IS NO WARRANTY THAT THIS SOFTWARE WILL FULFILL ANY OF YOUR PARTICULAR PURPOSES OR NEEDS. 
+   ALSO, YOU MUST PASS THIS DISCLAIMER ON WHENEVER YOU DISTRIBUTE THE SOFTWARE OR DERIVATIVE WORKS.
+5. THAT ANY CONTRIBUTOR TO THE SOFTWARE WILL BE LIABLE FOR ANY DAMAGES RELATED TO THE SOFTWARE OR THIS AGREEMENT, 
+   INCLUDING DIRECT, INDIRECT, SPECIAL, CONSEQUENTIAL OR INCIDENTAL DAMAGES, TO THE MAXIMUM EXTENT THE LAW PERMITS, 
+   NO MATTER WHAT LEGAL THEORY IT IS BASED ON. 
+   ALSO, YOU MUST PASS THIS LIMITATION OF LIABILITY ON WHENEVER YOU DISTRIBUTE THE SOFTWARE OR DERIVATIVE WORKS.
+6. That we have no duty of reasonable care or lack of negligence, and we are not obligated to (and will not)
+   provide technical support for the Software.
+7. That if you breach this agrrement or if you sue anyone over patents that you think may apply to or read on the Software 
+   or anyone's use of the Software, this agrrement (and your license and rights obtained herein) terminate automatically.  
+   Upon any such termination, you shall destroy all of your copies of the Software immediately.  
+   Sections 3, 4, 5, and 6 of this agrrement shall survive any termination of this agrrement.
+8. That all rights not expressly granted to you in this agrrement are reserved.
