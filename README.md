@@ -10,7 +10,8 @@ _Ergys Ristani, Carlo Tomasi_
   <img src="http://vision.cs.duke.edu/DukeMTMC/img/splash.gif" width="900px" />
 </div>
 
-Multi-Target Multi-Camera Tracking (MTMCT) is the problem of determining who is where at all times given a set of video streams as input. The output is a set of person trajectories. Person re-identification (ReID) retrieves from a gallery of observations the one most similar to the query, with the goal that the query's identity matches the identity of the top rank. A correct match is always assumed to be found in the gallery.
+Multi-Target Multi-Camera Tracking (MTMCT) is the problem of determining who is where at all times given a set of video streams as input. The output is a set of person trajectories. Person re-identification (ReID) is a closely related problem. Given a query image of a person, the goal is to retrieve from a database of images taken by different cameras the images where the same person
+appears. 
 
 
 In this repository, we provide MATLAB code to run and evaluate our tracker, as well as Keras code to learn appearance features with our weighted triplet loss. This code has been written over the past years as part of my PhD research, initially for multi-target tracking by correlation clustering (BIPCC), and lately extended to use deep features in multi-camera settings (DeepCC). We additionally provide tools to download and interact with the DukeMTMC dataset. 
@@ -94,7 +95,7 @@ In MTMCT the ideal feature space should satisfy the classification condition glo
   <img src="http://vision.cs.duke.edu/DukeMTMC/img/ranking.png" width="500px" />
 </div>
 
-For correct ranking in ReID it is sufficient that for any query the positive examples are ranked higher than all the negative examples. In the above example the ranking condition is satisfied and guarantees corrent ReID ranking for any query. Yet there exists no threshold that correctly classifies all pairs. Therefore the ReID ranking condition is _weaker_ than the MTMCT classification condition. 
+For correct ranking in ReID it is sufficient that for any query the positive examples are ranked higher than all the negative examples. In the above example the ranking condition is satisfied and guarantees corrent ReID ranking for any query. Yet there exists no threshold that correctly classifies all pairs. Therefore the ReID ranking condition is subsumed by the MTMCT classification condition. 
 
 
 
