@@ -3,7 +3,7 @@
 
 _Ergys Ristani, Carlo Tomasi_
 
-[[Paper](http://openaccess.thecvf.com/content_cvpr_2018/papers/Ristani_Features_for_Multi-Target_CVPR_2018_paper.pdf)] [[PhD Thesis](http://vision.cs.duke.edu/DukeMTMC/data/misc/Ristani_dissertation.pdf)] [[DukeMTMC Project Page](http://vision.cs.duke.edu/DukeMTMC)] [[BibTeX](#Citing)]
+[[Paper](http://openaccess.thecvf.com/content_cvpr_2018/papers/Ristani_Features_for_Multi-Target_CVPR_2018_paper.pdf)] [[PhD Thesis](http://vision.cs.duke.edu/DukeMTMC/data/misc/Ristani_dissertation.pdf)] [[PhD Slides](http://vision.cs.duke.edu/DukeMTMC/data/misc/Ristani_slides.pdf)] [[DukeMTMC Project Page](http://vision.cs.duke.edu/DukeMTMC)] [[BibTeX](#Citing)]
 
 ---
 <div align="center">
