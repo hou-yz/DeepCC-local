@@ -11,7 +11,6 @@ GET_CALIBRATION       = true;
 GET_VIDEOS            = true;
 GET_OPENPOSE          = true;
 GET_OPENPOSE_FEATURES = true;
-GET_DPM               = false;
 GET_FGMASK            = false;
 GET_REID              = true;
 GET_VIDEO_REID        = false;
