@@ -60,7 +60,7 @@ for spatialGroupID = 1 : max(spatialGroupIDs)
         labels = AL_ICM(sparse(correlationMatrix));
     elseif strcmp(opts.optimization,'KL')
         labels = KernighanLin(correlationMatrix);
-    elseif strcmp(opts.optimization,'BIP')
+    elseif strcmp(opts.optimization,'BIPCC')
         initialSolution = KernighanLin(correlationMatrix);
         labels = BIPCC(correlationMatrix, initialSolution);
     end

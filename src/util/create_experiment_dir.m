@@ -5,4 +5,3 @@ mkdir([opts.experiment_root, filesep, opts.experiment_name, filesep, 'L0-feature
 mkdir([opts.experiment_root, filesep, opts.experiment_name, filesep, 'L1-tracklets']);
 mkdir([opts.experiment_root, filesep, opts.experiment_name, filesep, 'L2-trajectories']);
 mkdir([opts.experiment_root, filesep, opts.experiment_name, filesep, 'L3-identities']);
-mkdir([opts.experiment_root, filesep, opts.experiment_name, filesep, 'models']);

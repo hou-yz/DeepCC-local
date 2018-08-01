@@ -47,7 +47,7 @@ for i = 1 : length(allGroups)
         result_appearance{i}.labels  = AL_ICM(sparse(correlationMatrix));
     elseif strcmp(opts.optimization,'KL')
         result_appearance{i}.labels  = KernighanLin(correlationMatrix);
-    elseif strcmp(opts.optimization,'BIP')
+    elseif strcmp(opts.optimization,'BIPCC')
         initialSolution = KernighanLin(correlationMatrix);
         result_appearance{i}.labels  = BIPCC(correlationMatrix, initialSolution);
     end
