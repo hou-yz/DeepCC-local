@@ -3,11 +3,11 @@
 
 _Ergys Ristani, Carlo Tomasi_
 
-[[Paper](http://openaccess.thecvf.com/content_cvpr_2018/papers/Ristani_Features_for_Multi-Target_CVPR_2018_paper.pdf)] [[PhD Thesis](http://vision.cs.duke.edu/DukeMTMC/data/misc/Ristani_dissertation.pdf)] [[PhD Slides](http://vision.cs.duke.edu/DukeMTMC/data/misc/Ristani_slides.pdf)] [[DukeMTMC Project Page](http://vision.cs.duke.edu/DukeMTMC)] [[BibTeX](#Citing)]
+[[Paper](http://openaccess.thecvf.com/content_cvpr_2018/papers/Ristani_Features_for_Multi-Target_CVPR_2018_paper.pdf)] [[Spotlight](https://www.youtube.com/watch?v=GBo4sFNzhtU&feature=youtu.be&t=5462)] [[PhD Thesis](http://vision.cs.duke.edu/DukeMTMC/data/misc/Ristani_dissertation.pdf)] [[PhD Slides](http://vision.cs.duke.edu/DukeMTMC/data/misc/Ristani_slides.pdf)] [[DukeMTMC Project](http://vision.cs.duke.edu/DukeMTMC)] [[BibTeX](#Citing)]
 
 ---
 <div align="center">
-  <img src="http://vision.cs.duke.edu/DukeMTMC/img/splash.gif" width="900px" />
+  <img src="http://vision.cs.duke.edu/DukeMTMC/img/splash.gif?maxAge=2592000" width="900px" />
 </div>
 
 Multi-Target Multi-Camera Tracking (MTMCT) is the problem of determining who is where at all times given a set of video streams as input. The output is a set of person trajectories. Person re-identification (ReID) is a closely related problem. Given a query image of a person, the goal is to retrieve from a database of images taken by different cameras the images where the same person
@@ -15,6 +15,14 @@ appears.
 
 
 In this repository, we provide MATLAB code to run and evaluate our tracker, as well as Keras code to learn appearance features with our weighted triplet loss. This code has been written over the past years as part of my PhD research, initially for multi-target tracking by correlation clustering (BIPCC), and lately extended to use deep features in multi-camera settings (DeepCC). We additionally provide tools to download and interact with the DukeMTMC dataset. 
+
+### Current status
+
+- [x] Single-camera tracking/evaluation (L1, L2)
+- [ ] Appearance model integration
+- [ ] Multi-camera association (L3)
+- [ ] Example feature extraction (L0)
+- [ ] Results visualization
 
 ---
 
@@ -26,13 +34,6 @@ After cloning this repository you need to download the DukeMTMC dataset. Specify
 
 Please be patient as you are downloading ~160 GB of data. 
 
-
-### Appearance model
-
-A pre-trained Keras appearance model based on ResNet50 can be downloaded here: [[`Weights`](http://vision.cs.duke.edu/DukeMTMC/data/misc/matlab-weights.hdf5)]
-It is required only for across-camera association and should be placed under `experiments/demo/models`. If you didn't know, Matlab is now able to import Keras models.
-For single-camera tracking the precomputed features for each detection are used. You can substitute them with your own.
-
 ---
 
 ## Running the tracker
@@ -41,19 +42,15 @@ As a first step you need to set up the dataset root directory. Edit the followin
 
 ```
 opts.dataset_path = 'F:/datasets/DukeMTMC/';
-
 ```
-### Solvers
+### Dependencies
 
-The graph solver is set in `opts.optimization`. By default Correlation Clustering by a Binary Integer Program (`'BIP`') is used. It solves every graph instance optimally by relying on the Gurobi solver, for which an academic license may be optained for free. 
+Clone [mexopencv](https://github.com/kyamagu/mexopencv) in `src/external/` and follow its installation instructions. This interface is used to read images directly from the Duke videos.
 
-```
-opts.optimization = 'BIP'; 
-opts.gurobi_path = 'C:/gurobi800/win64/matlab';
+### Pre-computed features
 
-```
+Download the [pre-computed features](http://vision.cs.duke.edu/DukeMTMC/data/detections/openpose/features/) into  `experiments/demo/L0-features/`.
 
-If you don't want to use Gurobi, we also provide two existing approximate solvers: Adaptive Label Iterative Conditional Models (`'AL-ICM'`) and Kernighan-Lin (`'KL'`). From our experience, the best trade-off between accuracy and speed is achieved with option `'KL'`.
 
 ### Compiling
 
@@ -63,11 +60,21 @@ Run `compile` to obtain mex files for the solvers and helper functions.
 
 Run `demo` and you will see output logs while the tracker is running. When the tracker completes, you will see the evaluation results for the sequence `trainval-mini`.
 
-## Training an appearance model
+### Solvers
 
-In folder `triplet-reid` we provide code for training a ResNet50 CNN with a weighted triplet loss and hard negative mining. This code is heavily based on the [`Hard Triplet Loss code`](https://github.com/VisualComputingInstitute/triplet-reid/). 
+The graph solver is set in `opts.optimization`. By default Correlation Clustering by a Binary Integer Program (`BIPCC`) is used. It solves every graph instance optimally by relying on the Gurobi solver, for which an academic license may be optained for free. 
 
-Simply run `sh train.sh` to train a model. After training completes, run `sh convert2matlab.sh`. This script converts the Keras model to be imported in Matlab.
+```
+opts.optimization = 'BIPCC'; 
+opts.gurobi_path = 'C:/gurobi800/win64/matlab';
+```
+
+If you don't want to use Gurobi, we also provide two existing approximate solvers: Adaptive Label Iterative Conditional Models (`AL-ICM`) and Kernighan-Lin (`KL`). From our experience, the best trade-off between accuracy and speed is achieved with option `'KL'`.
+
+
+
+## TODO: Training an appearance model
+
 
 ## State of the art
 
