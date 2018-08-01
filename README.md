@@ -16,7 +16,7 @@ appears.
 
 In this repository, we provide MATLAB code to run and evaluate our tracker, as well as Keras code to learn appearance features with our weighted triplet loss. This code has been written over the past years as part of my PhD research, initially for multi-target tracking by correlation clustering (BIPCC), and lately extended to use deep features in multi-camera settings (DeepCC). We additionally provide tools to download and interact with the DukeMTMC dataset. 
 
-### Current status
+## Current status
 
 - [x] Single-camera tracking/evaluation (L1, L2)
 - [ ] Appearance model integration
