@@ -9,8 +9,8 @@ GET_ALL               = false; % Set this to true if you want to download everyt
 GET_GROUND_TRUTH      = true;
 GET_CALIBRATION       = true;
 GET_VIDEOS            = true;
+GET_DPM               = false;
 GET_OPENPOSE          = true;
-GET_OPENPOSE_FEATURES = true;
 GET_FGMASK            = false;
 GET_REID              = true;
 GET_VIDEO_REID        = false;
@@ -64,7 +64,7 @@ end
 if GET_ALL || GET_OPENPOSE
     for cam = 1:dataset.numCameras
         url = sprintf('http://vision.cs.duke.edu/DukeMTMC/data/detections/openpose/camera%d.mat',cam);
-        filename = sprintf('%sdetections/DPM/camera%d.mat',dataset.savePath,cam);
+        filename = sprintf('%sdetections/OpenPose/camera%d.mat',dataset.savePath,cam);
         fprintf([filename '\n']);
         websave(filename,url,options);
     end
