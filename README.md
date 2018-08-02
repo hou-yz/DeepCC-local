@@ -1,4 +1,4 @@
-# DeepCC (Under Construction)
+# DeepCC
 **Features for Multi-Target Multi-Camera Tracking and Re-Identification**
 
 _Ergys Ristani, Carlo Tomasi_
