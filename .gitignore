@@ -1,2 +1,3 @@
 experiments/
+src/external/mexopencv/
 *.mex*
