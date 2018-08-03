@@ -73,6 +73,18 @@ opts.gurobi_path = 'C:/gurobi800/win64/matlab';
 
 If you don't want to use Gurobi, we also provide two existing approximate solvers: Adaptive Label Iterative Conditional Models (`AL-ICM`) and Kernighan-Lin (`KL`). From our experience, the best trade-off between accuracy and speed is achieved with option `'KL'`.
 
+## Visualization
+
+* To visualize the detections you can run the demo `show_detections`.
+
+* When single-camera tracking is complete and you would like to visually inspect the results for errors, you can render the movies as instructed below. The movies will be placed under `experiments/demo/video-results`.
+
+```
+opts = get_opts();
+render_results(opts);
+```
+
+* TODO: Visualizing trajectories from the top view.
 
 
 ## TODO: Training an appearance model
