@@ -24,7 +24,7 @@ In this repository, we provide MATLAB code to run and evaluate our tracker, as w
 - [ ] Appearance model integration
 - [ ] Multi-camera association (L3)
 - [ ] Example feature extraction (L0)
-- [ ] Results visualization
+- [x] Results visualization
 
 
 
@@ -77,15 +77,14 @@ If you don't want to use Gurobi, we also provide two existing approximate solver
 
 * To visualize the detections you can run the demo `show_detections`.
 
+* You can run `visualize_trajectories_top` or `visualize_trajectories_side` to generate a video animation similar to the gif playing at the top of this page.
+
 * When single-camera tracking is complete and you would like to visually inspect the results for errors, you can render the movies as instructed below. The movies will be placed under `experiments/demo/video-results`.
 
 ```
 opts = get_opts();
 render_results(opts);
 ```
-
-* TODO: Visualizing trajectories from the top view.
-
 
 ## TODO: Training an appearance model
 
