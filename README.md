@@ -60,9 +60,18 @@ Run `compile` to obtain mex files for the solvers and helper functions.
 
 ### Running
 
-Run `demo` and you will see output logs while the tracker is running. When the tracker completes, you will see the evaluation results for the sequence `trainval-mini`.
+Run `demo` and you will see output logs while the tracker is running. When the tracker completes, you will see the quantitative evaluation results for the sequence `trainval-mini`.
 
-### Solvers
+### Understanding errors
+
+To gain qualitative insights why the tracker fails you can run:
+```
+opts = get_opts();
+render_results(opts);
+```
+This will generate movies with the rendered trajectories validated against ground truth using the ID measures. Color-coded tails with IDTP, IDFP and IDFN give an intuition for the tracker's failures. The movies will be placed under `experiments/demo/video-results`.
+
+### Note on solvers
 
 The graph solver is set in `opts.optimization`. By default Correlation Clustering by a Binary Integer Program (`BIPCC`) is used. It solves every graph instance optimally by relying on the Gurobi solver, for which an academic license may be obtained for free. 
 
@@ -78,13 +87,6 @@ If you don't want to use Gurobi, we also provide two existing approximate solver
 * To visualize the detections you can run the demo `show_detections`.
 
 * You can run `visualize_trajectories_top` or `visualize_trajectories_side` to generate a video animation similar to the gif playing at the top of this page.
-
-* When single-camera tracking is complete and you would like to visually inspect the results for errors, you can render the movies as instructed below. The movies will be placed under `experiments/demo/video-results`.
-
-```
-opts = get_opts();
-render_results(opts);
-```
 
 ## TODO: Training an appearance model
 
