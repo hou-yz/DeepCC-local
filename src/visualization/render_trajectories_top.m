@@ -5,7 +5,7 @@ load(fullfile(opts.dataset_path, 'ground_truth', 'trainval.mat'));
 trajectories = trainData;
 
 % Load map
-map = imread('src/visualization/map.jpg');
+map = imread('src/visualization/data/map.jpg');
 
 % Create folder
 folder = 'video-results';
