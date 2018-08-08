@@ -1,5 +1,7 @@
 function opts = get_opts()
 
+addpath(genpath('src'))
+
 opts = [];
 opts.dataset_path    = 'F:/release/DukeMTMC/';
 opts.gurobi_path     = 'C:/gurobi800/win64/matlab';

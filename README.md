@@ -32,7 +32,7 @@ In this repository, we provide MATLAB code to run and evaluate our tracker, as w
 
 ### DukeMTMC 
 
-After cloning this repository you need to download the DukeMTMC dataset. Specify a folder of your choice in `downloadDukeMTMC.m` and run the relevant parts of the script, ommiting the cells which are tagged optional. For the tracker to run you only need to download videos, OpenPose detections, and precomputed detection features. 
+After cloning this repository you need to download the DukeMTMC dataset. Specify a folder of your choice in `downloadDukeMTMC.m` and run the relevant parts of the script, omitting the cells which are tagged optional. For the tracker to run you only need to download videos, OpenPose detections, and precomputed detection features. 
 
 Please be patient as you are downloading ~160 GB of data. 
 
@@ -64,7 +64,7 @@ Run `demo` and you will see output logs while the tracker is running. When the t
 
 ### Solvers
 
-The graph solver is set in `opts.optimization`. By default Correlation Clustering by a Binary Integer Program (`BIPCC`) is used. It solves every graph instance optimally by relying on the Gurobi solver, for which an academic license may be optained for free. 
+The graph solver is set in `opts.optimization`. By default Correlation Clustering by a Binary Integer Program (`BIPCC`) is used. It solves every graph instance optimally by relying on the Gurobi solver, for which an academic license may be obtained for free. 
 
 ```
 opts.optimization = 'BIPCC'; 
@@ -110,13 +110,13 @@ MTMCT and ReID share many similarities because both problems rely on appearance 
 </div>
 
 
-In MTMCT the ideal feature space should satisfy the classification condition globally, meaning that the largest class variance among _all_ identities should be smaller that the smallest separation margin between _any_ pair of identities. When this condition holds, a threshold (the maximum class variance) can be found to correctly classify any pair of features as co-identical or not. The classification condition also _implies_ correct ranking in ReID for any given query.
+In MTMCT the ideal feature space should satisfy the classification condition globally, meaning that the largest class variance among _all_ identities should be smaller than the smallest separation margin between _any_ pair of identities. When this condition holds, a threshold (the maximum class variance) can be found to correctly classify any pair of features as co-identical or not. The classification condition also _implies_ correct ranking in ReID for any given query.
 
 <div align="center">
   <img src="http://vision.cs.duke.edu/DukeMTMC/img/ranking.png" width="500px" />
 </div>
 
-For correct ranking in ReID it is sufficient that for any query the positive examples are ranked higher than all the negative examples. In the above example the ranking condition is satisfied and guarantees corrent ReID ranking for any query. Yet there exists no threshold that correctly classifies all pairs. Therefore the ReID ranking condition is subsumed by the MTMCT classification condition. 
+For correct ranking in ReID it is sufficient that for any query the positive examples are ranked higher than all the negative examples. In the above example the ranking condition is satisfied and guarantees correct ReID ranking for any query. Yet there exists no threshold that correctly classifies all pairs. Therefore the ReID ranking condition is subsumed by the MTMCT classification condition. 
 
 
 
