@@ -86,8 +86,10 @@ height = bottom - top + 1;
 width = right - left + 1;
 
 bb = [left, top, width, height];
-    
 
+% sanity check for bb size
+if sum(bb<0)
+    bb = [0 0 0 0];
+end
 
-
-
+end
