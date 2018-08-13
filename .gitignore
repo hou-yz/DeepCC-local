@@ -2,3 +2,4 @@ experiments/
 src/external/mexopencv/
 *.mex*
 *.asv
+*.pyc
