@@ -48,16 +48,16 @@ Download the [pre-computed features](http://vision.cs.duke.edu/DukeMTMC/data/det
 
 Run `compile` to obtain mex files for the solvers and helper functions.
 
-## Training an appearance model
+### Training an appearance model
 
-To train and evaluate our appearance model which employs the weighted triplet loss, first download [[resnet_v1_50.ckpt](http://download.tensorflow.org/models/resnet_v1_50_2016_08_28.tar.gz)] in `/src/triplet-reid/`. Then install [[imgaug](https://github.com/aleju/imgaug)]. Finally run:
+To train and evaluate our appearance model which employs the weighted triplet loss, first download [resnet_v1_50.ckpt](http://download.tensorflow.org/models/resnet_v1_50_2016_08_28.tar.gz) in `/src/triplet-reid/`. Then install [imgaug](https://github.com/aleju/imgaug). Finally run:
 ```
 opts = get_opts();
 train_duke(opts);
 embed(opts);
 evaluation_res_duke_fast(opts);
 ```
-The code will run 25,000 training iterations, compute embeddings for query and gallery images of the DukeMTMC-reID benchmark, and finally print the mAP and rank-1 score. The above functions are MATLAB interfaces to the Tensorflow/Python code of Beyer et al.
+The code will run 25,000 training iterations, compute embeddings for query and gallery images of the DukeMTMC-reID benchmark, and finally print the mAP and rank-1 score. The above functions are MATLAB interfaces to the Tensorflow/Python code of [Beyer et al.](https://github.com/VisualComputingInstitute/triplet-reid/) The code has been extended to our the weighted triplet loss.
 
 Once you train a model, you can analyze the distribution of distances between features to obtain a separation threshold:
 ```
