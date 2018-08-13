@@ -50,7 +50,7 @@ Run `compile` to obtain mex files for the solvers and helper functions.
 
 ### Training an appearance model
 
-To train and evaluate our appearance model which employs the weighted triplet loss, first download [resnet_v1_50.ckpt](http://download.tensorflow.org/models/resnet_v1_50_2016_08_28.tar.gz) in `/src/triplet-reid/`. Then install [imgaug](https://github.com/aleju/imgaug). Finally run:
+To train and evaluate our appearance model which employs the weighted triplet loss, first download [resnet_v1_50.ckpt](http://download.tensorflow.org/models/resnet_v1_50_2016_08_28.tar.gz) in `src/triplet-reid/`. Then install [imgaug](https://github.com/aleju/imgaug). Finally run:
 ```
 opts = get_opts();
 train_duke(opts);
@@ -92,11 +92,11 @@ If you don't want to use Gurobi, we also provide two existing approximate solver
 
 ## Visualization
 
-* To visualize the detections you can run the demo `show_detections`.
+To visualize the detections you can run the demo `show_detections`.
 
-* You can run `render_trajectories_top` or `render_trajectories_side` to generate a video animation similar to the gif playing at the top of this page.
+You can run `render_trajectories_top` or `render_trajectories_side` to generate a video animation similar to the gif playing at the top of this page.
 
-* To generate ID Precision/Recall plots like in the state of the art section see `render_state_of_the_art`. Make sure that you update the files provided in `src/visualization/data/duke_*_scores.txt` with the latest MOTChallenge submissions. The provided scores are only supplied as a reference. 
+To generate ID Precision/Recall plots like in the state of the art section see `render_state_of_the_art`. Make sure that you update the files provided in `src/visualization/data/duke_*_scores.txt` with the latest MOTChallenge submissions. The provided scores are only supplied as a reference. 
 
 
 ## State of the art
