@@ -24,7 +24,7 @@ In this repository, we provide MATLAB code to run and evaluate our tracker, as w
 
 After cloning this repository you need to download the DukeMTMC dataset. Specify a folder of your choice in `src/duke/downloadDukeMTMC.m` and run the relevant parts of the script, omitting the cells which are tagged optional. For the tracker to run you only need to download videos, OpenPose detections, and precomputed detection features. 
 
-Please be patient as you are downloading ~160 GB of data. 
+Please be patient as you are downloading ~160 GB of data. [[`md5sum`](http://vision.cs.duke.edu/DukeMTMC/data/videos/md5sum.txt)]
 
 ---
 
