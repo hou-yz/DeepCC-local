@@ -24,7 +24,7 @@ In this repository, we provide MATLAB code to run and evaluate our tracker, as w
 
 After cloning this repository you need to download the DukeMTMC dataset. Specify a folder of your choice in `src/duke/downloadDukeMTMC.m` and run the relevant parts of the script, omitting the cells which are tagged optional. For the tracker to run you only need to download videos, OpenPose detections, and precomputed detection features. 
 
-Please be patient as you are downloading ~160 GB of data. 
+Please be patient as you are downloading ~160 GB of data. [[`md5sum`](http://vision.cs.duke.edu/DukeMTMC/data/videos/md5sum.txt)]
 
 ---
 
@@ -50,14 +50,14 @@ Run `compile` to obtain mex files for the solvers and helper functions.
 
 ### Training an appearance model
 
-To train and evaluate our appearance model which employs the weighted triplet loss, first download [resnet_v1_50.ckpt](http://download.tensorflow.org/models/resnet_v1_50_2016_08_28.tar.gz) in `/src/triplet-reid/`. Then install [imgaug](https://github.com/aleju/imgaug). Finally run:
+To train and evaluate our appearance model which employs the weighted triplet loss, first download [resnet_v1_50.ckpt](http://download.tensorflow.org/models/resnet_v1_50_2016_08_28.tar.gz) in `src/triplet-reid/`. Then install [imgaug](https://github.com/aleju/imgaug). Finally run:
 ```
 opts = get_opts();
 train_duke(opts);
 embed(opts);
 evaluation_res_duke_fast(opts);
 ```
-The code will run 25,000 training iterations, compute embeddings for query and gallery images of the DukeMTMC-reID benchmark, and finally print the mAP and rank-1 score. The above functions are MATLAB interfaces to the Tensorflow/Python code of [Beyer et al.](https://github.com/VisualComputingInstitute/triplet-reid/) The code has been extended to include our the weighted triplet loss.
+The code will run 25,000 training iterations, compute embeddings for query and gallery images of the DukeMTMC-reID benchmark, and finally print the mAP and rank-1 score. The above functions are MATLAB interfaces to the Tensorflow/Python code of [Beyer et al.](https://github.com/VisualComputingInstitute/triplet-reid/) The code has been extended to include our weighted triplet loss.
 
 Once you train a model, you can analyze the distribution of distances between features to obtain a separation threshold:
 ```
@@ -92,11 +92,11 @@ If you don't want to use Gurobi, we also provide two existing approximate solver
 
 ## Visualization
 
-* To visualize the detections you can run the demo `show_detections`.
+To visualize the detections you can run the demo `show_detections`.
 
-* You can run `render_trajectories_top` or `render_trajectories_side` to generate a video animation similar to the gif playing at the top of this page.
+You can run `render_trajectories_top` or `render_trajectories_side` to generate a video animation similar to the gif playing at the top of this page.
 
-* To generate ID Precision/Recall plots like in the state of the art section see `render_state_of_the_art`. Make sure that you update the files provided in `src/visualization/data/duke_*_scores.txt` with the latest MOTChallenge submissions. The provided scores are only supplied as a reference. 
+To generate ID Precision/Recall plots like in the state of the art section see `render_state_of_the_art`. Make sure that you update the files provided in `src/visualization/data/duke_*_scores.txt` with the latest MOTChallenge submissions. The provided scores are only supplied as a reference. 
 
 
 ## State of the art
