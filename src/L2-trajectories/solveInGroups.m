@@ -7,15 +7,25 @@ if length(tracklets) < params.appearance_groups
     params.appearanceGroups = 1;
 end
 
+featureVectors      = {tracklets.feature};
 % adaptive number of appearance groups
 if params.appearance_groups == 0
-    params.appearance_groups = 1 + floor(length(tracklets)/120);
+    % Increase number of groups until no group is too large to solve 
+    while true
+        params.appearance_groups = params.appearance_groups + 1;
+        appearanceGroups    = kmeans( cell2mat(featureVectors'), params.appearance_groups, 'emptyaction', 'singleton', 'Replicates', 10);
+        uid = unique(appearanceGroups);
+        freq = [histc(appearanceGroups(:),uid)];
+        largestGroupSize = max(freq);
+        % The BIP solver might run out of memory for large graphs
+        if largestGroupSize <= 150
+            break
+        end
+    end
+else
+    % fixed number of appearance groups
+    appearanceGroups    = kmeans( cell2mat(featureVectors'), params.appearance_groups, 'emptyaction', 'singleton', 'Replicates', 10);
 end
-
-% fixed number of appearance groups
-featureVectors      = {tracklets.feature};
-appearanceGroups    = kmeans( cell2mat(featureVectors'), params.appearance_groups, 'emptyaction', 'singleton', 'Replicates', 10);
-
 % solve separately for each appearance group
 allGroups = unique(appearanceGroups);
 

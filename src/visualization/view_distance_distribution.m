@@ -2,12 +2,12 @@ function view_distance_distribution(opts)
 % Shows the distance distribution between positive and negative pairs for
 % the appearance model specified in opts.net_weights
 
-data = readtable('src/triplet-reid/data/duke_train.csv', 'Delimiter',',');
+data = readtable('src/triplet-reid/data/duke_test.csv', 'Delimiter',',');
 
 labels = data.Var1;
 paths  = data.Var2;
 %% Compute features
-features = h5read(fullfile('src/triplet-reid',  opts.net.experiment_root, 'duke_train_embeddings.h5'),'/emb');
+features = h5read(fullfile('src/triplet-reid',  opts.net.experiment_root, 'duke_test_embeddings.h5'),'/emb');
 features = features';
 dist = pdist2(features,features);
 %% Visualize distance distribution
