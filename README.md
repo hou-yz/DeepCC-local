@@ -110,7 +110,7 @@ To generate ID Precision/Recall plots like in the state of the art section see `
 
 The state of the art for DukeMTMC is available on [`MOTChallenge`](https://motchallenge.net/results/DukeMTMCT/). Submission instructions can be found on this [`page`](http://vision.cs.duke.edu/DukeMTMC/details.html#evaluation). 
 
-Once you are happy with the performance of your tracker, run `prepareMOTChallengeSubmission(opts)` to obtain the submission file `duke.zip`.
+The paper's submission file `duke.txt` can be downloaded [here](http://vision.cs.duke.edu/DukeMTMC/data/misc/DeepCC.zip). Results from the released tracker may differ from the original one due changes in code and settings. Once you are happy with the performance of your extensions to DeepCC, run `prepareMOTChallengeSubmission(opts)` to obtain a submission file `duke.txt` for MOTChallenge. 
 
 ## Remarks
 
