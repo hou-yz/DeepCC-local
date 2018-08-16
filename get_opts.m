@@ -69,6 +69,7 @@ net = [];
 net.train_set = 'data/duke_train.csv';
 net.image_root = 'F:/DukeMTMC/DukeMTMC-reID';
 net.model_name = 'resnet_v1_50';
+net.initial_checkpoint = 'resnet_v1_50.ckpt';
 net.experiment_root = 'experiments/demo_weighted_triplet';
 net.embedding_dim = 128;
 net.batch_p = 18;
@@ -85,7 +86,9 @@ net.train_iterations = 25000;
 net.decay_start_iteration = 15000;
 net.gpu_device = 0;
 net.augment = true;
+net.resume = false;
 net.checkpoint_frequency = 1000;
+net.hard_pool_size = 0;
 
 opts.tracklets = tracklets;
 opts.trajectories = trajectories;

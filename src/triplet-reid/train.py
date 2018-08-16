@@ -22,7 +22,8 @@ from heads import HEAD_CHOICES
 import imgaug as ia
 from imgaug import augmenters as iaa
 import cv2
-
+import h5py
+import scipy.spatial.distance
 
 parser = ArgumentParser(description='Train a ReID network.')
 
@@ -145,10 +146,50 @@ parser.add_argument(
          ' embeddings, losses and FIDs seen in each batch during training.'
          ' Everything can be re-constructed and analyzed that way.')
 
+parser.add_argument(
+    '--hard_pool_size', default=0, type=common.nonnegative_int,
+    help='Number of IDs in hard identity pool')
+
+parser.add_argument(
+    '--train_embeddings', 
+    help='Path to pre-computed features of training set to be used for the hard identity pool')
+
 
 parser.add_argument(
     '--augment', action='store_true',  default=False, 
     help='Data augmentation with imgaug')
+
+def get_hard_id_pool(pids, dist, hard_pool_size):
+
+    ids = pids
+    hard_list = []
+    seen_ids = []
+
+    for ind in range(len(ids)):
+        id = ids[ind]
+
+        distances = dist[ind, :]
+        order = np.argsort(distances)
+
+        neg_inds = np.nonzero(ids[order] != id)[0]
+        neg_ids = ids[order[neg_inds]]
+
+        if id not in seen_ids:
+            seen_ids.append(id)
+            current_id_list = [id]
+            index = -1
+            while len(current_id_list) < hard_pool_size: #np.minimum(num_people, len(neg_inds)):
+                index = index + 1
+
+                idx = index
+                if neg_ids[idx] not in current_id_list:
+                    current_id_list.append(neg_ids[idx])
+
+            # id, k hard, k-1 normal
+            hard_list.append(current_id_list)
+
+
+    return np.array(hard_list)
 
 def sample_k_fids_for_pid(pid, all_fids, all_pids, batch_k):
     """ Given a PID, select K FIDs of that specific PID. """
@@ -168,6 +209,34 @@ def sample_k_fids_for_pid(pid, all_fids, all_pids, batch_k):
 
     return selected_fids, tf.fill([batch_k], pid)
 
+def sample_batch_ids_for_pid(pid, all_pids, batch_p, all_hard_pids=None):
+    """ Given a PID, select P-1 PIDs for the batch, and return all P PIDs. """
+    pid = tf.expand_dims(pid, axis=0)
+
+    # Random pids
+    random_p = batch_p-1 if all_hard_pids is None else np.round(batch_p/2).astype('int32')
+    possible_pids = tf.boolean_mask(all_pids, tf.not_equal(all_pids, pid))
+    count = tf.shape(possible_pids)[0]
+    full_range = tf.range(count)
+    shuffled = tf.random_shuffle(full_range)
+    random_pids = tf.gather(possible_pids, shuffled[:random_p-1])
+
+    # Hard pids
+    if all_hard_pids is not None:
+        hard_p = batch_p - 1 - random_p
+        row = tf.boolean_mask(all_hard_pids, tf.equal(all_hard_pids[:, 0], pid))
+        possible_hard_pids = row[0][1:]
+        count_hard = tf.shape(possible_hard_pids)[0]
+        full_range_hard = tf.range(count_hard)
+        shuffled_hard = tf.random_shuffle(full_range_hard)
+        batch_hard_pids = tf.gather(possible_hard_pids, shuffled_hard[:hard_p])
+
+    if all_hard_pids is None:
+        batch_pids = tf.concat([pid, random_pids], axis=-1)
+    else:
+        batch_pids = tf.concat([pid, batch_hard_pids, random_pids], axis=-1)
+
+    return batch_pids
 def augment_images(img):
 
     img = np.array(img)
@@ -278,6 +347,13 @@ def main():
     pids, fids = common.load_dataset(args.train_set, args.image_root)
     max_fid_len = max(map(len, fids))  # We'll need this later for logfiles.
 
+    # Load feature embeddings
+    if args.hard_pool_size > 0:
+        with h5py.File(args.train_embeddings, 'r') as f_train:
+            train_embs = np.array(f_train['emb'])
+            f_dists = scipy.spatial.distance.cdist(train_embs,train_embs)
+            hard_ids = get_hard_id_pool(pids, f_dists, args.hard_pool_size)
+
     # Setup a tf.Dataset where one "epoch" loops over all PIDS.
     # PIDS are shuffled after every epoch and continue indefinitely.
     unique_pids = np.unique(pids)
@@ -286,9 +362,18 @@ def main():
 
     # Constrain the dataset size to a multiple of the batch-size, so that
     # we don't get overlap at the end of each epoch.
-    dataset = dataset.take((len(unique_pids) // args.batch_p) * args.batch_p)
-    dataset = dataset.repeat(None)  # Repeat forever. Funny way of stating it.
+    if args.hard_pool_size == 0:
+        dataset = dataset.take((len(unique_pids) // args.batch_p) * args.batch_p)
+        dataset = dataset.repeat(None)  # Repeat forever. Funny way of stating it.
 
+    else:
+        dataset = dataset.repeat(None)  # Repeat forever. Funny way of stating it.
+        dataset = dataset.map(lambda pid: sample_batch_ids_for_pid(
+            pid,  all_pids=pids, batch_p=args.batch_p, all_hard_pids=hard_ids))
+        # Unbatch the P PIDs
+        dataset = dataset.apply(tf.contrib.data.unbatch()) 
+
+ 
     # For every PID, get K images.
     dataset = dataset.map(lambda pid: sample_k_fids_for_pid(
         pid, all_fids=fids, all_pids=pids, batch_k=args.batch_k))
@@ -336,7 +421,7 @@ def main():
     dataset = dataset.batch(batch_size)
 
     # Overlap producing and consuming for parallelism.
-    dataset = dataset.prefetch(1)
+    dataset = dataset.prefetch(batch_size*2)
 
     # Since we repeat the data infinitely, we only need a one-shot iterator.
     images, fids, pids = dataset.make_one_shot_iterator().get_next()
