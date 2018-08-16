@@ -65,6 +65,9 @@ Once you train a model, you can analyze the distribution of distances between fe
 ```
 view_distance_distribution(opts);
 ```
+<div>
+  <img src="http://vision.cs.duke.edu/DukeMTMC/img/distribution.jpg?maxAge=2592000" width="400px" />
+</div>
 
 You can also use `features = embed_detections(opts, detections);` to compute features for a set of detections in the format [camera, frame, left, top, width, height];
 
