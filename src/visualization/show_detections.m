@@ -1,11 +1,12 @@
 % Demo visualizing OpenPose detections
 opts = get_opts();
+
+frame = 245000;
+cam = 2;
+
 load(fullfile(opts.dataset_path, 'detections', 'OpenPose', sprintf('camera%d.mat',cam)));
 
 %% 
-
-frame = 95000;
-cam = 1;
 
 img = opts.reader.getFrame(cam, frame);
 poses = detections(detections(:,1) == cam & detections(:,2) == frame,3:end);
