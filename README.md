@@ -1,5 +1,5 @@
 # DeepCC
-**Features for Multi-Target Multi-Camera Tracking and Re-Identification**
+**Features for Multi-Target Multi-Camera Tracking and Re-Identification. CVPR 2018**
 
 _Ergys Ristani, Carlo Tomasi_
 
@@ -59,6 +59,8 @@ evaluation_res_duke_fast(opts);
 ```
 The code will run 25,000 training iterations, compute embeddings for query and gallery images of the DukeMTMC-reID benchmark, and finally print the mAP and rank-1 score. The above functions are MATLAB interfaces to the Tensorflow/Python code of [Beyer et al.](https://github.com/VisualComputingInstitute/triplet-reid/) The code has been extended to include our weighted triplet loss.
 
+Alternatively you can run `train_duke_hnm` to train with hard negative mining.
+
 Once you train a model, you can analyze the distribution of distances between features to obtain a separation threshold:
 ```
 view_distance_distribution(opts);
@@ -72,11 +74,12 @@ Run `demo` and you will see output logs while the tracker is running. When the t
 
 ### Understanding errors
 
-To gain qualitative insights why the tracker fails you can run:
-```
-opts = get_opts();
-render_results(opts);
-```
+To gain qualitative insights why the tracker fails you can run `render_results(opts)`
+
+<div align="center">
+  <img src="http://vision.cs.duke.edu/DukeMTMC/img/understanding_errors.jpg?maxAge=2592000" width="500px" />
+</div>
+
 This will generate movies with the rendered trajectories validated against ground truth using the ID measures. Color-coded tails with IDTP, IDFP and IDFN give an intuition for the tracker's failures. The movies will be placed under `experiments/demo/video-results`.
 
 ### Note on solvers
@@ -94,7 +97,17 @@ If you don't want to use Gurobi, we also provide two existing approximate solver
 
 To visualize the detections you can run the demo `show_detections`.
 
+<div align="center">
+  <img src="http://vision.cs.duke.edu/DukeMTMC/img/pose_detections.jpg?maxAge=2592000" width="500px" />
+</div>
+
+
 You can run `render_trajectories_top` or `render_trajectories_side` to generate a video animation similar to the gif playing at the top of this page.
+
+<div align="center">
+  <img src="http://vision.cs.duke.edu/DukeMTMC/img/top_view.jpg?maxAge=2592000" height="150px" />
+  <img src="http://vision.cs.duke.edu/DukeMTMC/img/side_view.jpg?maxAge=2592000" height="150px" />
+</div>
 
 To generate ID Precision/Recall plots like in the state of the art section see `render_state_of_the_art`. Make sure that you update the files provided in `src/visualization/data/duke_*_scores.txt` with the latest MOTChallenge submissions. The provided scores are only supplied as a reference. 
 
