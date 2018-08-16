@@ -33,7 +33,7 @@ Please be patient as you are downloading ~160 GB of data. [[`md5sum`](http://vis
 As a first step you need to set up the dataset root directory. Edit the following line in `get_opts.m`:
 
 ```
-opts.dataset_path = 'F:/datasets/DukeMTMC/';
+opts.dataset_path = 'F:/DukeMTMC/';
 ```
 ### Dependencies
 
@@ -66,7 +66,7 @@ Once you train a model, you can analyze the distribution of distances between fe
 view_distance_distribution(opts);
 ```
 <div>
-  <img src="http://vision.cs.duke.edu/DukeMTMC/img/distribution.jpg?maxAge=2592000" width="400px" />
+  <img src="http://vision.cs.duke.edu/DukeMTMC/img/distribution.jpg?" width="400px" />
 </div>
 
 You can also use `features = embed_detections(opts, detections);` to compute features for a set of detections in the format [camera, frame, left, top, width, height];
@@ -126,7 +126,7 @@ To generate ID Precision/Recall plots like in the state of the art section see `
 
 The state of the art for DukeMTMC is available on [`MOTChallenge`](https://motchallenge.net/results/DukeMTMCT/). Submission instructions can be found on this [`page`](http://vision.cs.duke.edu/DukeMTMC/details.html#evaluation). 
 
-The paper's submission file `duke.txt` can be downloaded [here](http://vision.cs.duke.edu/DukeMTMC/data/misc/DeepCC.zip). Results from the released tracker may differ from the original one due changes in code and settings. Once you are happy with the performance of your extensions to DeepCC, run `prepareMOTChallengeSubmission(opts)` to obtain a submission file `duke.txt` for MOTChallenge. 
+The original submission file `duke.txt` can be downloaded [here](http://vision.cs.duke.edu/DukeMTMC/data/misc/DeepCC.zip). Results from the released tracker may differ from submission time due changes in code and settings. Once you are happy with the performance of your extensions to DeepCC, run `prepareMOTChallengeSubmission(opts)` to obtain a submission file `duke.txt` for MOTChallenge. 
 
 ## Remarks
 
