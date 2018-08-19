@@ -52,6 +52,7 @@ Run `compile` to obtain mex files for the solvers and helper functions.
 
 To train and evaluate our appearance model which employs the weighted triplet loss, first download [resnet_v1_50.ckpt](http://download.tensorflow.org/models/resnet_v1_50_2016_08_28.tar.gz) in `src/triplet-reid/`. Then install [imgaug](https://github.com/aleju/imgaug). Finally run:
 ```
+mkdir('src/triplet-reid/experiments/')
 opts = get_opts();
 train_duke(opts);
 embed(opts);
@@ -75,16 +76,6 @@ You can also use `features = embed_detections(opts, detections);` to compute fea
 
 Run `demo` and you will see output logs while the tracker is running. When the tracker completes, you will see the quantitative evaluation results for the sequence `trainval-mini`.
 
-### Understanding errors
-
-To gain qualitative insights why the tracker fails you can run `render_results(opts)`
-
-<div align="center">
-  <img src="http://vision.cs.duke.edu/DukeMTMC/img/understanding_errors.jpg?maxAge=2592000" width="500px" />
-</div>
-
-This will generate movies with the rendered trajectories validated against ground truth using the ID measures. Color-coded tails with IDTP, IDFP and IDFN give an intuition for the tracker's failures. The movies will be placed under `experiments/demo/video-results`.
-
 ### Note on solvers
 
 The graph solver is set in `opts.optimization`. By default Correlation Clustering by a Binary Integer Program (`BIPCC`) is used. It solves every graph instance optimally by relying on the Gurobi solver, for which an academic license may be obtained for free. 
@@ -95,6 +86,16 @@ opts.gurobi_path = 'C:/gurobi800/win64/matlab';
 ```
 
 If you don't want to use Gurobi, we also provide two existing approximate solvers: Adaptive Label Iterative Conditional Models (`AL-ICM`) and Kernighan-Lin (`KL`). From our experience, the best trade-off between accuracy and speed is achieved with option `'KL'`.
+
+### Understanding errors
+
+To gain qualitative insights why the tracker fails you can run `render_results(opts)`
+
+<div align="center">
+  <img src="http://vision.cs.duke.edu/DukeMTMC/img/understanding_errors.jpg?maxAge=2592000" width="500px" />
+</div>
+
+This will generate movies with the rendered trajectories validated against ground truth using the ID measures. Color-coded tails with IDTP, IDFP and IDFN give an intuition for the tracker's failures. The movies will be placed under `experiments/demo/video-results`.
 
 ## Visualization
 
