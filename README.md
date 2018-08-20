@@ -50,7 +50,7 @@ Run `compile` to obtain mex files for the solvers and helper functions.
 
 ### Training an appearance model
 
-To train and evaluate our appearance model which employs the weighted triplet loss, first download [resnet_v1_50.ckpt](http://download.tensorflow.org/models/resnet_v1_50_2016_08_28.tar.gz) in `src/triplet-reid/`. Then install [imgaug](https://github.com/aleju/imgaug). Finally run:
+To train and evaluate our appearance model which employs the weighted triplet loss, first download [resnet_v1_50.ckpt](http://download.tensorflow.org/models/resnet_v1_50_2016_08_28.tar.gz) in `src/triplet-reid/`. Then install [imgaug](https://github.com/aleju/imgaug). Modify the images folder `net.image_root = 'F:/DukeMTMC/DukeMTMC-reID';` accordingly in `get_opts.m`, Finally run:
 ```
 mkdir('src/triplet-reid/experiments/')
 opts = get_opts();
