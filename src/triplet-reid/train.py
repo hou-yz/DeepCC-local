@@ -385,7 +385,7 @@ def main():
     net_input_size = (args.net_input_height, args.net_input_width)
     pre_crop_size = (args.pre_crop_height, args.pre_crop_width)
     dataset = dataset.map(
-        lambda fid, pid: common.fid_to_image(
+        lambda im, fid, pid: common.fid_to_image(
             fid, pid, image_root=args.image_root,
             image_size=pre_crop_size if args.crop_augment else net_input_size),
         num_parallel_calls=args.loading_threads)
