@@ -15,7 +15,13 @@ for iCam = 1:8
     % Load features for all detections
     features   = h5read(sprintf('%s/%s/L0-features/features%d.h5',opts.experiment_root,opts.experiment_name,iCam),'/emb');
     features   = double(features');
-    all_dets   = detections;
+    in_time_range_ids = detections(:,2)>=start_frame & detections(:,2)<=end_frame;
+    all_dets   = detections(in_time_range_ids,:);
+    if size(features,1) == size(detections,1)
+        features = features(in_time_range_ids,:);
+    else
+        features = features(features(:,2)>=start_frame & features(:,2)<=end_frame,3:end);
+    end
     appearance = cell(size(all_dets,1),1);
     frames     = cell(size(all_dets,1),1);
     for k = 1:length(frames)

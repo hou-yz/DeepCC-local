@@ -3,12 +3,12 @@ function opts = get_opts()
 addpath(genpath('src'))
 
 opts = [];
-opts.dataset_path    = 'F:/DukeMTMC/';
-opts.gurobi_path     = 'C:/gurobi800/win64/matlab';
+opts.dataset_path    = 'D:/MATLAB/Data/DukeMTMC/';
+opts.gurobi_path     = 'C:/Utils/gurobi801/win64/matlab/';
 opts.experiment_root = 'experiments';
 opts.experiment_name = 'demo';
 
-opts.reader = DukeVideoReader(opts.dataset_path);
+opts.reader = MyVideoReader(opts.dataset_path);
 
 % General settings
 opts.eval_dir = 'L3-identities';
@@ -23,8 +23,8 @@ opts.optimization = 'BIPCC';
 opts.use_groupping = 1;
 opts.num_cam = 8;
 opts.sequence = 2;
-opts.sequence_names = {'trainval', 'trainval_mini', 'test_easy', 'test_hard'};
-opts.sequence_intervals = {47720:227540, 127720:187540,  263504:356648, 227541:263503};
+opts.sequence_names = {'trainval', 'trainval_mini', 'test_easy', 'test_hard', 'nano'};
+opts.sequence_intervals = {47720:227540, 127720:187540,  263504:356648, 227541:263503, 125000:125050};
 opts.start_frames = [5543, 3607, 27244, 31182, 1, 22402, 18968, 46766];
 opts.render_threshold = 0.05;
 opts.load_tracklets = 1;
