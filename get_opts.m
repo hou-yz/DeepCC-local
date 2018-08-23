@@ -3,7 +3,7 @@ function opts = get_opts()
 addpath(genpath('src'))
 
 opts = [];
-opts.dataset_path    = 'F:/release/DukeMTMC/';
+opts.dataset_path    = 'F:/DukeMTMC/';
 opts.gurobi_path     = 'C:/gurobi800/win64/matlab';
 opts.experiment_root = 'experiments';
 opts.experiment_name = 'demo';
@@ -46,8 +46,8 @@ trajectories = [];
 trajectories.appearance_groups = 0; % determined automatically when zero
 trajectories.alpha = 1;
 trajectories.beta = 0.01;
-trajectories.window_width = 500;
-trajectories.overlap = 250;
+trajectories.window_width = 300;
+trajectories.overlap = 150;
 trajectories.speed_limit = 30;
 trajectories.indifference_time = 100;
 trajectories.threshold = 8;
@@ -62,13 +62,15 @@ identities.overlap = 150;
 identities.speed_limit = 30;
 identities.indifference_time = 150;
 identities.threshold = 8;
+identities.extract_images = true;
 
 % CNN model
 net = [];
 net.train_set = 'data/duke_train.csv';
-net.image_root = '/usr/project/xtmp/ristani/DeepCC/ReID/DukeMTMC-reID';
+net.image_root = 'F:/DukeMTMC/DukeMTMC-reID';
 net.model_name = 'resnet_v1_50';
-net.experiment_root = 'demo_model';
+net.initial_checkpoint = 'resnet_v1_50.ckpt';
+net.experiment_root = 'experiments/demo_weighted_triplet';
 net.embedding_dim = 128;
 net.batch_p = 18;
 net.batch_k = 4;
@@ -84,7 +86,9 @@ net.train_iterations = 25000;
 net.decay_start_iteration = 15000;
 net.gpu_device = 0;
 net.augment = true;
+net.resume = false;
 net.checkpoint_frequency = 1000;
+net.hard_pool_size = 0;
 
 opts.tracklets = tracklets;
 opts.trajectories = trajectories;

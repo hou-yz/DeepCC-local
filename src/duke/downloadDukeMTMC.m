@@ -3,7 +3,7 @@ dataset.numCameras = 8;
 dataset.videoParts = [9, 9, 9, 9, 9, 8, 8, 9];
 
 % Set these accordingly
-dataset.savePath = 'F:/release/DukeMTMC/'; % Where to store DukeMTMC (160 GB)
+dataset.savePath = 'F:/DukeMTMC/'; % Where to store DukeMTMC (160 GB)
 
 GET_ALL               = false; % Set this to true if you want to download everything
 GET_GROUND_TRUTH      = true;
@@ -11,7 +11,7 @@ GET_CALIBRATION       = true;
 GET_VIDEOS            = true;
 GET_DPM               = false;
 GET_OPENPOSE          = true;
-GET_FGMASK            = false;
+GET_FGMASKS           = false;
 GET_REID              = true;
 GET_VIDEO_REID        = false;
 
@@ -22,7 +22,7 @@ options = weboptions('Timeout', 60);
 %% Create folder structure
 fprintf('Creating folder structure...\n');
 mkdir(dataset.savePath);
-folders = {'ground_truth','calibration','detections','frames','masks','videos', 'detections/DPM', 'detections/OpenPose'};
+folders = {'ground_truth','calibration','detections','frames','masks','videos', 'detections/DPM', 'detections/openpose'};
 for k = 1:length(folders)
     mkdir([dataset.savePath, folders{k}]);
 end
@@ -64,7 +64,7 @@ end
 if GET_ALL || GET_OPENPOSE
     for cam = 1:dataset.numCameras
         url = sprintf('http://vision.cs.duke.edu/DukeMTMC/data/detections/openpose/camera%d.mat',cam);
-        filename = sprintf('%sdetections/OpenPose/camera%d.mat',dataset.savePath,cam);
+        filename = sprintf('%sdetections/openpose/camera%d.mat',dataset.savePath,cam);
         fprintf([filename '\n']);
         websave(filename,url,options);
     end
