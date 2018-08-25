@@ -30,13 +30,13 @@ for iCam = 1:8
     % Interpolate missing detections
     trackerOutputFilled = fillTrajectories(trackerOutputRaw);
     % Remove spurius tracks
-    trackerOutputRemoved = removeShortTracks(trackerOutputFilled, opts.minimum_trajectory_length);
+    [trackerOutputRemoved, removedIDs] = removeShortTracks(trackerOutputFilled, opts.minimum_trajectory_length);
     % Make identities 1-indexed
     [~, ~, ic] = unique(trackerOutputRemoved(:,2));
     trackerOutputRemoved(:,2) = ic;
     trackerOutput = sortrows(trackerOutputRemoved,[2 1]);
 
-    %% Save trajectories
+    %% Save output
     fprintf('Saving results\n');
     fileOutput = trackerOutput(:, [1:6]);
     dlmwrite(sprintf('%s/%s/L2-trajectories/cam%d_%s.txt', ...
@@ -45,6 +45,14 @@ for iCam = 1:8
         iCam, ...
         opts.sequence_names{opts.sequence}), ...
         fileOutput, 'delimiter', ' ', 'precision', 6);
+    
+    % Save trajectories
+    save(sprintf('%s/%s/L2-trajectories/trajectories%d_%s.mat', ...
+        opts.experiment_root, ...
+        opts.experiment_name, ...
+        iCam, ...
+        opts.sequence_names{opts.sequence}), ...
+        'trajectories', 'removedIDs');
 
 
 end
