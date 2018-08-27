@@ -34,9 +34,16 @@ while startFrame <= global_interval(end)
     startFrame = endFrame   - opts.identities.window_width/2;
     endFrame   = startFrame + opts.identities.window_width;
 end
-%%
+%% save results
+% The text file has format [cam, ID, frame, left, top, width, height, worldX, worldY]
 fprintf('Saving results\n');
 trackerOutputL3 = identities2mat(identities);
+idx = [1,3,2,4:9];
+trackerOutputL3_tofile = trackerOutputL3(:,idx);
+dlmwrite(sprintf('%s/%s/L3-identities/duke.txt', ...
+        opts.experiment_root, ...
+        opts.experiment_name), ...
+        trackerOutputL3_tofile, 'delimiter', ' ', 'precision', 6);
 for iCam = 1:opts.num_cam
     cam_data = trackerOutputL3(trackerOutputL3(:,1) == iCam,2:end);
     dlmwrite(sprintf('%s/%s/L3-identities/cam%d_%s.txt', ...

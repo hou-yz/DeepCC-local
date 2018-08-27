@@ -7,6 +7,12 @@ if length(tracklets) < params.appearance_groups
     params.appearanceGroups = 1;
 end
 
+if isempty(tracklets)
+    result.labels       = [];
+    result.observations = [];
+    return
+end
+
 featureVectors      = {tracklets.feature};
 % adaptive number of appearance groups
 if params.appearance_groups == 0

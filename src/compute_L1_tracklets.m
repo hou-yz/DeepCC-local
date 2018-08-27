@@ -13,7 +13,8 @@ for iCam = 1:8
     load(fullfile(opts.dataset_path, 'detections','OpenPose', sprintf('camera%d.mat',iCam)));
     
     % Load features for all detections
-    features   = h5read(sprintf('%s/%s/L0-features/features%d.h5',opts.experiment_root,opts.experiment_name,iCam),'/emb');
+    % features   = h5read(sprintf('%s/%s/L0-features/features%d.h5',opts.experiment_root,opts.experiment_name,iCam),'/emb');
+    features   = h5read(sprintf('%s/demo/L0-features/features%d.h5',opts.experiment_root,iCam),'/emb');
     features   = double(features');
     in_time_range_ids = detections(:,2)>=start_frame & detections(:,2)<=end_frame;
     all_dets   = detections(in_time_range_ids,:);

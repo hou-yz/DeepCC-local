@@ -51,7 +51,13 @@ end
 
 % merge co-identified tracklets to extended tracklets
 newTrajectories = trackletsToTrajectories(tracklets, labels);
-smoothTrajectories = recomputeTrajectories(newTrajectories);
+smoothTrajectories = recomputeTrajectories(newTrajectories, opts);
+
+for i = 1 : length(smoothTrajectories)
+    if isempty(smoothTrajectories(i).tracklets)
+        smoothTrajectories(i)
+    end
+end
 
 outputTrajectories = inputTrajectories;
 outputTrajectories(currentTrajectoriesInd) = [];

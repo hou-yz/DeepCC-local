@@ -1,10 +1,15 @@
-function newTrajectories = recomputeTrajectories( trajectories )
+function newTrajectories = recomputeTrajectories( trajectories ,opts )
 %RECOMPUTETRAJECTORIES Summary of this function goes here
 %   Detailed explanation goes here
 
 % newTrajectories = trajectories;
 
-segmentLength = 50;
+segmentLength = opts.tracklets.window_width;
+
+if isempty(trajectories)
+    newTrajectories = [];
+    return
+end
 
 for i = 1:length(trajectories)
 
