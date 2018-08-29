@@ -3,8 +3,8 @@ function opts = get_opts()
 addpath(genpath('src'))
 
 opts = [];
-opts.dataset_path    = 'D:/MATLAB/Data/DukeMTMC/';
-opts.gurobi_path     = 'C:/Utils/gurobi801/win64/matlab/';
+opts.dataset_path    = 'D:/MATLAB/Data/DukeMTMC';
+opts.gurobi_path     = 'C:/Utils/gurobi801/win64/matlab';
 opts.experiment_root = 'experiments';
 opts.experiment_name = 'demo';
 
@@ -60,7 +60,7 @@ identities.alpha = 1;
 identities.beta = 0.01;
 identities.overlap = 150;
 identities.speed_limit = 30;
-identities.indifference_time = 150;
+% identities.indifference_time = 150;
 identities.threshold = 8;
 identities.extract_images = true;
 
