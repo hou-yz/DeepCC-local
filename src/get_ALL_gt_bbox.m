@@ -2,9 +2,9 @@ restoredefaultpath
 clear; 
 close all; 
 opts = get_opts();
-opts.sequence=5;
+opts.sequence=1;
 opts.reader = [];
 
-parfor iCam = 1:8
-    gen_det_dataset(opts,iCam);
+for iCam = 1:8
+    gen_gt_function(opts,iCam);
 end

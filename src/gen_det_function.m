@@ -24,8 +24,8 @@ video_name = fullfile(opts.dataset_path, 'videos', sprintf('camera%d.mp4', iCam)
 videoObject = VideoReader(video_name);
 videoObject.CurrentTime = (start_frame-1) / videoObject.FrameRate;
 
-if exist(fullfile(opts.dataset_path, sprintf('det_dataset_%s',detection_type)),'dir') == 0
-    mkdir(fullfile(opts.dataset_path, sprintf('det_dataset_%s',detection_type)));
+if exist(fullfile(opts.dataset_path, sprintf('det_bbox_%s',detection_type)),'dir') == 0
+    mkdir(fullfile(opts.dataset_path, sprintf('det_bbox_%s',detection_type)));
 end
 
 for frame = start_frame : end_frame 
@@ -46,7 +46,7 @@ for frame = start_frame : end_frame
         else
             det_image=get_bb(image, bboxes(i,:));
         end
-        imwrite(det_image,strcat(opts.dataset_path,sprintf('det_dataset_%s/c%d_f%06d_%04d.jpg',detection_type,iCam,frame,i)))
+        imwrite(det_image,fullfile(opts.dataset_path,sprintf('det_bbox_%s/c%d_f%06d_%04d.jpg',detection_type,iCam,frame,i)))
     end
     
     t_write=toc(t_init);
