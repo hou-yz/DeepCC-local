@@ -42,10 +42,9 @@ for frame = start_frame : end_frame
     bboxes = det_in_frame(:,3:end);
     for i = 1:size(det_in_frame,1)
         if bboxes(i,3) < 20 || bboxes(i,4) < 20
-            det_image=uint8(zeros(256,128,3));
+            det_image=uint8(zeros(1,1,3));
         else
             det_image=get_bb(image, bboxes(i,:));
-            det_image=imresize(image,[256,128]);
         end
         imwrite(det_image,strcat(opts.dataset_path,sprintf('det_dataset_%s/c%d_f%06d_%04d.jpg',detection_type,iCam,frame,i)))
     end
