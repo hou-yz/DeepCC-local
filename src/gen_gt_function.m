@@ -1,4 +1,4 @@
-function gen_gt_function(opts,iCam)
+function gen_gt_function(opts,iCam,fps)
 
 sequence_window   = opts.sequence_intervals{opts.sequence};
 start_frame       = global2local(opts.start_frames(iCam), sequence_window(1));
@@ -12,16 +12,19 @@ video_name = fullfile(opts.dataset_path, 'videos', sprintf('camera%d.mp4', iCam)
 videoObject = VideoReader(video_name);
 videoObject.CurrentTime = (start_frame-1) / videoObject.FrameRate;
 
-if exist(fullfile(opts.dataset_path, 'gt_bbox'),'dir') == 0
-    mkdir(fullfile(opts.dataset_path, 'gt_bbox'));
+folder_dir = fullfile(opts.dataset_path, sprintf('gt_bbox_%d_fps',fps));
+if exist(folder_dir,'dir') == 0
+    mkdir(folder_dir);
 end
-if exist(fullfile(opts.dataset_path, 'gt_bbox',sprintf('camera%d',iCam)),'dir') == 0
-    mkdir(fullfile(opts.dataset_path, 'gt_bbox',sprintf('camera%d',iCam)));
+if exist(fullfile(folder_dir,sprintf('camera%d',iCam)),'dir') == 0
+    mkdir(fullfile(folder_dir,sprintf('camera%d',iCam)));
 end
 
 for frame = start_frame : end_frame 
-    image = readFrame(videoObject);
-    
+    for i = 1:60/fps
+        image = readFrame(videoObject);
+        frame = frame+1;
+    end
     gt_ids = find(ground_truth(:,3) == frame);
     if isempty(gt_ids)
         continue;
@@ -34,7 +37,7 @@ for frame = start_frame : end_frame
     for i = 1:size(gt_in_frame,1)
         gt_image = image(top(i):top(i)+height(i),left(i):left(i)+width(i),:);
         
-        imwrite(gt_image,fullfile(opts.dataset_path,sprintf('gt_bbox/camera%d/%04d_c%d_f%06d.jpg',iCam,gt_in_frame(i,2),iCam,frame)))
+        imwrite(gt_image,fullfile(folder_dir,sprintf('camera%d/%04d_c%d_f%06d.jpg',iCam,gt_in_frame(i,2),iCam,frame)))
     end
 end
 
