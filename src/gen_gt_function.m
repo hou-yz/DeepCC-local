@@ -20,7 +20,8 @@ if exist(fullfile(folder_dir,sprintf('camera%d',iCam)),'dir') == 0
     mkdir(fullfile(folder_dir,sprintf('camera%d',iCam)));
 end
 
-for frame = start_frame : end_frame 
+frame = start_frame;
+while frame < end_frame 
     for i = 1:60/fps
         image = readFrame(videoObject);
         frame = frame+1;
