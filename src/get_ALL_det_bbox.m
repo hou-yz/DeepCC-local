@@ -2,7 +2,7 @@ restoredefaultpath
 clear; 
 close all; 
 opts = get_opts();
-opts.sequence=2;
+opts.sequence=5;
 opts.reader = [];
 
 for iCam = 1:8

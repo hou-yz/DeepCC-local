@@ -12,7 +12,7 @@ video_name = fullfile(opts.dataset_path, 'videos', sprintf('camera%d.mp4', iCam)
 videoObject = VideoReader(video_name);
 videoObject.CurrentTime = (start_frame-1) / videoObject.FrameRate;
 
-folder_dir = fullfile(opts.dataset_path, sprintf('gt_bbox_%d_fps',fps));
+folder_dir = fullfile(opts.dataset_path, 'ALL_gt_bbox', sprintf('gt_bbox_%d_fps',fps));
 if exist(folder_dir,'dir') == 0
     mkdir(folder_dir);
 end

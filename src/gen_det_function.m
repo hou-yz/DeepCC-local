@@ -1,6 +1,7 @@
-function gen_det_dataset(opts,iCam)
+function gen_det_function(opts,iCam)
 detection_type='OpenPose';
 
+seq_name          = opts.sequence_names{opts.sequence};
 sequence_window   = opts.sequence_intervals{opts.sequence};
 start_frame       = global2local(opts.start_frames(iCam), sequence_window(1));
 end_frame         = global2local(opts.start_frames(iCam), sequence_window(end));
@@ -16,7 +17,7 @@ detections = zeros(size(poses,1),6);
 for k = 1:size(poses,1)
     pose = poses(k,3:end);
     bb = pose2bb(pose, opts.render_threshold);
-    [newbb, newpose] = scale_bb(bb,pose,1.25);
+    [newbb, ~] = scale_bb(bb,pose,1.25);
     detections(k,:) = [iCam, poses(k,2), newbb];
 end
 
@@ -24,8 +25,9 @@ video_name = fullfile(opts.dataset_path, 'videos', sprintf('camera%d.mp4', iCam)
 videoObject = VideoReader(video_name);
 videoObject.CurrentTime = (start_frame-1) / videoObject.FrameRate;
 
-if exist(fullfile(opts.dataset_path, sprintf('det_bbox_%s',detection_type)),'dir') == 0
-    mkdir(fullfile(opts.dataset_path, sprintf('det_bbox_%s',detection_type)));
+folder_dir = fullfile(opts.dataset_path, 'ALL_det_bbox', sprintf('det_bbox_%s_%s',detection_type,seq_name));
+if exist(folder_dir,'dir') == 0
+    mkdir(folder_dir);
 end
 
 for frame = start_frame : end_frame 
@@ -46,7 +48,7 @@ for frame = start_frame : end_frame
         else
             det_image=get_bb(image, bboxes(i,:));
         end
-        imwrite(det_image,fullfile(opts.dataset_path,sprintf('det_bbox_%s/c%d_f%06d_%04d.jpg',detection_type,iCam,frame,i)))
+        imwrite(det_image,fullfile(folder_dir,sprintf('c%d_f%06d_%04d.jpg',iCam,frame,i)))
     end
     
     t_write=toc(t_init);
