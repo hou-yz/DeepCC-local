@@ -1,7 +1,7 @@
 opts = get_opts();
 data = readtable('src/triplet-reid/data/duke_test.csv', 'Delimiter',',');
 
-opts.net.experiment_root = 'experiments/256_basis_s1_12fps';
+opts.net.experiment_root = 'experiments/fc256_12fps_crop';
 labels = data.Var1;
 paths  = data.Var2;
 %% Compute features
