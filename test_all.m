@@ -1,0 +1,64 @@
+%% Options
+opts = get_opts();
+opts.experiment_name = 'fc256_basis_s1_12fps';
+% basis setting for DeepCC
+opts.tracklets.window_width = 40;
+opts.trajectories.window_width = 150;
+opts.trajectories.overlap = 75;
+opts.identities.window_width = 6000;
+% correlation threshold setting according to `view_distance_distribution(opts)`
+opts.tracklets.threshold = 23.44;
+opts.trajectories.threshold = 23.44;
+opts.identities.threshold = 23.44;
+
+create_experiment_dir(opts);
+
+%% Setup Gurobi
+if ~exist('setup_done','var')
+    setup;
+    setup_done = true;
+end
+
+%% Run Tracker
+
+% opts.visualize = true;
+
+%% test_easy
+opts.sequence = 3;
+
+% Tracklets
+opts.optimization = 'KL';
+compute_L1_tracklets(opts);
+
+% Single-camera trajectories
+opts.optimization = 'BIPCC';
+opts.trajectories.appearance_groups = 1;
+compute_L2_trajectories(opts);
+opts.eval_dir = 'L2-trajectories';
+
+% Multi-camera identities
+opts.identities.appearance_groups = 0;
+compute_L3_identities(opts);
+opts.eval_dir = 'L3-identities';
+
+%% test_hard
+opts.sequence = 4;
+
+% Tracklets
+opts.optimization = 'KL';
+compute_L1_tracklets(opts);
+
+% Single-camera trajectories
+opts.optimization = 'BIPCC';
+opts.trajectories.appearance_groups = 1;
+compute_L2_trajectories(opts);
+opts.eval_dir = 'L2-trajectories';
+
+% Multi-camera identities
+opts.identities.appearance_groups = 0;
+compute_L3_identities(opts);
+opts.eval_dir = 'L3-identities';
+
+%% prepare for submission
+prepareMOTChallengeSubmission(opts)
+
