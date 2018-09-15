@@ -3,6 +3,7 @@ function opts = get_opts()
 addpath(genpath('src'))
 
 opts = [];
+opts.feature_dir     = [];
 opts.dataset_path    = 'D:/MATLAB/Data/DukeMTMC';
 opts.gurobi_path     = 'C:/Utils/gurobi801/win64/matlab';
 opts.experiment_root = 'experiments';
