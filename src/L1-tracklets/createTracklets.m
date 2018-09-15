@@ -28,6 +28,14 @@ spatialGroupIDs         = getSpatialGroupIDs(opts.use_groupping, currentDetectio
 % Show window detections
 if opts.visualize, trackletsVisualizePart1; end
 
+% set threshold accordingly if trained on separate icams
+iCam = originalDetections(1,2);
+if length(params.threshold)==8
+    threshold = params.threshold(iCam);
+else
+    threshold = params.threshold;
+end
+
 %% SOLVE A GRAPH PARTITIONING PROBLEM FOR EACH SPATIAL GROUP
 fprintf('Creating tracklets: solving space-time groups ');
 for spatialGroupID = 1 : max(spatialGroupIDs)
@@ -36,7 +44,7 @@ for spatialGroupID = 1 : max(spatialGroupIDs)
     spatialGroupObservations        = currentDetectionsIDX(elements);
     
     % Create an appearance affinity matrix and a motion affinity matrix
-    appearanceCorrelation           = getAppearanceSubMatrix(spatialGroupObservations, allFeatures, params.threshold);
+    appearanceCorrelation           = getAppearanceSubMatrix(spatialGroupObservations, allFeatures, threshold);
     spatialGroupDetectionCenters    = detectionCenters(elements,:);
     spatialGroupDetectionFrames     = detectionFrames(elements,:);
     spatialGroupEstimatedVelocity   = estimatedVelocity(elements,:);

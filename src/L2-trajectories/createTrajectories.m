@@ -1,4 +1,4 @@
-function outputTrajectories = createTrajectories( opts, inputTrajectories, startTime, endTime)
+function outputTrajectories = createTrajectories(opts, inputTrajectories, startTime, endTime, iCam)
 % CREATETRAJECTORIES partitions a set of tracklets into trajectories.
 %   The third stage uses appearance grouping to reduce problem complexity;
 %   the fourth stage solves the graph partitioning problem for each
@@ -36,7 +36,7 @@ inAssociation = logical(inAssociation);
 if opts.visualize, trajectoriesVisualizePart1; end
 
 % solve the graph partitioning problem for each appearance group
-result = solveInGroups(opts, tracklets(inAssociation), trackletLabels(inAssociation));
+result = solveInGroups(opts, tracklets(inAssociation), trackletLabels(inAssociation), iCam);
 
 % merge back solution. Tracklets that were associated are now merged back
 % with the rest of the tracklets that were sharing the same trajectory

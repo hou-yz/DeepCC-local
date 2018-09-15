@@ -1,4 +1,4 @@
-function result = solveInGroups(opts, tracklets, labels)
+function result = solveInGroups(opts, tracklets, labels, iCam)
 
 global trajectorySolverTime;
 
@@ -6,6 +6,14 @@ params = opts.trajectories;
 if length(tracklets) < params.appearance_groups
     params.appearanceGroups = 1;
 end
+
+% set threshold accordingly if trained on separate icams
+if length(params.threshold)==8
+    threshold = params.threshold(iCam);
+else
+    threshold = params.threshold;
+end
+
 
 if isempty(tracklets)
     result.labels       = [];
@@ -44,7 +52,7 @@ for i = 1 : length(allGroups)
     sameLabels  = pdist2(labels(indices), labels(indices)) == 0;
     
     % compute appearance and spacetime scores
-    appearanceAffinity = getAppearanceMatrix(featureVectors(indices), params.threshold);
+    appearanceAffinity = getAppearanceMatrix(featureVectors(indices), threshold);
     [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinity(tracklets(indices), params.beta, params.speed_limit, params.indifference_time);
     
     % compute the correlation matrix

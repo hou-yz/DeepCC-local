@@ -18,7 +18,7 @@ for iCam = 1:8
         clc; fprintf('Cam: %d - Window %d...%d\n', iCam, startFrame, endFrame);
 
         % Compute trajectories in current time window
-        trajectories = createTrajectories( opts, trajectories, startFrame, endFrame);
+        trajectories = createTrajectories(opts, trajectories, startFrame, endFrame, iCam);
 
         % Update loop range
         startFrame = endFrame   - opts.trajectories.overlap;
