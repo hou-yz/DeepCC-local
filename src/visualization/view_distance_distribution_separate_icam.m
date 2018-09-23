@@ -2,9 +2,9 @@ clear
 clc
 for iCam = 1:8
     opts = get_opts();
-    data = readtable('src/triplet-reid/data/duke_test.csv', 'Delimiter',',');
+    data = readtable('src/visualization/file_list.csv', 'Delimiter',',');
 
-    opts.net.experiment_root = 'experiments/fc256_30fps_separate_icam_fake';
+    opts.net.experiment_root ='experiments/fc256_30fps_separate_icam_ag'; %'experiments/fc256_1fps';%
     labels = data.Var1;
     paths  = data.Var2;
     ids =  contains(paths,sprintf('_c%d_',iCam));
@@ -23,7 +23,7 @@ for iCam = 1:8
     different_label = triu(pdist2(labels,labels) ~= 0);
     pos_dists = dist(same_label);
     neg_dists = dist(different_label);
-    pos_99_5th = prctile(pos_dists,99.5);
+    pos_99th = prctile(pos_dists,99);
     neg_5th = prctile(neg_dists,5);
     mid = mean([mean(pos_dists),mean(neg_dists)]);
     
@@ -35,12 +35,12 @@ for iCam = 1:8
     legend('Positive','Negative');
     neg_str = ['\downarrow dist_P less than the 5th percentile dist_N: ',num2str(sum(pos_dists<neg_5th)/length(pos_dists))];
     mid_str = ['\downarrow dist_P less than the mid value: ',num2str(sum(pos_dists<mid)/length(pos_dists))];
-    pos_str = "\downarrow dist_P 99.5th";
-    info_str = "dist_P 99.5th: "+num2str(pos_99_5th)+newline+"dist_N 5th: "+num2str(neg_5th)+newline+"mid value: "+num2str(mid);
+    pos_str = "\downarrow dist_P 99th";
+    info_str = "dist_P 99th: "+num2str(pos_99th)+newline+"dist_N 5th: "+num2str(neg_5th)+newline+"mid value: "+num2str(mid);
     
     text(neg_5th,0.025,neg_str)
     text(mid,0.02,mid_str)
-    text(pos_99_5th,0.03,pos_str)
+    text(pos_99th,0.03,pos_str)
     text(0,0.025,info_str)
     
     % get the best partition pt
@@ -51,7 +51,7 @@ for iCam = 1:8
         FP = 0;
         FN = 0;
     else
-        pts = 99.5:0.05:100;
+        pts = 99:0.05:100;
         pts = prctile(pos_dists,pts);
         FPs = sum(neg_dists<pts)/numel(neg_dists);
         FNs = sum(pos_dists>pts)/numel(pos_dists);
