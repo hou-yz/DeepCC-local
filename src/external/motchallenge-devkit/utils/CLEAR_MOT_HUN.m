@@ -46,11 +46,11 @@ additionalInfo=[];
 % Evaluate
 VERBOSE = false;
 [mme, c, fp, m, g, d, alltracked, allfalsepos] = clearMOTMex(gtMat, resMat, threshold, world, VERBOSE);
-Fgt = max(gtMat(:,1)); % Assumes first gt frame is 1
-Ngt = length(unique(gtMat(:,2)));
-F = max(resMat(:,1));
-missed=sum(m);
-falsepositives=sum(fp);
+Fgt = max(gtMat(:,1)); % #frames in GT          % Assumes first gt frame is 1
+Ngt = length(unique(gtMat(:,2))); % #ids in GT
+F = max(resMat(:,1)); % #frames in result
+missed=sum(m); % m: #missed(fn) bboxs in each frame
+falsepositives=sum(fp); % fp: #fp bboxs in each frame
 idswitches=sum(mme);
 
 % Sanity check
