@@ -32,7 +32,7 @@ classdef DukeVideoReader < handle
     methods
         function obj = DukeVideoReader(datasetPath)
             obj.DatasetPath = datasetPath;
-            obj.Video = cv.VideoCapture(sprintf('%svideos/camera%d/%05d.MTS',obj.DatasetPath,obj.CurrentCamera, obj.CurrentPart), 'API','FFMPEG');
+            obj.Video = cv.VideoCapture(sprintf('%s/videos/camera%d/%05d.MTS',obj.DatasetPath,obj.CurrentCamera, obj.CurrentPart), 'API','FFMPEG');
         end
         
         function img = getFrame(obj, iCam, iFrame)
@@ -54,7 +54,7 @@ classdef DukeVideoReader < handle
                 obj.CurrentCamera = iCam;
                 obj.CurrentPart = iPart;
                 obj.PrevFrame = -1;
-                obj.Video = cv.VideoCapture(sprintf('%svideos/camera%d/%05d.MTS',obj.DatasetPath,obj.CurrentCamera, obj.CurrentPart), 'API','FFMPEG');
+                obj.Video = cv.VideoCapture(sprintf('%s/videos/camera%d/%05d.MTS',obj.DatasetPath,obj.CurrentCamera, obj.CurrentPart), 'API','FFMPEG');
             end
             
             if currentFrame ~= obj.PrevFrame + 1
