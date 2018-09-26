@@ -17,7 +17,7 @@ mkdir([opts.experiment_root, filesep, opts.experiment_name, filesep, folder]);
 load(fullfile(opts.dataset_path, 'ground_truth', 'trainval.mat'));
 
 % Render one video per camera
-for iCam = 1:opts.num_cam
+for iCam = 5:opts.num_cam
     
     % Create video
     filename = sprintf('%s/%s/%s/cam%d_%s.mp4',opts.experiment_root, opts.experiment_name, folder, iCam, opts.sequence_names{opts.sequence});
@@ -25,7 +25,7 @@ for iCam = 1:opts.num_cam
     open(video);
     
     % Load result
-    predMat = dlmread(sprintf('%s/%s/L2-trajectories/cam%d_%s.txt',opts.experiment_root, opts.experiment_name, iCam,opts.sequence_names{opts.sequence}));
+    resdata = dlmread(sprintf('%s/%s/L2-trajectories/cam%d_%s.txt',opts.experiment_root, opts.experiment_name, iCam,opts.sequence_names{opts.sequence}));
     
     sequence_interval = opts.sequence_intervals{opts.sequence};
     
@@ -37,14 +37,27 @@ for iCam = 1:opts.num_cam
     gtdata(:,[1 2]) = gtdata(:,[2 1]);
     gtdata = sortrows(gtdata,[1 2]);
     gtMat = gtdata;
+    
+    % Filter rows by feet position within ROI
+    ROI = getROIs();
+    feetpos = [ resdata(:,3) + 0.5*resdata(:,5), resdata(:,4) + resdata(:,6)];
+    resdata = resdata(inpolygon(feetpos(:,1),feetpos(:,2), ROI{iCam}(:,1),ROI{iCam}(:,2)),:);
+    resdata = sortrows(resdata,[1 2]);
+    resMat = resdata;
 
     % Compute error types
-    [gtMatViz, predMatViz] = error_types(gtMat,predMat,0.5,0);
+    [gtMatViz, predMatViz] = error_types(gtMat,resMat,0.5,0);
     gtMatViz = sortrows(gtMatViz, [1 2]);
     predMatViz = sortrows(predMatViz, [1 2]);
-
+    
+    tic
     for iFrame = global2local(opts.start_frames(iCam), sequence_interval(1)):1:global2local(opts.start_frames(iCam),sequence_interval(end))
-        fprintf('Cam %d:  %d/%d\n', iCam, iFrame, global2local(opts.start_frames(iCam),sequence_interval(end)));
+        
+        if mod(iFrame,100)==1
+            t_100 = toc
+            tic
+            fprintf('Cam %d:  %d/%d\n', iCam, iFrame, global2local(opts.start_frames(iCam),sequence_interval(end)));
+        end
         if mod(iFrame,5) >0
             continue;
         end
