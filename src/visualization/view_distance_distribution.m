@@ -1,16 +1,17 @@
 opts = get_opts();
-data = readtable('src/visualization/file_list.csv', 'Delimiter',',');
+data = readtable('src/visualization/file_list.csv', 'Delimiter',','); % gt@1fps
+% data = readtable('src/triplet-reid/data/duke_test.csv', 'Delimiter',','); % reid
 
-opts.net.experiment_root = 'experiments/fc256_1fps_crop';
+opts.net.experiment_root = 'experiments/fc256_6fps_epoch45';
 labels = data.Var1;
 paths  = data.Var2;
 %% Compute features
 features = h5read(fullfile(opts.net.experiment_root, 'features.h5'),'/emb');
 features = features';
-% pool for a half
-pool = 2;
-labels = labels(pool:pool:length(labels),:);
-features = features(pool:pool:length(features),:);
+% pooling
+pooling = 2;
+labels = labels(pooling:pooling:length(labels),:);
+features = features(pooling:pooling:length(features),:);
 dist = pdist2(features,features);
 %% Visualize distance distribution
 same_label = triu(pdist2(labels,labels) == 0,1);

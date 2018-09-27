@@ -2,9 +2,10 @@ clear
 clc
 for iCam = 1:8
     opts = get_opts();
-    data = readtable('src/visualization/file_list.csv', 'Delimiter',',');
+    data = readtable('src/visualization/file_list.csv', 'Delimiter',','); % gt@1fps
+%     data = readtable('src/triplet-reid/data/duke_test.csv', 'Delimiter',','); % reid
 
-    opts.net.experiment_root ='experiments/fc256_30fps_separate_icam_ag'; %'experiments/fc256_1fps';%
+    opts.net.experiment_root ='experiments/fc256_30fps_separate_icam_epoch15'; %'experiments/fc256_1fps';%
     labels = data.Var1;
     paths  = data.Var2;
     ids =  contains(paths,sprintf('_c%d_',iCam));
@@ -63,5 +64,5 @@ for iCam = 1:8
     best_pt_str = "\downarrow best_pt:"+num2str(best_pt)+newline+"FP: "+num2str(FP)+newline+"50x FN: "+num2str(FN);
     text(best_pt,0.04,best_pt_str)
 
-    saveas(fig,sprintf('%s%d.jpg',opts.net.experiment_root,iCam));
+    saveas(fig,sprintf('%s_%d.jpg',opts.net.experiment_root,iCam));
 end
