@@ -10,10 +10,11 @@ end
 % set threshold accordingly if trained on separate icams
 if length(params.threshold)==8
     threshold = params.threshold(iCam);
+    half_dist = params.half_dist(iCam);
 else
     threshold = params.threshold;
+    half_dist = params.half_dist;
 end
-
 
 if isempty(tracklets)
     result.labels       = [];
@@ -52,7 +53,7 @@ for i = 1 : length(allGroups)
     sameLabels  = pdist2(labels(indices), labels(indices)) == 0;
     
     % compute appearance and spacetime scores
-    appearanceAffinity = getAppearanceMatrix(featureVectors(indices), threshold);
+    appearanceAffinity = getAppearanceMatrix(featureVectors(indices), threshold, half_dist);
     [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinity(tracklets(indices), params.beta, params.speed_limit, params.indifference_time);
     
     % compute the correlation matrix
