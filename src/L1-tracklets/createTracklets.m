@@ -32,9 +32,13 @@ if opts.visualize, trackletsVisualizePart1; end
 iCam = originalDetections(1,2);
 if length(params.threshold)==8
     threshold = params.threshold(iCam);
-    half_dist = params.half_dist(iCam);
 else
     threshold = params.threshold;
+end
+
+if length(params.half_dist)==8
+    half_dist = params.half_dist(iCam);
+else
     half_dist = params.half_dist;
 end
 

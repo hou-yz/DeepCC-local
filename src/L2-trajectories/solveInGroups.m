@@ -10,9 +10,13 @@ end
 % set threshold accordingly if trained on separate icams
 if length(params.threshold)==8
     threshold = params.threshold(iCam);
-    half_dist = params.half_dist(iCam);
 else
     threshold = params.threshold;
+end
+
+if length(params.half_dist)==8
+    half_dist = params.half_dist(iCam);
+else
     half_dist = params.half_dist;
 end
 
