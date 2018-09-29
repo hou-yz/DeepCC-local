@@ -4,7 +4,7 @@ function [ appearanceMatrix ] = getAppearanceMatrix(featureVectors, threshold, h
 
 features = double(cell2mat(featureVectors'));
 dist = pdist2(features, features);
-if half_dist
+if half_dist==0
     half_dist=threshold;
 end
 appearanceMatrix = (threshold - dist)/ half_dist;
