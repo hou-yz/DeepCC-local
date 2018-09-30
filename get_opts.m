@@ -41,7 +41,9 @@ tracklets.cluster_coeff = 0.75;
 tracklets.nearest_neighbors = 8;
 tracklets.speed_limit = 20;
 tracklets.threshold = 8;
-tracklets.half_dist = 0;
+tracklets.diff_p = 0;
+tracklets.diff_n = 0;
+
 
 % Trajectories
 trajectories = [];
@@ -53,7 +55,8 @@ trajectories.overlap = 150;
 trajectories.speed_limit = 30;
 trajectories.indifference_time = 100;
 trajectories.threshold = 8;
-trajectories.half_dist = 0;
+trajectories.diff_p = 0;
+trajectories.diff_n = 0;
 
 % Identities
 identities = [];
@@ -65,7 +68,8 @@ identities.overlap = 150;
 identities.speed_limit = 30;
 % identities.indifference_time = 150;
 identities.threshold = 8;
-identities.half_dist = 0;
+identities.diff_p = 0;
+identities.diff_n = 0;
 identities.extract_images = true;
 
 % CNN model

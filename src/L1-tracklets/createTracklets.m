@@ -36,10 +36,12 @@ else
     threshold = params.threshold;
 end
 
-if length(params.half_dist)==8
-    half_dist = params.half_dist(iCam);
+if length(params.diff_p)==8
+    diff_p = params.diff_p(iCam);
+    diff_n = params.diff_n(iCam);
 else
-    half_dist = params.half_dist;
+    diff_p = params.diff_p;
+    diff_n = params.diff_n;
 end
 
 %% SOLVE A GRAPH PARTITIONING PROBLEM FOR EACH SPATIAL GROUP
@@ -50,7 +52,7 @@ for spatialGroupID = 1 : max(spatialGroupIDs)
     spatialGroupObservations        = currentDetectionsIDX(elements);
     
     % Create an appearance affinity matrix and a motion affinity matrix
-    appearanceCorrelation           = getAppearanceSubMatrix(spatialGroupObservations, allFeatures, threshold,half_dist);
+    appearanceCorrelation           = getAppearanceSubMatrix(spatialGroupObservations, allFeatures, threshold,diff_p,diff_n);
     spatialGroupDetectionCenters    = detectionCenters(elements,:);
     spatialGroupDetectionFrames     = detectionFrames(elements,:);
     spatialGroupEstimatedVelocity   = estimatedVelocity(elements,:);
