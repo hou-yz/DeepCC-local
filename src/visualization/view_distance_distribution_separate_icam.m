@@ -1,12 +1,15 @@
 clear
 clc
 
-for iCam = 8:8
+threshold_s = zeros(1,8);
+diff_p_s = zeros(1,8);
+diff_n_s = zeros(1,8);
+for iCam = 1:8
     opts = get_opts();
     data = readtable('src/visualization/file_list.csv', 'Delimiter',','); % gt@1fps
 %     data = readtable('src/triplet-reid/data/duke_test.csv', 'Delimiter',','); % reid
 
-    opts.net.experiment_root =  'experiments/fc256_6fps_epoch45';%'experiments/fc256_30fps_separate_icam_epoch15'; %
+    opts.net.experiment_root =  'experiments/fc256_1fps';%'experiments/fc256_30fps_separate_icam_epoch15'; %
     labels = data.Var1;
     paths  = data.Var2;
     ids =  contains(paths,sprintf('_c%d_',iCam));
@@ -50,44 +53,54 @@ for iCam = 8:8
     legend('Positive','Negative','stats_P','stats_N','Location','southeast');
     stat_str_P = "mean_P:"+num2str(m(1),'%.2f')+newline+"std_P:"+num2str(s(1),'%.2f');
     stat_str_N = "mean_N:"+num2str(m(2),'%.2f')+newline+"std_N:"+num2str(s(2),'%.2f');
-    neg_str = "\downarrow dist_P less than the 5% dist_N: "+num2str(sum(pos_dists<neg_5th)/length(pos_dists)*100)+"%";
-    mid_str = "\downarrow dist_P less than mid: "+num2str(sum(pos_dists<mid)/length(pos_dists)*100)+"%";
-    info_str = "5% dist_N: "+num2str(neg_5th,'%.2f')+newline+"mid: "+num2str(mid,'%.2f');
-    dist_str = "E[d_N-d_P]: "+num2str(diff,'%.2f')+newline+"0.5dist: "+num2str(diff/2,'%.2f');
-    text(mid,0.025,neg_str)
+    neg_str = "\downarrow dist_P less than the 5% dist_N: "+num2str(sum(pos_dists<neg_5th)/length(pos_dists)*100,'%.2f')+"%";
+    mid_str = "\downarrow dist_P less than mid: "+num2str(sum(pos_dists<mid)/length(pos_dists)*100,'%.2f')+"%";
+    text(neg_5th,0.025,neg_str)
     text(mid,0.02,mid_str)
-    text(mid,0.05,info_str)
-    text(0,0.05,dist_str)
     text(m(1),0.065,stat_str_P)
     text(m(2),0.065,stat_str_N)
     
     % get the best partition pt
-%     min_neg = prctile(neg_dists,0.1);
-%     max_pos = prctile(pos_dists,99.9);
-%     if min_neg>=max_pos
-%         best_pt = mean([min_neg,max_pos]);
-%         FP = 0;
-%         FN = 0;
-%     else
-%         pts = 99:0.05:100;
-%         pts = prctile(pos_dists,pts);
-%         FPs = sum(neg_dists<pts)/numel(neg_dists);
-%         FNs = sum(pos_dists>pts)/numel(pos_dists);
-%         [min_total_miss,id] = min(FPs+50*FNs);
-%         best_pt = pts(id);
-%         FP = FPs(id);
-%         FN = FNs(id);
-%     end
-%     best_pt_str = "\downarrow best_pt:"+num2str(best_pt)+newline+"FP: "+num2str(FP)+newline+"50x FN: "+num2str(FN);
-%     text(best_pt,0.04,best_pt_str)
+    min_neg = prctile(neg_dists,0.1);
+    max_pos = prctile(pos_dists,99.9);
+    if min_neg>=max_pos
+        best_pt = mean([min_neg,max_pos]);
+        FP = 0;
+        FN = 0;
+    else
+        pts = 99:0.05:100;
+        pts = prctile(pos_dists,pts);
+        FPs = sum(neg_dists<pts)/numel(neg_dists);
+        FNs = sum(pos_dists>pts)/numel(pos_dists);
+        [min_total_miss,id] = min(FPs+1*FNs);
+        best_pt = pts(id);
+        FP = FPs(id);
+        FN = FNs(id);
+    end
+    info_str = "5% dist_N: "+num2str(neg_5th,'%.2f')+newline+"mid:       "+num2str(mid,'%.2f')+newline+"best\_pt:  "+num2str(best_pt,'%.2f');
+    text(mid,0.05,info_str)
+    best_pt_str = "\downarrow dist_P less than the best\_pt: "+num2str(sum(pos_dists<best_pt)/length(pos_dists)*100,'%.2f')+"%";
+    text(best_pt,0.03,best_pt_str)
+    
+    diff_p = best_pt - m(1);
+    diff_n = m(2) - best_pt;
+    dist_str = "E[d_N-d_P]: "+num2str(diff,'%.2f')+newline+"0.5diff: "+num2str(diff/2,'%.2f')+newline+"diff_P: "+num2str(diff_p,'%.2f')+newline+"diff_N: "+num2str(diff_n,'%.2f');
+    text(0,0.05,dist_str)
 
     hold off
     
     %%
     subplot(1,2,2)
-    thres = mid;
-    pos_dists = (thres-pos_dists)/diff*2;
-    neg_dists = (thres-neg_dists)/diff*2;
+    thres = best_pt;
+    pos_dists = (thres-pos_dists)/diff_p;
+    neg_dists = (thres-neg_dists)/diff_n;
+    
+    threshold_s(iCam) = thres;
+    diff_p_s(iCam) = diff_p;
+    diff_n_s(iCam) = diff_n;
+    
+    o0pos = sum(pos_dists>0)/length(pos_dists)*100;
+    o0neg = sum(neg_dists<0)/length(neg_dists)*100;
     o5pos = sum(pos_dists>0.5)/length(pos_dists)*100;
     o5neg = sum(neg_dists<-0.5)/length(neg_dists)*100;
     
@@ -103,11 +116,15 @@ for iCam = 8:8
     legend('Positive','Negative','stats_P','stats_N','Location','southeast');
     
     
-    stat_str_P = "mean_P:"+num2str(m(1),'%.2f')+newline+"std_P:"+num2str(s(1),'%.2f')+newline+"score_P > 0.5: "+num2str(o5pos)+"%";
-    stat_str_N = "mean_N:"+num2str(m(2),'%.2f')+newline+"std_N:"+num2str(s(2),'%.2f')+newline+"score_N < -0.5: "+num2str(o5neg)+"%";
+    stat_str_P = "mean_P:"+num2str(m(1),'%.2f')+newline+"std_P:"+num2str(s(1),'%.2f')+newline+"score_P > 0.5: "+num2str(o5pos,'%.2f')+"%"+newline+"score_P > 0:    "+num2str(o0pos,'%.2f')+"%";
+    stat_str_N = "mean_N:"+num2str(m(2),'%.2f')+newline+"std_N:"+num2str(s(2),'%.2f')+newline+"score_N < -0.5: "+num2str(o5neg,'%.2f')+"%"+newline+"score_N < -0:    "+num2str(o0neg,'%.2f')+"%";
     text(m(1),0.065,stat_str_P)
     text(m(2),0.065,stat_str_N)
     
     
+    
     saveas(fig,sprintf('%s_%d.jpg',opts.net.experiment_root,iCam));
 end
+disp(num2str(threshold_s,'%.2f '))
+disp(num2str(diff_p_s,'%.2f '))
+disp(num2str(diff_n_s,'%.2f '))
