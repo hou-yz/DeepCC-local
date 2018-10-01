@@ -53,7 +53,7 @@ for i = 1 : length(allGroups)
     [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinityL3(trajectories(indices));
     correlationMatrix = ...
         1 * appearanceCorrelation + ...
-        (spacetimeAffinity).*(1-indifferenceMatrix);
+        params.alpha*(spacetimeAffinity).*(1-indifferenceMatrix);
     
     
     correlationMatrix(impossibilityMatrix) = -Inf;
