@@ -52,7 +52,7 @@ for spatialGroupID = 1 : max(spatialGroupIDs)
     spatialGroupObservations        = currentDetectionsIDX(elements);
     
     % Create an appearance affinity matrix and a motion affinity matrix
-    appearanceCorrelation           = getAppearanceSubMatrix(spatialGroupObservations, allFeatures, threshold,diff_p,diff_n);
+    appearanceCorrelation           = getAppearanceSubMatrix(spatialGroupObservations, allFeatures, threshold,diff_p,diff_n,params.step);
     spatialGroupDetectionCenters    = detectionCenters(elements,:);
     spatialGroupDetectionFrames     = detectionFrames(elements,:);
     spatialGroupEstimatedVelocity   = estimatedVelocity(elements,:);

@@ -43,6 +43,7 @@ tracklets.speed_limit = 20;
 tracklets.threshold = 8;
 tracklets.diff_p = 0;
 tracklets.diff_n = 0;
+tracklets.step = false;
 
 
 % Trajectories
@@ -57,6 +58,7 @@ trajectories.indifference_time = 100;
 trajectories.threshold = 8;
 trajectories.diff_p = 0;
 trajectories.diff_n = 0;
+trajectories.step = false;
 
 % Identities
 identities = [];
@@ -70,6 +72,8 @@ identities.speed_limit = 30;
 identities.threshold = 8;
 identities.diff_p = 0;
 identities.diff_n = 0;
+identities.step = false;
+
 identities.extract_images = true;
 
 % CNN model

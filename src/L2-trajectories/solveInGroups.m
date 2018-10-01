@@ -59,7 +59,7 @@ for i = 1 : length(allGroups)
     sameLabels  = pdist2(labels(indices), labels(indices)) == 0;
     
     % compute appearance and spacetime scores
-    appearanceAffinity = getAppearanceMatrix(featureVectors(indices), threshold, diff_p,diff_n);
+    appearanceAffinity = getAppearanceMatrix(featureVectors(indices), threshold, diff_p,diff_n,params.step);
     [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinity(tracklets(indices), params.beta, params.speed_limit, params.indifference_time);
     
     % compute the correlation matrix
