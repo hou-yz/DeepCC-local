@@ -1,11 +1,8 @@
-clear
-clc
-
-opts = get_opts();
+function [thres_uni,diff_p_uni,diff_n_uni]=view_distance_distribution(opts,type)
 data = readtable('src/visualization/file_list.csv', 'Delimiter',','); % gt@1fps
 % data = readtable('src/triplet-reid/data/duke_test.csv', 'Delimiter',','); % reid
 
-opts.net.experiment_root = 'experiments/fc256_1fps';
+% opts.net.experiment_root = 'experiments/fc256_6fps_epoch45';
 labels = data.Var1;
 paths  = data.Var2;
 %% Compute features
@@ -13,8 +10,8 @@ features = h5read(fullfile(opts.net.experiment_root, 'features.h5'),'/emb');
 features = features';
 % pooling
 pooling = 4;
-labels = labels(pooling:pooling:length(labels),:);
-features = features(pooling:pooling:length(features),:);
+labels = labels(1:pooling:length(labels),:);
+features = features(1:pooling:length(features),:);
 dist = pdist2(features,features);
 %% Visualize distance distribution
     same_label = triu(pdist2(labels,labels) == 0,1);
@@ -75,18 +72,23 @@ dist = pdist2(features,features);
     best_pt_str = "\downarrow dist_P less than the best\_pt: "+num2str(sum(pos_dists<best_pt)/length(pos_dists)*100,'%.2f')+"%";
     text(best_pt,0.03,best_pt_str)
     
-    diff_p = best_pt - m(1);
-    diff_n = m(2) - best_pt;
-    dist_str = "E[d_N-d_P]: "+num2str(diff,'%.2f')+newline+"0.5dist: "+num2str(diff/2,'%.2f')+newline+"diff_P: "+num2str(diff_p,'%.2f')+newline+"diff_N: "+num2str(diff_n,'%.2f');
+    % decide thres
+    if strcmp(type,'mid')
+    thres_uni = mid;
+    else
+    thres_uni = best_pt;
+    end
+    diff_p_uni = thres_uni - m(1);
+    diff_n_uni = m(2) - thres_uni;
+    dist_str = "E[d_N-d_P]: "+num2str(diff,'%.2f')+newline+"0.5dist: "+num2str(diff/2,'%.2f')+newline+"diff_P: "+num2str(diff_p_uni,'%.2f')+newline+"diff_N: "+num2str(diff_n_uni,'%.2f');
     text(0,0.05,dist_str)
 
     hold off
     
     %%
     subplot(1,2,2)
-    thres = best_pt;
-    pos_dists = (thres-pos_dists)/diff_p;
-    neg_dists = (thres-neg_dists)/diff_n;
+    pos_dists = (thres_uni-pos_dists)/diff_p_uni;
+    neg_dists = (thres_uni-neg_dists)/diff_n_uni;
     
     o0pos = sum(pos_dists>0)/length(pos_dists)*100;
     o0neg = sum(neg_dists<0)/length(neg_dists)*100;
@@ -99,7 +101,7 @@ dist = pdist2(features,features);
     hold on;
     histogram(pos_dists,100,'Normalization','probability', 'FaceColor', 'b');
     histogram(neg_dists,100,'Normalization','probability','FaceColor','r');
-    title('Apparance score');
+    title(['Apparance score',type]);
     errorbar(m(1),0.07,s(1),'horizontal','b-o')
     errorbar(m(2),0.07,s(2),'horizontal','r-o')
     legend('Positive','Negative','stats_P','stats_N','Location','southeast');
@@ -113,6 +115,8 @@ dist = pdist2(features,features);
     
     saveas(fig,sprintf('%s.jpg',opts.net.experiment_root));
     
-disp(num2str(thres,'%.2f '))
-disp(num2str(diff_p,'%.2f '))
-disp(num2str(diff_n,'%.2f '))
+disp("thres:  "+num2str(thres_uni,'%.2f '))
+disp("diff_p: "+num2str(diff_p_uni,'%.2f '))
+disp("diff_n: "+num2str(diff_n_uni,'%.2f '))
+
+end
