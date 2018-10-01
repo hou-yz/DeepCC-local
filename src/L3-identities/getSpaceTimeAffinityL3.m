@@ -1,4 +1,4 @@
-function [motionMatrix, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinityMC(trajectories)
+function [motionMatrix, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinityL3(trajectories)
 
 numTrajectories = length(trajectories);
 

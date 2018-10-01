@@ -1,4 +1,4 @@
-function [stAffinity, impossibilityMatrix, indiffMatrix] = getSpaceTimeAffinity(tracklets, beta1, speedLimit, indifferenceLimit)
+function [stAffinity, impossibilityMatrix, indiffMatrix] = getSpaceTimeAffinity(tracklets, beta, speedLimit, indifferenceLimit)
 
 numTracklets = length(tracklets);
 
@@ -57,7 +57,7 @@ timeDifference  = timeDifference + timeDifference';
 indiffMatrix    = 1 - sigmf(timeDifference,[0.1 indifferenceLimit/2]);
 
 % compute space-time affinities
-stAffinity      = 1 - beta1*errorMatrix;
+stAffinity      = 1 - beta*errorMatrix;
 stAffinity      = max(0, stAffinity);
 
 end
