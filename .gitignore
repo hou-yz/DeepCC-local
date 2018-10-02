@@ -3,3 +3,5 @@ src/external/mexopencv/
 *.mex*
 *.asv
 *.pyc
+mid/
+1x/
