@@ -1,4 +1,4 @@
-function [motionMatrix, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinityL3(trajectories)
+function [motionMatrix, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinityL4(trajectories)
 
 numTrajectories = length(trajectories);
 
@@ -36,7 +36,7 @@ for idx1 = 1 : numTrajectories-1
         L1 = sqrt(sum((A.data(end, [7 8]) - B.data(  1, [7 8])).^2));
         L2 = sqrt(sum((A.data(end, [7 8]) - B.data(end, [7 8])).^2));
         L3 = sqrt(sum((A.data(  1, [7 8]) - B.data(  1, [7 8])).^2));
-        
+        % to do: same camera self transfer
         if frames_betw > min_number_of_required_frames && L1 < L2 && L1 < L3 && ~isequal(A.camera, B.camera)
             feasibilityMatrix(idx1,idx2) = 1; % feasible association
         end

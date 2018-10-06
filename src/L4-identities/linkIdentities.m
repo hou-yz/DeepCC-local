@@ -1,4 +1,4 @@
-function outputIdentities = linkIdentities( opts, inputIdentities, startTime, endTime)
+function outputIdentities = linkIdentities( opts, inputIdentities, startTime, endTime,VISUALIZE)
 
 
 % find current, old, and future tracklets

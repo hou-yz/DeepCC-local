@@ -26,7 +26,7 @@ evaluate(opts);
 
 % Multi-camera identities
 opts.identities.appearance_groups = 0;
-compute_L3_identities(opts);
-opts.eval_dir = 'L3-identities';
+compute_L4_identities(opts);
+opts.eval_dir = 'L4-identities';
 evaluate(opts);
 

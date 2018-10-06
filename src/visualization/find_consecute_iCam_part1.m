@@ -44,12 +44,12 @@ for i = 1:length(ids)
             continue
         end
         % print image
-        figure(1)
-        img = opts.reader.getFrame(lines(switch_line_id(end)-1,1), global2local(opts.start_frames(lines(switch_line_id(end)-1,1)), lines(switch_line_id(end)-1,3)));
-        imshow(img(lines(switch_line_id(end)-1,5):lines(switch_line_id(end)-1,5)+lines(switch_line_id(end)-1,7),lines(switch_line_id(end)-1,4):lines(switch_line_id(end)-1,4)+lines(switch_line_id(end)-1,6),:))
-        figure(2)
-        img = opts.reader.getFrame(lines(switch_line_id(end),1), global2local(opts.start_frames(lines(switch_line_id(end),1)), lines(switch_line_id(end),3)));
-        imshow(img(lines(switch_line_id(end),5):lines(switch_line_id(end),5)+lines(switch_line_id(end),7),lines(switch_line_id(end),4):lines(switch_line_id(end),4)+lines(switch_line_id(end),6),:))
+%         figure(1)
+%         img = opts.reader.getFrame(lines(switch_line_id(end)-1,1), global2local(opts.start_frames(lines(switch_line_id(end)-1,1)), lines(switch_line_id(end)-1,3)));
+%         imshow(img(lines(switch_line_id(end)-1,5):lines(switch_line_id(end)-1,5)+lines(switch_line_id(end)-1,7),lines(switch_line_id(end)-1,4):lines(switch_line_id(end)-1,4)+lines(switch_line_id(end)-1,6),:))
+%         figure(2)
+%         img = opts.reader.getFrame(lines(switch_line_id(end),1), global2local(opts.start_frames(lines(switch_line_id(end),1)), lines(switch_line_id(end),3)));
+%         imshow(img(lines(switch_line_id(end),5):lines(switch_line_id(end),5)+lines(switch_line_id(end),7),lines(switch_line_id(end),4):lines(switch_line_id(end),4)+lines(switch_line_id(end),6),:))
         
         same_id_same_cam_outage_time = lines(switch_line_id(end),3) - lines(switch_line_id(end)-1,3);
         same_id_same_cam_outage_times = [same_id_same_cam_outage_times;lines(switch_line_id(end),1:3),same_id_same_cam_outage_time];

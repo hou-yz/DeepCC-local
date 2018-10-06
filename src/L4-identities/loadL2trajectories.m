@@ -18,6 +18,16 @@ for iCam = 1:opts.num_cam
         trajectory.camera = iCam;
         trajectory.startFrame = min(trajectory.data(:,1));
         trajectory.endFrame = max(trajectory.data(:,1));
+        if opts.visualize
+        i=floor(length(trajectory.data(:,1))/2);
+        frame = trajectory.data(i,1);
+        left = trajectory.data(i,3);
+        top = trajectory.data(i,4);
+        width = trajectory.data(i,5);
+        height = trajectory.data(i,6);
+        img = opts.reader.getFrame(iCam,frame);
+        trajectory.snapshot = img(top:top+height,left:left+width,:);
+        end
         trajectories(count).trajectories = trajectory;
         count = count + 1;
         

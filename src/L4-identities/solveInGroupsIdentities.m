@@ -8,6 +8,7 @@ if length(trajectories) < params.appearance_groups
 end
 
 % adaptive number of appearance groups
+% experience setting: one appear group every 120 traj's
 if params.appearance_groups == 0
     params.appearance_groups = 1 + floor(length(trajectories)/120);
 end
@@ -39,8 +40,8 @@ allGroups = unique(appearanceGroups);
 %     imshow(trajectories(k).snapshot); 
 % end
 
-
 group_results = cell(1, length(allGroups));
+same_id_correlation_matrix = [];
 for i = 1 : length(allGroups)
     
     fprintf('merging trajectories in appearance group %d\n',i);
@@ -49,8 +50,8 @@ for i = 1 : length(allGroups)
     sameLabels  = pdist2(labels(indices), labels(indices)) == 0;
     
     % compute appearance and spacetime scores
-    appearanceCorrelation = getAppearanceMatrix(featureVectors(indices), params.threshold,params.diff_p,params.diff_n,params.step);
-    [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinityL3(trajectories(indices));
+    appearanceCorrelation = getAppearanceMatrix(featureVectors(indices),featureVectors(indices), params.threshold,params.diff_p,params.diff_n,params.step);
+    [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinityL4(trajectories(indices));
     correlationMatrix = ...
         1 * appearanceCorrelation + ...
         params.alpha*(spacetimeAffinity).*(1-indifferenceMatrix);
@@ -75,6 +76,18 @@ for i = 1 : length(allGroups)
         initialSolution = KernighanLin(correlationMatrix);
         group_results{i}.labels  = BIPCC(correlationMatrix,initialSolution);
     end
+    
+    unique_indices = unique(group_results{i}.labels);
+    for j = 1:length(unique_indices)
+        ind = find(group_results{i}.labels==unique_indices(j));
+        for k = 1:length(ind)-1
+            x=ind(k);
+            y=ind(k+1);
+            same_id_correlation_matrix=[same_id_correlation_matrix;correlationMatrix(x,y)];
+        end
+    end
+            
+        
     
     identitySolutionTime = toc(solutionTime);
     identitySolverTime = identitySolverTime + identitySolutionTime;

@@ -30,8 +30,8 @@ for iCam = 1:8
     pos_dists = dist(same_label);
     neg_dists = dist(different_label);
     % pooling
-    pooling = length(neg_dists)/length(pos_dists);
-    neg_dists = neg_dists(1:pooling:length(neg_dists));
+%     pooling = floor(length(neg_dists)/length(pos_dists));
+%     neg_dists = neg_dists(1:pooling:length(neg_dists));
     
     neg_5th = prctile(neg_dists,5);
     m = [mean(pos_dists),mean(neg_dists)];
@@ -117,7 +117,7 @@ for iCam = 1:8
     hold on;
     histogram(pos_dists_1,100,'Normalization','probability', 'FaceColor', 'b');
     histogram(neg_dists_1,100,'Normalization','probability','FaceColor','r');
-    title(['Apparance score:',type]);
+    title(['Apparance score: ',type]);
     errorbar(m(1),0.07,s(1),'horizontal','b-o')
     errorbar(m(2),0.07,s(2),'horizontal','r-o')
     legend('Positive','Negative','stats_P','stats_N','Location','northwest');

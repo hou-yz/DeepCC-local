@@ -12,7 +12,7 @@ opts.experiment_name = 'demo';
 opts.reader = MyVideoReader(opts.dataset_path);
 
 % General settings
-opts.eval_dir = 'L3-identities';
+opts.eval_dir = 'L4-identities';
 opts.visualize = false;
 opts.image_width = 1920;
 opts.image_height = 1080;
@@ -73,8 +73,10 @@ identities.threshold = 8;
 identities.diff_p = 0;
 identities.diff_n = 0;
 identities.step = false;
-
 identities.extract_images = true;
+
+identities.consecutive_icam_matrix = [0,1,0,0,0,0,0,1;1,0,1,0,1,0,0,0;0,1,0,1,1,0,0,0;0,0,1,0,0,0,0,0;0,1,1,0,1,1,1,0;0,0,0,0,1,1,1,0;0,0,0,0,1,1,0,1;1,0,0,0,0,0,1,0];
+identities.reintro_time = [3088,1847,1209,1552,3622,3411,1551,2535];
 
 % CNN model
 net = [];
