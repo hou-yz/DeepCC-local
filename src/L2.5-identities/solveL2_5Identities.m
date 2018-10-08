@@ -1,4 +1,4 @@
-function [result,correlation] = solveL3Identities(opts,source_traj,source_label, target_trajs, target_labels)
+function [result,correlation] = solveL2_5Identities(opts,source_traj,source_label, target_trajs, target_labels)
 % same id threshold
 threshold=0.3;
 
@@ -26,7 +26,7 @@ sameLabels  = pdist2(source_label, target_labels) == 0;
 
 % compute appearance and spacetime scores
 appearanceCorrelation = getAppearanceMatrix(source_feat_vector,target_feat_vectors, params.threshold,params.diff_p,params.diff_n,params.step);
-[spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinityL3(source_traj,target_trajs);
+[spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinityL2_5(source_traj,target_trajs);
 correlationMatrix = ...
         1 * appearanceCorrelation + ...
         params.alpha*(spacetimeAffinity).*(1-indifferenceMatrix);

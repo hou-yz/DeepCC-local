@@ -1,10 +1,10 @@
-function [outputIdentities,if_updated,repairedIdentities,skip_ind] = linkL3Identities( opts, inputIdentities, sourceIdentityInd )
+function [outputIdentities,if_updated,repairedIdentities,skip_ind] = linkL2_5Identities( opts, inputIdentities, sourceIdentityInd )
 
 sourceIdentity = inputIdentities(sourceIdentityInd);
 sourceTraj = sourceIdentity.trajectories(end);
 target_iCams = 1:8;
 target_iCams = target_iCams(opts.identities.consecutive_icam_matrix(sourceTraj.camera,:)==1);
-target_reintro_time = opts.identities.reintro_time(sourceTraj.camera);
+target_reintro_time = opts.identities.reintro_time_matrix(sourceTraj.camera);
 
 % find current, old, and future tracklets
 targetIdentitiesInd    = findOneHopTrajectoriesInWindow(inputIdentities,target_iCams, sourceTraj.startFrame, sourceTraj.startFrame+target_reintro_time);
@@ -43,7 +43,7 @@ inAssociation = logical(inAssociation);
 % if VISUALIZE, trajectoriesVisualizePart1; end
 
 % solve the graph partitioning problem for each appearance group
-[result,correlation] = solveL3Identities(opts,sourceTraj,sourceIdentityInd, target_id_trajs(inAssociation), target_id_labels(inAssociation));
+[result,correlation] = solveL2_5Identities(opts,sourceTraj,sourceIdentityInd, target_id_trajs(inAssociation), target_id_labels(inAssociation));
 
 % merge back solution. Tracklets that were associated are now merged back
 % with the rest of the tracklets that were sharing the same trajectory
@@ -109,7 +109,7 @@ outputIdentities(sourceIdentityInd) = mergedIdentities';
     if length(frames) ~= size(data,1)
         fprintf( 'Found duplicate ID/Frame pairs, restore to source');
         remedy_labels = 1:length(mergedIdentities.trajectories);
-        repairedIdentities=remedyL3Identities(opts,mergedIdentities.trajectories,remedy_labels);
+        repairedIdentities=remedyL2_5Identities(opts,mergedIdentities.trajectories,remedy_labels);
         
         repeated_id = zeros(1,length(repairedIdentities));
         for k = 1:length(repairedIdentities)

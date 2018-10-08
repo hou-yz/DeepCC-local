@@ -1,4 +1,4 @@
-function compute_L3_identities(opts)
+function compute_L2_5_identities(opts)
 % Computes multi-camera trajectories from single-camera trajectories
 
 filename = sprintf('%s/%s/L3-identities/L2trajectories.mat',opts.experiment_root, opts.experiment_name);
@@ -26,7 +26,7 @@ last_repairedIdentities=[];
 while i <= length(identities)
     clc; fprintf('One-Hop link for identity %d\n', i);
     
-    [identities,if_updated,repairedIdentities,skip_ind] = linkL3Identities(opts, identities, i);
+    [identities,if_updated,repairedIdentities,skip_ind] = linkL2_5Identities(opts, identities, i);
     
     if ~isempty(repairedIdentities) && ~isempty(last_repairedIdentities) 
     if last_repairedIdentities(1).startFrame==repairedIdentities(1).startFrame && last_repairedIdentities(end).endFrame==repairedIdentities(end).endFrame
