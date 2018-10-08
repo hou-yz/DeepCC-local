@@ -1,4 +1,4 @@
-function result = solveInGroupsIdentities(opts, trajectories, labels, VISUALIZE)
+function result = solveInGroupsIdentities(opts, trajectories, labels)
 
 global identitySolverTime;
 
@@ -13,21 +13,20 @@ if params.appearance_groups == 0
     params.appearance_groups = 1 + floor(length(trajectories)/120);
 end
 
-% fixed number of appearance groups
-featureVectors_tmp      = double(cell2mat({trajectories.feature}'));
-uniqueLabels = unique(labels);
-for k = 1:length(uniqueLabels)
-   label = uniqueLabels(k);
-   inds = find(labels == label);
-   meanVector = mean(featureVectors_tmp(inds,:),1);
-   featureVectors_tmp(inds,:) = repmat(meanVector, length(inds),1);
-end
-
 featureVectors      = {trajectories.feature};
 
-for k = 1:length(featureVectors)
-   featureVectors{k} = featureVectors_tmp(k,:); 
-end
+% % set unified feat for trajs in same id
+% featureVectors_tmp      = double(cell2mat({trajectories.feature}'));
+% uniqueLabels = unique(labels);
+% for k = 1:length(uniqueLabels)
+%    label = uniqueLabels(k);
+%    inds = find(labels == label);
+%    meanVector = mean(featureVectors_tmp(inds,:),1);
+%    featureVectors_tmp(inds,:) = repmat(meanVector, length(inds),1);
+% end
+% for k = 1:length(featureVectors)
+%    featureVectors{k} = featureVectors_tmp(k,:); 
+% end
 
 appearanceGroups    = kmeans( cell2mat(featureVectors'), params.appearance_groups, 'emptyaction', 'singleton', 'Replicates', 10);
 
@@ -51,7 +50,7 @@ for i = 1 : length(allGroups)
     
     % compute appearance and spacetime scores
     appearanceCorrelation = getAppearanceMatrix(featureVectors(indices),featureVectors(indices), params.threshold,params.diff_p,params.diff_n,params.step);
-    [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinityL4(trajectories(indices));
+    [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinityID(trajectories(indices),opts.identities.consecutive_icam_matrix,opts.identities.reintro_time_matrix);
     correlationMatrix = ...
         1 * appearanceCorrelation + ...
         params.alpha*(spacetimeAffinity).*(1-indifferenceMatrix);

@@ -1,4 +1,4 @@
-function [motionMatrix, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinityL4(trajectories)
+function [motionMatrix, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinityID(trajectories,consecutive_icam_matrix,reintro_time_matrix)
 
 numTrajectories = length(trajectories);
 
@@ -26,18 +26,26 @@ for idx1 = 1 : numTrajectories-1
         if ~isempty(intersect(A.data(:,9),B.data(:,9)))
             continue;
         end
+        % check if in consecutive_icam_matrix
+        target_iCams = consecutive_icam_matrix(A.camera,:);
+        if_in_target_iCams = target_iCams(B.camera)>0;
+        
+        % check if in reintro time
+        reinrto_time = reintro_time_matrix(A.camera);
+        if_in_reintro_time = B.startFrame < A.endFrame + reinrto_time ;
         
         % compute required number of frames
         distance    = sqrt(sum((A.data(end, [7 8]) - B.data(1, [7 8])).^2));
         frames_betw = abs(B.data(1, 9) - A.data(end, 9));
         min_number_of_required_frames = distance / speedLimit * frameRate;
         
-        % compute directional information
-        L1 = sqrt(sum((A.data(end, [7 8]) - B.data(  1, [7 8])).^2));
-        L2 = sqrt(sum((A.data(end, [7 8]) - B.data(end, [7 8])).^2));
-        L3 = sqrt(sum((A.data(  1, [7 8]) - B.data(  1, [7 8])).^2));
+%         % compute directional information
+%         L1 = sqrt(sum((A.data(end, [7 8]) - B.data(  1, [7 8])).^2));
+%         L2 = sqrt(sum((A.data(end, [7 8]) - B.data(end, [7 8])).^2));
+%         L3 = sqrt(sum((A.data(  1, [7 8]) - B.data(  1, [7 8])).^2));
+%         % && L1 < L2 && L1 < L3 && ~isequal(A.camera, B.camera) 
         % to do: same camera self transfer
-        if frames_betw > min_number_of_required_frames && L1 < L2 && L1 < L3 && ~isequal(A.camera, B.camera)
+        if frames_betw > min_number_of_required_frames && if_in_target_iCams && if_in_reintro_time
             feasibilityMatrix(idx1,idx2) = 1; % feasible association
         end
         

@@ -1,25 +1,11 @@
 function compute_L4_identities(opts)
-% Computes multi-camera trajectories from single-camera trajectories
+% Computes multi-camera trajectories from L3 one hop ids
+% load L3 one-hop ids
+load(fullfile(opts.experiment_root, opts.experiment_name, 'L3-identities', sprintf('identities_%s.mat',opts.sequence_names{opts.sequence})));
+% set consecutive_icam_martix && reintro_time_matrix
+opts.identities.consecutive_icam_matrix = ones(8);
+opts.identities.reintro_time_matrix = inf*ones(1,8);
 
-trajectories = loadL2trajectories(opts);
-% trajectories = getTrajectoryFeatures(opts, trajectories);
-
-% load traj from L2
-trajectories = loadTrajectoryFeatures(opts, trajectories);
-
-filename = sprintf('%s/%s/L4-identities/L2trajectories.mat',opts.experiment_root, opts.experiment_name);
-save(filename,'trajectories');
-%  load(filename);
-identities = trajectories;
-
-for k = 1:length(identities)
-    identities(k).trajectories(1).data(:,end+1) = local2global(opts.start_frames(identities(k).trajectories(1).camera) ,identities(k).trajectories(1).data(:,1));
-    identities(k).trajectories(1).startFrame = identities(k).trajectories(1).data(1,9);
-    identities(k).startFrame = identities(k).trajectories(1).startFrame;
-    identities(k).trajectories(1).endFrame = identities(k).trajectories(1).data(end,9);
-    identities(k).endFrame   = identities(k).trajectories(1).endFrame;
-end
-identities = sortStruct(identities,'startFrame');
 
 global_interval = opts.sequence_intervals{opts.sequence};
 startFrame = global_interval(1);
@@ -28,7 +14,7 @@ endFrame = global_interval(1) + opts.identities.window_width - 1;
 while startFrame <= global_interval(end)
     clc; fprintf('Window %d...%d\n', startFrame, endFrame);
     
-    identities = linkIdentities(opts, identities, startFrame, endFrame,opts.visualize);
+    identities = linkIdentities(opts, identities, startFrame, endFrame);
     
     % advance sliding temporal window
     startFrame = endFrame   - opts.identities.window_width/2;
