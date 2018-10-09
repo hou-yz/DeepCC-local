@@ -72,10 +72,12 @@ identities.speed_limit = 30;
 identities.threshold = 8;
 identities.diff_p = 0;
 identities.diff_n = 0;
+identities.optimal_filter = true;
 identities.step = false;
 identities.extract_images = true;
 
-identities.consecutive_icam_matrix = [1,1,0,0,1,0,1,1;1,1,1,0,1,0,0,1;0,1,1,1,1,0,1,0;0,1,1,0,1,0,0,0;1,1,1,1,1,1,1,1;0,0,0,0,1,1,1,0;1,0,0,0,1,1,1,1;1,1,0,0,1,0,1,1];
+identities.consecutive_icam_matrix = [1,1,0,0,1,0,1,1;1,1,1,0,1,0,0,1;0,1,1,1,1,0,1,0;0,1,1,0,1,0,0,0;1,1,1,1,1,1,1,1;0,0,0,0,1,1,1,0;1,0,0,0,1,1,1,1;1,1,0,0,1,0,1,1];%>0.5%
+%[0,1,0,0,0,0,0,1;1,0,1,0,1,0,0,0;0,1,0,1,1,0,0,0;0,0,1,0,0,0,0,0;0,1,1,0,1,1,1,0;0,0,0,0,1,1,1,0;0,0,0,0,1,1,0,1;1,0,0,0,0,0,1,0];%>5%
 identities.reintro_time_matrix = [3088,1847,1209,1552,3622,3411,1551,2535];
 
 
