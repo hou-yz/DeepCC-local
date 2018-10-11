@@ -4,7 +4,7 @@ function compute_L4_identities(opts)
 load(fullfile(opts.experiment_root, opts.experiment_name, 'L3-identities', sprintf('identities_%s.mat',opts.sequence_names{opts.sequence})));
 % set consecutive_icam_martix && reintro_time_matrix
 opts.identities.consecutive_icam_matrix = ones(8);
-opts.identities.reintro_time_matrix = inf*ones(1,8);
+opts.identities.reintro_time_matrix = opts.identities.window_width*ones(1,8);
 
 
 global_interval = opts.sequence_intervals{opts.sequence};

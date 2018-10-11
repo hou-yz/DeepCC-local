@@ -59,7 +59,7 @@ for i = 1 : length(allGroups)
     correlationMatrix(impossibilityMatrix) = -Inf;
 
     
-    correlationMatrix(sameLabels.*(correlationMatrix<=1)==1) = 1;
+    correlationMatrix(sameLabels.*(correlationMatrix<=1+0.15*params.alpha)==1) = 1+0.15*params.alpha;
     
     % show appearance group tracklets
 %     if VISUALIZE, trajectoriesVisualizePart2; end
