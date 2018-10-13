@@ -8,12 +8,13 @@ for iCam = 1:8
     trainData(line_id==1,3) = local2global(opts.start_frames(iCam), trainData(line_id==1,3));
 end
 
-% 30s
-same_id_same_cam_threshold = 60*30;
+% 150s
+same_id_same_cam_threshold = 150;
 
 ids = unique(trainData(:,2));
 same_track_cam = zeros(length(ids),8);
 same_track_cam_matrix = zeros(8,8);
+same_track_intervals = cellmat(8,8,0,0,0);
 consecutive_cam = zeros(length(ids),8);
 consecutive_cam_matrix = zeros(8,8);  % LINES (i): out from iCam (i) into iCam (j): COLUMN (j)
 same_id_same_cam_outage_times=[];
@@ -30,7 +31,13 @@ for i = 1:length(ids)
 
     all=1:length(switch_cam_lines_id);
     intro_lines_id = all(switch_cam_lines_id==1);
+    outro_lines_id = all([intro_lines_id(2:end)-1,end]);
     cams = lines(intro_lines_id,1);
+    in_times  = repmat(lines(intro_lines_id,3),1,length(intro_lines_id))';
+    out_times = repmat(lines(outro_lines_id,3),1,length(outro_lines_id));
+    intervals = max(in_times-out_times,0);
+    intervals = intervals+intervals';
+    
     
     % reintro_logging
     intro_lines_id = intro_lines_id(2:end);
@@ -60,5 +67,15 @@ for i = 1:length(ids)
         iCam_i_reintro_time_lists{cams(j),cams(j+1)} = [iCam_i_reintro_time_lists{cams(j),cams(j+1)},cams_reintro_time(j)];
     end
     same_track_cam(i,cams) = 1;
-    same_track_cam_matrix(cams,cams) = same_track_cam_matrix(cams,cams) + 1;
+%     same_track_cam_matrix(cams,cams) = same_track_cam_matrix(cams,cams) + 1;
+    for j = 1:length(cams)
+        cam1=cams(j);
+        for k = 1:length(cams)
+            cam2=cams(k);
+            same_track_intervals{cam1,cam2} = [same_track_intervals{cam1,cam2},intervals(j,k)];
+           same_track_cam_matrix(cam1,cam2) = same_track_cam_matrix(cam1,cam2)+1;
+        end
+    end
+    
+        
 end

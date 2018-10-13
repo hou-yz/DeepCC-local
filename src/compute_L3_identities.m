@@ -9,7 +9,10 @@ trajectories = loadTrajectoryFeatures(opts, trajectories);
 save(filename,'trajectories');
 
 % load from saved
-% load(filename);
+load(filename);
+% set consecutive_icam_martix && reintro_time_matrix
+% opts.identities.consecutive_icam_matrix = ones(8);
+opts.identities.reintro_time_matrix = opts.identities.window_width*ones(1,8);
 
 identities = trajectories;
 
