@@ -3,11 +3,12 @@ clear
 
 opts=get_opts();
 
-opts.sequence = 1;
+opts.sequence = 5;
 opts.feature_dir = 'gt_features_fc256_1fps_trainBN_crop';
 % Computes tracklets for all cameras
 
 newGTs = [];
+spatialGroupID_max = 0;
 for iCam = 1:8
     
     opts.current_camera = iCam;
@@ -20,18 +21,16 @@ for iCam = 1:8
     load(fullfile(opts.dataset_path, 'ground_truth','trainval.mat'));
     
     % load feat
-    features   = h5read(sprintf('%s/L0-features/%s/features%d.h5',opts.dataset_path,opts.feature_dir,iCam),'/emb');
+    features = h5read(sprintf('%s/L0-features/%s/features.h5',opts.dataset_path,opts.feature_dir),'/emb');
+    features = features';
     
     in_time_range_ids = trainData(:,3)>=start_frame & trainData(:,3)<=end_frame & trainData(:,1)==iCam;
     all_gts   = trainData(in_time_range_ids,2:end);
-    appearance = cell(size(all_gts,1),1);
-    frames     = cell(size(all_gts,1),1);
-    for k = 1:length(frames)
-        frames{k} = trainData(k,3);
-    end
+    in_time_range_ids = features(:,3)>=start_frame & features(:,3)<=end_frame & features(:,2)==iCam;
+    features = features(in_time_range_ids,:);
     
     % Compute tracklets for every 1-second interval
-    spatialGroupID_max = 0;
+    
     newGT=[];
     
     for window_start_frame   = start_frame : opts.tracklets.window_width : end_frame
@@ -42,6 +41,7 @@ for iCam = 1:8
         window_frames        = window_start_frame : window_end_frame;
         window_inds          = find(ismember(all_gts(:,2),window_frames));
         gts_in_window = all_gts(window_inds,:);
+        feat_in_window = features(window_inds,4:end);
         
         gts_in_window(:,7:end) = [];
         gts_in_window(:,[1 2]) = gts_in_window(:,[2 1]);
@@ -50,6 +50,7 @@ for iCam = 1:8
         % Compute tracklets in current window
         % Then add them to the list of all tracklets
         [appendedGTs,spatialGroupID_max] = GT_processing(opts, filteredGTs, window_start_frame, window_end_frame,spatialGroupID_max);
+        appendedGTs = [appendedGTs(),zeros(size(window_inds)),feat_in_window];
         newGT = [newGT;appendedGTs];
     end
     newGT(:,[1 2]) = newGT(:,[2 1]);
@@ -58,6 +59,6 @@ for iCam = 1:8
     newGTs = [newGTs;newGT];
 end
 
-save(fullfile(opts.dataset_path, 'ground_truth','newGTs.mat'), 'newGTs');
+hdf5write(fullfile(opts.dataset_path, 'ground_truth','hyperGT.h5'), '/hyperGT',newGTs);
 
 

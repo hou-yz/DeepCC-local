@@ -46,6 +46,6 @@ spatialGroupID_max = max(spatialGroupIDs);
 % Show window detections
 if opts.visualize, trackletsVisualizePart1; end
 
-appendedGTs = [originalGTs,gtCenters,estimatedVelocity,spatialGroupIDs];
+appendedGTs = [originalGTs(:,1:2),spatialGroupIDs,gtCenters,estimatedVelocity];
 
 end
