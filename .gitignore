@@ -5,3 +5,4 @@ src/external/mexopencv/
 *.pyc
 mid/
 1x/
+src/hyper_score/.idea/*

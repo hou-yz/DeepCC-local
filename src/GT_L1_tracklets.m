@@ -4,6 +4,7 @@ clear
 opts=get_opts();
 
 opts.sequence = 1;
+opts.feature_dir = 'gt_features_fc256_1fps_trainBN_crop';
 % Computes tracklets for all cameras
 
 newGTs = [];
@@ -15,8 +16,11 @@ for iCam = 1:8
     start_frame       = global2local(opts.start_frames(opts.current_camera), sequence_window(1));
     end_frame         = global2local(opts.start_frames(opts.current_camera), sequence_window(end));
     
-    % Load OpenPose detections for current camera
+    % Load GTs for current camera
     load(fullfile(opts.dataset_path, 'ground_truth','trainval.mat'));
+    
+    % load feat
+    features   = h5read(sprintf('%s/L0-features/%s/features%d.h5',opts.dataset_path,opts.feature_dir,iCam),'/emb');
     
     in_time_range_ids = trainData(:,3)>=start_frame & trainData(:,3)<=end_frame & trainData(:,1)==iCam;
     all_gts   = trainData(in_time_range_ids,2:end);
@@ -55,3 +59,5 @@ for iCam = 1:8
 end
 
 save(fullfile(opts.dataset_path, 'ground_truth','newGTs.mat'), 'newGTs');
+
+
