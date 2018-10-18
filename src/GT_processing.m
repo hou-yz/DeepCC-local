@@ -1,4 +1,4 @@
-function  [appendedGTs,spatialGroupID_max] = GT_processing(opts, originalGTs, startFrame, endFrame, spatialGroupID_max)
+function  [appendedGTs,spatialGroup_max] = GT_processing(opts, originalGTs, startFrame, endFrame, spatialGroup_max,use_spaGrp)
 % CREATETRACKLETS This function creates short tracks composed of several detections.
 %   In the first stage our method groups detections into space-time groups.
 %   In the second stage a Binary Integer Program is solved for every space-time
@@ -36,16 +36,28 @@ gtFrames         = originalGTs(currentGTsIDX, 1);
 estimatedVelocity       = estimateVelocities(originalGTs, startFrame, endFrame, params.nearest_neighbors, params.speed_limit);
 
 % Spatial groupping
-if length(currentGTsIDX)>1
+if length(currentGTsIDX)>1 && use_spaGrp
     spatialGroupIDs = getSpatialGroupIDs(opts.use_groupping, currentGTsIDX, gtCenters, params);
 else
-    spatialGroupIDs = [1];
+    spatialGroupIDs = ones(size(gtCenters,1),1);
 end
-spatialGroupIDs = spatialGroupIDs+spatialGroupID_max;
-spatialGroupID_max = max(spatialGroupIDs);
-% Show window detections
-if opts.visualize, trackletsVisualizePart1; end
+% pids = unique(originalGTs(:,2));
+% keySet = num2cell(pids);
+% valueSet = 1:length(pids);
+% M = containers.Map(keySet,valueSet);
+% 
+% new_pid = originalGTs(:,2);
+% for i = 1:length(new_pid)
+%     new_pid(i) = M(new_pid(i))+new_pid_max;
+% end
+spatialGroupIDs = spatialGroupIDs+spatialGroup_max;
+spatialGroup_max = max(spatialGroupIDs);
 
 appendedGTs = [originalGTs(:,1:2),spatialGroupIDs,gtCenters,estimatedVelocity];
 
+%%
+if opts.visualize
+    detectionCenters = gtCenters;
+    trackletsVisualizePart1
+end
 end
