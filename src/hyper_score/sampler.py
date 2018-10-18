@@ -32,11 +32,13 @@ class RandomIdentitySampler(Sampler):
             t = self.spaGrpID_dic[self.spaGrpID][line_ids[0]:line_ids[-1] + 1]
             if len(t) >= self.num_instances:
                 t = np.random.choice(t, size=self.num_instances, replace=False).tolist()
-            else:
-                t = np.random.choice(t, size=self.num_instances, replace=True).tolist()
+            # else:
+            #     t = np.random.choice(t, size=self.num_instances, replace=True).tolist()
             t_s += t
-        ret.extend(t_s)
         self.spaGrpID += 1
         if self.spaGrpID == self.spaGrpID_max:
             self.spaGrpID = 0
+        ret.extend(t_s)
+        ret = np.unique(ret)
         return iter(ret)
+
