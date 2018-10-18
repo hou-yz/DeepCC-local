@@ -41,17 +41,17 @@ for i = 1:numTracklets
     
     
     % Compute appearance features
-    medianFeature    = median(cell2mat(featuresAppearance(mask)));
+    meanFeature    = mean(featuresAppearance(mask,:));
     centers          = getBoundingBoxCenters(currentTracklet(:,[3:6]));
-    centerPoint      = median(centers); % assumes more then one detection per tracklet
+    centerPoint      = mean(centers); % assumes more then one detection per tracklet
     centerPointWorld = 1;% median(currentTracklet(:,[7,8]));
     
     % Add to tracklet list
-    smoothedTracklets(end+1).feature       = medianFeature; 
+    smoothedTracklets(end+1).feature       = meanFeature; 
     smoothedTracklets(end).center          = centerPoint;
     smoothedTracklets(end).centerWorld     = centerPointWorld;
     smoothedTracklets(end).data            = currentTracklet;
-    smoothedTracklets(end).features        = featuresAppearance(mask);
+    smoothedTracklets(end).features        = featuresAppearance(mask,:);
     smoothedTracklets(end).realdata        = detections;
     smoothedTracklets(end).mask            = mask;
     smoothedTracklets(end).startFrame      = start;
