@@ -11,13 +11,13 @@ import h5py
 
 
 class HyperFeat:
-    h5file = h5py.File('/home/houyz/Data/DukeMTMC/ground_truth/hyperGT_trainval_mini.h5', 'r')
-    data = np.array(h5file['hyperGT'])
 
     # data = np.transpose(data)
 
     def __init__(self, root):
         self.root = os.path.expanduser(root)
+        h5file = h5py.File(self.root, 'r')
+        self.data = np.array(h5file['hyperGT'])
 
         self.indexs = list(range(self.data.shape[0]))
         self.pid_hash = {}
@@ -29,7 +29,7 @@ class HyperFeat:
         all_groupIDs = np.int_(np.unique(self.data[:, 3]))
         for groupID in all_groupIDs:
             if groupID not in self.groupID_hash:
-                self.groupID_hash[groupID] = len(self.groupID_hash)
+                self.groupID_hash[groupID] = len(self.groupID_hash) + 1
         self.num_spatialGroup = len(self.groupID_hash)
 
         # self.hardGroups = []
@@ -59,10 +59,10 @@ class HyperFeat:
             indices = np.nonzero(self.data[:, 3] == spatialGroupID)[0].tolist()
             for index in indices:
                 pid = self.pid_hash[np.int_(self.data[index, 1])]
-                spaGrpID = np.int_(self.data[index, 3] - 1)
-                assert spaGrpID == spatialGroupID - 1
+                spaGrpID = np.int_(self.data[index, 3])
+                assert spaGrpID == spatialGroupID
                 self.spaGrpID_dic[spaGrpID].append(index)
                 self.pid_dic[spaGrpID].append(pid)
-            if len(np.unique(self.spaGrpID_dic[spatialGroupID - 1])) > 1:
-                self.hardGroups.append(spatialGroupID - 1)
+            if len(np.unique(self.spaGrpID_dic[spatialGroupID])) > 1:
+                self.hardGroups.append(spatialGroupID)
         pass
