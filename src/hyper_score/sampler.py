@@ -19,7 +19,7 @@ class RandomIdentitySampler(Sampler):
             self.pid_dic[spaGrpID].append(pid)
         self.num_samples = data_source.num_spatialGroup
         self.spaGrpID_max = data_source.num_spatialGroup
-        self.spaGrpID = 0
+        self.spaGrpID = 1
 
     def __len__(self):
         return self.num_samples * self.num_instances
@@ -28,17 +28,16 @@ class RandomIdentitySampler(Sampler):
         ret = []
         t_s = []
         for pid in np.unique(self.pid_dic[self.spaGrpID]):
-            line_ids = np.nonzero(self.pid_dic[self.spaGrpID] == pid)[0].tolist()
-            t = self.spaGrpID_dic[self.spaGrpID][line_ids[0]:line_ids[-1] + 1]
+            t = np.array(self.spaGrpID_dic[self.spaGrpID])[self.pid_dic[self.spaGrpID] == pid]
             if len(t) >= self.num_instances:
                 t = np.random.choice(t, size=self.num_instances, replace=False).tolist()
-            # else:
+            else:
+                t = t.tolist()
             #     t = np.random.choice(t, size=self.num_instances, replace=True).tolist()
             t_s += t
         self.spaGrpID += 1
-        if self.spaGrpID == self.spaGrpID_max:
-            self.spaGrpID = 0
+        if self.spaGrpID == self.spaGrpID_max + 1:
+            self.spaGrpID = 1
         ret.extend(t_s)
         ret = np.unique(ret)
         return iter(ret)
-
