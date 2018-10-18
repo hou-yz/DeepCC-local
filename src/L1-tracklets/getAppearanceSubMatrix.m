@@ -1,6 +1,7 @@
 function [ correlation ] = getAppearanceSubMatrix(observations, featureVectors, threshold, diff_p,diff_n ,step)
 
-features = cell2mat(featureVectors.appearance(observations));
+% features = cell2mat(featureVectors.appearance(observations));
+features = featureVectors(observations,:);
 dist = pdist2(features, features);
 if diff_p==0
     diff_p=threshold;

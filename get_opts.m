@@ -24,8 +24,8 @@ opts.optimization = 'BIPCC';
 opts.use_groupping = 1;
 opts.num_cam = 8;
 opts.sequence = 2;
-opts.sequence_names = {'trainval', 'trainval_mini', 'test_easy', 'test_hard', 'trainval_nano','test_all','train'};
-opts.sequence_intervals = {47720:227540, 127720:187540,  263504:356648, 227541:263503, 127720:127840,227541:356648,[47720:127719,187541:227540]};
+opts.sequence_names = {'trainval', 'trainval_mini', 'test_easy', 'test_hard', 'trainval_nano','test_all','train','val'};
+opts.sequence_intervals = {47720:227540, 127720:187540,  263504:356648, 227541:263503, 127720:127840,227541:356648,47720:187540,187541:227540};
 opts.start_frames = [5543, 3607, 27244, 31182, 1, 22402, 18968, 46766];
 opts.render_threshold = 0.05;
 opts.load_tracklets = 1;
@@ -44,6 +44,7 @@ tracklets.threshold = 8;
 tracklets.diff_p = 0;
 tracklets.diff_n = 0;
 tracklets.step = false;
+tracklets.compute_score = true;
 
 
 % Trajectories
