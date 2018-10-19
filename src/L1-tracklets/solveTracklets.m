@@ -58,6 +58,7 @@ for spatialGroupID = min(spatialGroupIDs) : max(spatialGroupIDs)
     else
         elements = find(correlationMatrix_source(:,1) == spatialGroupID);
         correlationMatrix        = reshape(correlationMatrix_source(elements,2),[l,l]);
+        correlationMatrix = (correlationMatrix-0.5)*2;
 %         spatialGroupDetectionCenters    = detectionCenters(elements,:);
 %         spatialGroupDetectionFrames     = detectionFrames(elements,:);
 %         spatialGroupEstimatedVelocity   = estimatedVelocity(elements,:);

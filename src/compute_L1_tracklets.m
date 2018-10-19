@@ -72,7 +72,11 @@ for iCam = 1:8
     save(det_filename,'newDet');
     end
     newEmbedding = h5read(emb_filename,'/hyperGT')';
-    correlationMatrix = h5read(res_filename,'/dis')';
+    if ~ opts.tracklets.compute_score
+        correlationMatrix_source = h5read(res_filename,'/dis')';
+    else
+        correlationMatrix_source = [];
+    end
     load(det_filename);
     for window_start_frame   = start_frame : opts.tracklets.window_width : end_frame
         fprintf('%d/%d\n', window_start_frame, end_frame);
@@ -86,7 +90,7 @@ for iCam = 1:8
         
         % Compute tracklets in current window
         % Then add them to the list of all tracklets
-        tracklets = solveTracklets(opts, detections_in_window, newEmb_in_window, correlationMatrix, iCam, window_start_frame, window_end_frame, tracklets);
+        tracklets = solveTracklets(opts, detections_in_window, newEmb_in_window, correlationMatrix_source, iCam, window_start_frame, window_end_frame, tracklets);
     end
     
     % Save tracklets
