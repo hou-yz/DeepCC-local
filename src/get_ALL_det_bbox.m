@@ -5,6 +5,6 @@ opts = get_opts();
 opts.sequence=5;
 opts.reader = [];
 
-for iCam = 1:8
+parfor iCam = 1:8
     gen_det_function(opts,iCam);
 end
