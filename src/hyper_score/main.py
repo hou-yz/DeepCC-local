@@ -13,7 +13,7 @@ class Net(nn.Module):
     def __init__(self, num_class=0):
         super(Net, self).__init__()
         self.num_class = num_class
-        self.fc1 = nn.Linear(256 + 6, 1024)
+        self.fc1 = nn.Linear(266, 1024)
         self.fc2 = nn.Linear(1024, 1024)
         self.fc3 = nn.Linear(1024, 128)
         if self.num_class > 0:
@@ -31,16 +31,24 @@ class Net(nn.Module):
         return out
 
 
+def addzero(x, insert_pos, num_zero):
+    x1, x2 = x[:, 0:insert_pos], x[:, insert_pos:]
+    z = torch.zeros([x.shape[0], num_zero], dtype=torch.double).cuda()
+    return torch.cat((x1, z, x2), dim=1)
+
+
 def train(args, model, train_loader, optimizer, epoch, criterion):
     model.train()
     for batch_idx in range(train_loader.dataset.num_spatialGroup):
         for _, (feat, pid, spaGrpID) in enumerate(train_loader):
             l = pid.shape[0]
-            spaGrpID = np.unique(spaGrpID)
+            spaGrpID = int(np.unique(spaGrpID))
             data, target = feat.cuda(), pid.cuda()
-            data = data.unsqueeze(0).expand(l, l, 262) - data.unsqueeze(1).expand(l, l, 262)
+
+            data = addzero(data, 2, 4).unsqueeze(0).expand(l, l, 266) - \
+                   addzero(data, 6, 4).unsqueeze(1).expand(l, l, 266)
             target = (target.unsqueeze(0).expand(l, l) - target.unsqueeze(1).expand(l, l)) == 0
-            data, target = data.view(-1, 262).float(), target.view(-1, 1).float()
+            data, target = data.view(-1, 266).float(), target.view(-1, 1).float()
 
             optimizer.zero_grad()
             output = model(data)
@@ -57,7 +65,7 @@ def test(args, model, test_loader, criterion):
     test_loss = 0
     correct = 0
     miss = 0
-    lines = np.array([]).reshape(0, 2)
+    lines = torch.zeros([0]).cuda()
     if args.save_result:
         iCam = int(args.data_dir[-4])
     else:
@@ -66,22 +74,25 @@ def test(args, model, test_loader, criterion):
         for batch_idx in range(1, test_loader.dataset.num_spatialGroup + 1):
             for (feat, pid, spaGrpID) in test_loader:
                 l = pid.shape[0]
-                spaGrpID = np.unique(spaGrpID)
+                spaGrpID = int(np.unique(spaGrpID))
                 data, target = feat.cuda(), pid.cuda()
-                data = data.unsqueeze(0).expand(l, l, 262) - data.unsqueeze(1).expand(l, l, 262)
+
+                data = addzero(data, 2, 4).unsqueeze(0).expand(l, l, 266) - \
+                       addzero(data, 6, 4).unsqueeze(1).expand(l, l, 266)
                 target = (target.unsqueeze(0).expand(l, l) - target.unsqueeze(1).expand(l, l)) == 0
-                data, target = data.view(-1, 262).float(), target.view(-1, 1).float()
+                data, target = data.view(-1, 266).float(), target.view(-1, 1).float()
                 output = model(data)
-                line = np.hstack((spaGrpID * np.ones(output.shape), output.cpu().numpy()))
-                lines = np.vstack((lines, line))
+                line = torch.cat((spaGrpID * torch.ones(output.shape).cuda(), output), dim=1)
+                lines = torch.cat((lines, line), dim=0)
                 test_loss += criterion(output, target).item()  # sum up batch loss
                 pred = output > 0.5  # get the index of the max log-probability
                 correct += pred.eq(target.view_as(pred).byte()).sum().item()
                 miss += target.shape[0] - pred.eq(target.view_as(pred).byte()).sum().item()
                 pass
         print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.
-                      format(test_loss, correct, correct + miss, 100. * correct / (correct + miss)))
+              format(test_loss, correct, correct + miss, 100. * correct / (correct + miss)))
 
+    lines = lines.cpu().numpy()
     if args.save_result:
         output_fname = osp.dirname(args.data_dir) + '/pairwise_dis_%d.h5' % iCam
         with h5py.File(output_fname, 'w') as f:
