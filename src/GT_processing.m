@@ -24,7 +24,7 @@ assert(length(currentGTsIDX) == size(originalGTs,1),'miss in GTs')
 
 
 % add bbox position jitter before extracting center & speed
-jitter_max = 0.03*originalGTs(currentGTsIDX,5:6);
+jitter_max = 0*originalGTs(currentGTsIDX,5:6);
 originalGTs(currentGTsIDX,3:4) = originalGTs(currentGTsIDX,3:4)+jitter_max.*(rand(size(jitter_max))-0.5);
 originalGTs(currentGTsIDX,5:6) = originalGTs(currentGTsIDX,5:6)+jitter_max.*(rand(size(jitter_max))-0.5);
 
