@@ -7,6 +7,8 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from dataset import *
 from sampler import *
+import random
+import time
 
 
 class Net(nn.Module):
@@ -18,7 +20,6 @@ class Net(nn.Module):
         self.fc3 = nn.Linear(1024, 128)
         if self.num_class > 0:
             self.out_layer = nn.Linear(128, self.num_class)
-            self.out_sigmoid = nn.Sigmoid()
 
     def forward(self, x):
         out = self.fc1(x)
@@ -29,7 +30,6 @@ class Net(nn.Module):
         out = F.relu(out)
         if self.num_class > 0:
             out = self.out_layer(out)
-            out = self.out_sigmoid(out)
         return out
 
 
@@ -41,6 +41,7 @@ def addzero(x, insert_pos, num_zero):
 
 def train(args, model, train_loader, optimizer, epoch, criterion):
     model.train()
+    t0 = time.time()
     for batch_idx in range(train_loader.dataset.num_spatialGroup):
         for _, (feat, pid, spaGrpID) in enumerate(train_loader):
             l = pid.shape[0]
@@ -49,7 +50,13 @@ def train(args, model, train_loader, optimizer, epoch, criterion):
             data = (addzero(data, 4, 2).unsqueeze(0).expand(l, l, 264) -
                     addzero(data, 6, 2).unsqueeze(1).expand(l, l, 264)).abs()
             target = (target.unsqueeze(0).expand(l, l) - target.unsqueeze(1).expand(l, l)) == 0
-            data, target = data.view(-1, 264).float(), target.view(-1, 1).float()
+            data, target = data.view(-1, 264).float(), target.view(-1).long()
+            # if target.shape[0] / sum(target).item() > 4+1:
+            #     p_idx, n_idx = target.nonzero().view(-1), (target == 0).nonzero().view(-1)
+            #     n_idx = n_idx[random.sample(range(len(n_idx)), 4*int(sum(target).item()))]
+            #     data_p, target_p = data[p_idx, :], target[p_idx]
+            #     data_n, target_n = data[n_idx, :], target[n_idx]
+            #     data, target = torch.cat((data_p, data_n), dim=0), torch.cat((target_p, target_n), dim=0)
 
             optimizer.zero_grad()
             output = model(data)
@@ -57,8 +64,11 @@ def train(args, model, train_loader, optimizer, epoch, criterion):
             loss.backward()
             optimizer.step()
         if batch_idx % args.log_interval == 0:
-            print('Train Epoch: {}, Batch:{},\tLoss: {:.6f}'.format(
-                epoch, batch_idx, loss.item()))
+            t1 = time.time()
+            t_batch = t1 - t0
+            t0 = time.time()
+            print('Train Epoch: {}, Batch:{},\tLoss: {:.6f}, Time: {:.3f}'.format(
+                epoch, batch_idx, loss.item(), t_batch))
 
 
 def test(args, model, test_loader, criterion):
@@ -80,15 +90,16 @@ def test(args, model, test_loader, criterion):
                 data = (addzero(data, 4, 2).unsqueeze(0).expand(l, l, 264) -
                         addzero(data, 6, 2).unsqueeze(1).expand(l, l, 264)).abs()
                 target = (target.unsqueeze(0).expand(l, l) - target.unsqueeze(1).expand(l, l)) == 0
-                data, target = data.view(-1, 264).float(), target.view(-1, 1).float()
+                data, target = data.view(-1, 264).float(), target.view(-1).long()
 
                 output = model(data)
-                line = torch.cat((spaGrpID * torch.ones(output.shape).cuda(), output), dim=1)
-                lines = torch.cat((lines, line), dim=0)
                 test_loss += criterion(output, target).item()  # sum up batch loss
-                pred = output > 0.5  # get the index of the max log-probability
+                pred = (output[:, 1] - output[:, 0]) > 0  # get the index of the max log-probability
                 correct += pred.eq(target.view_as(pred).byte()).sum().item()
                 miss += target.shape[0] - pred.eq(target.view_as(pred).byte()).sum().item()
+                output = output[:, 1] - output[:, 0]
+                line = torch.cat((spaGrpID * torch.ones(output.shape).cuda(), output), dim=0)
+                lines = torch.cat((lines, line), dim=0)
                 pass
         print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.
               format(test_loss, correct, correct + miss, 100. * correct / (correct + miss)))
@@ -142,9 +153,9 @@ def main():
                              sampler=RandomIdentitySampler(dataset, 1024),
                              num_workers=0, pin_memory=True)
 
-    model = Net(num_class=1)
+    model = Net(num_class=2)
     model = nn.DataParallel(model).cuda()
-    criterion = nn.L1Loss().cuda()
+    criterion = nn.CrossEntropyLoss().cuda()
     optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
     if args.train:
