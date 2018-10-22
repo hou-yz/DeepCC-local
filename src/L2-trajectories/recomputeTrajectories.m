@@ -41,6 +41,7 @@ for i = 1:length(trajectories)
     
     keyData(:,2) = -1;
     newData = fillTrajectories(keyData);
+    newData = sortrows(newData);
     
     newTrajectory = trajectories(i);
     sampleTracklet = trajectories(i).tracklets(1);
@@ -59,9 +60,12 @@ for i = 1:length(trajectories)
         rows = ismember(newData(:,1), trackletFrames);
         
         tracklet.data = newData(rows,:);
+        tracklet.realdata = [];
         
         tracklet.startFrame = min(tracklet.data(:,1));
         tracklet.endFrame = max(tracklet.data(:,1));
+        
+        
 %         if isempty(tracklet.data)
 %             tracklet.startFrame = min(tracklet.realdata(:,1));
 %             tracklet.endFrame = max(tracklet.realdata(:,1));
@@ -72,7 +76,13 @@ for i = 1:length(trajectories)
         newTrajectory.tracklets = [newTrajectory.tracklets; tracklet];
         
     end
-    
+%     [~, ~, startpoint, endpoint, intervals, ~, velocity] = getTrackletFeatures(newTrajectory.tracklets);
+%     centers = num2cell(0.5*(endpoint+startpoint),2);
+%     [newTrajectory.tracklets.centers] = centers{:};
+%     interval = num2cell(intervals,2);
+%     [newTrajectory.tracklets.interval] = interval{:};
+%     velocity = num2cell(velocity,2);
+%     [newTrajectory.tracklets.velocity] = velocity{:};
     newTrajectories(i) = newTrajectory;
     
 

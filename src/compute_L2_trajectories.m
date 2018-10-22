@@ -4,7 +4,16 @@ for iCam = 1:8
 
     % Initialize
     load(fullfile(opts.experiment_root, opts.experiment_name, 'L1-tracklets', sprintf('tracklets%d_%s.mat',iCam,opts.sequence_names{opts.sequence})));
+%     [~, ~, startpoint, endpoint, intervals, ~, velocity] = getTrackletFeatures(tracklets);
+%     centers = num2cell(0.5*(endpoint+startpoint),2);
+%     [tracklets.centers] = centers{:};
+%     interval = num2cell(intervals,2);
+%     [tracklets.interval] = interval{:};
+%     velocity = num2cell(velocity,2);
+%     [tracklets.velocity] = velocity{:};
     trajectoriesFromTracklets = trackletsToTrajectories(tracklets,1:length(tracklets));
+    
+    hyper_score_param = load(fullfile('src','hyper_score','model_param.mat'));
     
     opts.current_camera = iCam;
     sequence_interval = opts.sequence_intervals{opts.sequence};
@@ -18,7 +27,7 @@ for iCam = 1:8
         clc; fprintf('Cam: %d - Window %d...%d\n', iCam, startFrame, endFrame);
 
         % Compute trajectories in current time window
-        trajectories = createTrajectories(opts, trajectories, startFrame, endFrame, iCam);
+        trajectories = createTrajectories(opts, trajectories, startFrame, endFrame, iCam,hyper_score_param);
 
         % Update loop range
         startFrame = endFrame   - opts.trajectories.overlap;

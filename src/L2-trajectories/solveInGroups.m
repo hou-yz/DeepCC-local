@@ -1,4 +1,4 @@
-function result = solveInGroups(opts, tracklets, labels, iCam)
+function result = solveInGroups(opts, tracklets, labels, iCam,hyper_score_param)
 
 global trajectorySolverTime;
 
@@ -57,7 +57,7 @@ for i = 1 : length(allGroups)
     group       = allGroups(i);
     indices     = find(appearanceGroups == group);
     sameLabels  = pdist2(labels(indices), labels(indices)) == 0;
-    
+    if params.compute_score
     % compute appearance and spacetime scores
     appearanceAffinity = getAppearanceMatrix(featureVectors(indices),featureVectors(indices), threshold, diff_p,diff_n,params.step);
     [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinity(tracklets(indices), params.beta, params.speed_limit, params.indifference_time);
@@ -68,7 +68,9 @@ for i = 1 : length(allGroups)
     
     correlationMatrix(impossibilityMatrix == 1) = -inf;
     correlationMatrix(sameLabels) = 1;
-    
+    else
+        correlationMatrix = getHyperScore(opts,tracklets(indices),featureVectors(indices),iCam,hyper_score_param);
+    end
     % show appearance group tracklets
     if opts.visualize, trajectoriesVisualizePart2; end
     

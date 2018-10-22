@@ -8,6 +8,7 @@ opts.dataset_path    = 'D:/MATLAB/Data/DukeMTMC';
 opts.gurobi_path     = 'C:/Utils/gurobi801/win64/matlab';
 opts.experiment_root = 'experiments';
 opts.experiment_name = 'demo';
+opts.python = '/home/houyz/miniconda3/envs/torch-0.3.1/bin/python';
 
 opts.reader = MyVideoReader(opts.dataset_path);
 
@@ -60,6 +61,7 @@ trajectories.threshold = 8;
 trajectories.diff_p = 0;
 trajectories.diff_n = 0;
 trajectories.step = false;
+trajectories.compute_score = true;
 
 % Identities
 identities = [];

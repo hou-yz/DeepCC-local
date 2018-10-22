@@ -3,11 +3,19 @@ function [stAffinity, impossibilityMatrix, indiffMatrix] = getSpaceTimeAffinity(
 numTracklets = length(tracklets);
 
 [~, ~, startpoint, endpoint, intervals, ~, velocity] = getTrackletFeatures(tracklets);
+centers         = 0.5 * (endpoint + startpoint);
+
+% centers = reshape([tracklets.centers]',2,[])';
+% intervals = reshape([tracklets.interval]',2,[])';
+% velocity = reshape([tracklets.velocity]',2,[])';
+
+% if sum(intervals - reshape([tracklets.interval]',2,[])')
+%     intervals - reshape([tracklets.interval]',2,[])'
+% end
 
 centerFrame     = round(mean(intervals,2));
 frameDifference = pdist2(centerFrame, centerFrame, @(frame1, frame2) frame1 - frame2);
 overlapping     = pdist2(intervals,intervals, @overlapTest);
-centers         = 0.5 * (endpoint + startpoint);
 centersDistance = pdist2(centers,centers);
 v               = (frameDifference > 0) | overlapping;
 merging         = (centersDistance < 5) & overlapping;
