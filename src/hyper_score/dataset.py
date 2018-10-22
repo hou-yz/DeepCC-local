@@ -9,31 +9,19 @@ import torch
 import codecs
 import h5py
 from collections import defaultdict
+from torch.utils.data import Dataset
 
 
-class HyperFeat:
-
-    # data = np.transpose(data)
-
-    def __init__(self, root):
+class HyperFeat(Dataset):
+    def __init__(self, root, train=True):
         self.root = root
         h5file = h5py.File(self.root, 'r')
         self.data = np.array(h5file['hyperGT'])
 
         self.indexs = list(range(self.data.shape[0]))
-        # self.pid_hash = {}
-        # all_pids = np.int_(np.unique(self.data[:, 1]))
-        # for pid in all_pids:
-        #     if pid not in self.pid_hash:
-        #         self.pid_hash[pid] = len(self.pid_hash)
         all_groupIDs = np.int_(np.unique(self.data[:, 3]))
         self.num_spatialGroup = len(all_groupIDs)
         self.min_groupID = min(all_groupIDs)
-
-        # self.hardGroups = []
-        # self.spaGrpID_dic = [[] for _ in range(self.num_spatialGroup)]
-        # self.pid_dic = [[] for _ in range(self.num_spatialGroup)]
-        # self.download()
         self.spaGrpID_dic = defaultdict(list)
         self.pid_dic = defaultdict(list)
         for index in self.indexs:
@@ -58,17 +46,8 @@ class HyperFeat:
     def __len__(self):
         return len(self.indexs)
 
-    def download(self):
-        for spatialGroupID in range(1, self.num_spatialGroup + 1):
 
-            indices = np.nonzero(self.data[:, 3] == spatialGroupID)[0].tolist()
-            for index in indices:
-                # pid = self.pid_hash[np.int_(self.data[index, 1])]
-                pid = int(self.data[index, 1])
-                spaGrpID = int(self.data[index, 3])
-                assert spaGrpID == spatialGroupID
-                self.spaGrpID_dic[spaGrpID].append(index)
-                self.pid_dic[spaGrpID].append(pid)
-            if len(np.unique(self.spaGrpID_dic[spatialGroupID])) > 1:
-                self.hardGroups.append(spatialGroupID)
-        pass
+class SiameseHyperFeat(Dataset):
+    def __init__(self, h_dataset):
+        self.h_dataset = h_dataset
+
