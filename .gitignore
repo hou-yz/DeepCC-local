@@ -1,8 +1,7 @@
 experiments/
 src/external/mexopencv/
+src/hyper_score/.idea/*
 *.mex*
 *.asv
 *.pyc
-mid/
-1x/
-src/hyper_score/.idea/*
+*.mat

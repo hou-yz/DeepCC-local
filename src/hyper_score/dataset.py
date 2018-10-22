@@ -16,7 +16,7 @@ class HyperFeat:
     # data = np.transpose(data)
 
     def __init__(self, root):
-        self.root = os.path.expanduser(root)
+        self.root = root
         h5file = h5py.File(self.root, 'r')
         self.data = np.array(h5file['hyperGT'])
 
@@ -26,12 +26,9 @@ class HyperFeat:
         # for pid in all_pids:
         #     if pid not in self.pid_hash:
         #         self.pid_hash[pid] = len(self.pid_hash)
-        self.groupID_hash = {}
         all_groupIDs = np.int_(np.unique(self.data[:, 3]))
-        for groupID in all_groupIDs:
-            if groupID not in self.groupID_hash:
-                self.groupID_hash[groupID] = len(self.groupID_hash) + 1
-        self.num_spatialGroup = len(self.groupID_hash)
+        self.num_spatialGroup = len(all_groupIDs)
+        self.min_groupID = min(all_groupIDs)
 
         # self.hardGroups = []
         # self.spaGrpID_dic = [[] for _ in range(self.num_spatialGroup)]
@@ -55,7 +52,7 @@ class HyperFeat:
         feat = self.data[index, feat_col]
         # pid = self.pid_hash[np.int_(self.data[index, 1])]
         pid = int(self.data[index, 1])
-        spaGrpID = self.groupID_hash[int(self.data[index, 3])]
+        spaGrpID = int(self.data[index, 3])
         return feat, pid, spaGrpID
 
     def __len__(self):

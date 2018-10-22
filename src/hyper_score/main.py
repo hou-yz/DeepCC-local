@@ -9,6 +9,9 @@ from dataset import *
 from sampler import *
 import random
 import time
+from torch.autograd import Variable
+import h5py
+import numpy, scipy.io
 
 
 class Net(nn.Module):
@@ -33,10 +36,22 @@ class Net(nn.Module):
         return out
 
 
+def save_model_as_mat(model):
+    fc1_w, fc1_b = model.fc1.weight.data.cpu().numpy(), model.fc1.bias.data.cpu().numpy()
+    fc2_w, fc2_b = model.fc2.weight.data.cpu().numpy(), model.fc2.bias.data.cpu().numpy()
+    fc3_w, fc3_b = model.fc3.weight.data.cpu().numpy(), model.fc3.bias.data.cpu().numpy()
+    out_w, out_b = model.out_layer.weight.data.cpu().numpy(), model.out_layer.bias.data.cpu().numpy()
+
+    scipy.io.savemat('model_param.mat', mdict={'fc1_w': fc1_w, 'fc1_b': fc1_b,
+                                                  'fc2_w': fc2_w, 'fc2_b': fc2_b,
+                                                  'fc3_w': fc3_w, 'fc3_b': fc3_b,
+                                                  'out_w': out_w, 'out_b': out_b,})
+
+
 def addzero(x, insert_pos, num_zero):
     x1, x2 = x[:, 0:insert_pos], x[:, insert_pos:]
-    z = torch.zeros([x.shape[0], num_zero], dtype=torch.double).cuda()
-    return torch.cat((x1, z, x2), dim=1)
+    z = torch.zeros([x.shape[0], num_zero]).cuda()
+    return torch.cat((x1, z.type_as(x1), x2), dim=1)
 
 
 def train(args, model, train_loader, optimizer, epoch, criterion):
@@ -49,16 +64,16 @@ def train(args, model, train_loader, optimizer, epoch, criterion):
             data, target = feat.cuda(), pid.cuda()
             data = (addzero(data, 4, 2).unsqueeze(0).expand(l, l, 264) -
                     addzero(data, 6, 2).unsqueeze(1).expand(l, l, 264)).abs()
-            target = ((target.unsqueeze(0).expand(l, l) - target.unsqueeze(1).expand(l, l)) == 0) * \
-                     (target.unsqueeze(0).expand(l, l) != -1) * (target.unsqueeze(1).expand(l, l) != -1)
-            target[torch.eye(l).byte()] = 1
-            data, target = data.view(-1, 264).float(), target.view(-1).long()
-            # if target.shape[0] / sum(target).item() > 4+1:
-            #     p_idx, n_idx = target.nonzero().view(-1), (target == 0).nonzero().view(-1)
-            #     n_idx = n_idx[random.sample(range(len(n_idx)), 4*int(sum(target).item()))]
-            #     data_p, target_p = data[p_idx, :], target[p_idx]
-            #     data_n, target_n = data[n_idx, :], target[n_idx]
-            #     data, target = torch.cat((data_p, data_n), dim=0), torch.cat((target_p, target_n), dim=0)
+            target = (target.unsqueeze(0).expand(l, l) - target.unsqueeze(1).expand(l, l)) == 0
+                     # (target.unsqueeze(0).expand(l, l) != -1) * (target.unsqueeze(1).expand(l, l) != -1)
+            target[torch.eye(l).cuda().byte()] = 1
+            data, target = Variable(data.view(-1, 264).float()), Variable(target.view(-1).long())
+            if target.shape[0] / sum(target).data[0] > 1+1:
+                p_idx, n_idx = target.nonzero().view(-1), (target == 0).nonzero().view(-1)
+                n_idx = n_idx[random.sample(range(len(n_idx)), 1*int(sum(target).data[0]))]
+                data_p, target_p = data[p_idx, :], target[p_idx]
+                data_n, target_n = data[n_idx, :], target[n_idx]
+                data, target = torch.cat((data_p, data_n), dim=0), torch.cat((target_p, target_n), dim=0)
 
             optimizer.zero_grad()
             output = model(data)
@@ -70,7 +85,7 @@ def train(args, model, train_loader, optimizer, epoch, criterion):
             t_batch = t1 - t0
             t0 = time.time()
             print('Train Epoch: {}, Batch:{},\tLoss: {:.6f}, Time: {:.3f}'.format(
-                epoch, batch_idx, loss.item(), t_batch))
+                epoch, batch_idx, loss.data[0], t_batch))
 
 
 def test(args, model, test_loader, criterion):
@@ -79,36 +94,34 @@ def test(args, model, test_loader, criterion):
     correct = 0
     miss = 0
     lines = torch.zeros([0]).cuda()
-    if args.save_result:
-        iCam = int(args.data_path[-4])
-    else:
-        iCam = 0
-    with torch.no_grad():
-        for batch_idx in range(1, test_loader.dataset.num_spatialGroup + 1):
-            for (feat, pid, spaGrpID) in test_loader:
-                l = pid.shape[0]
-                spaGrpID = int(np.unique(spaGrpID))
-                data, target = feat.cuda(), pid.cuda()
-                data = (addzero(data, 4, 2).unsqueeze(0).expand(l, l, 264) -
-                        addzero(data, 6, 2).unsqueeze(1).expand(l, l, 264)).abs()
-                target = (target.unsqueeze(0).expand(l, l) - target.unsqueeze(1).expand(l, l)) == 0
-                data, target = data.view(-1, 264).float(), target.view(-1).long()
+    for batch_idx in range(1, test_loader.dataset.num_spatialGroup + 1):
+        for (feat, pid, spaGrpID) in test_loader:
+            l = pid.shape[0]
+            spaGrpID = int(np.unique(spaGrpID))
+            data, target = feat.cuda(), pid.cuda()
+            data = (addzero(data, 4, 2).unsqueeze(0).expand(l, l, 264) -
+                    addzero(data, 6, 2).unsqueeze(1).expand(l, l, 264)).abs()
+            target = (target.unsqueeze(0).expand(l, l) - target.unsqueeze(1).expand(l, l)) == 0
+                     # (target.unsqueeze(0).expand(l, l) != -1) * (target.unsqueeze(1).expand(l, l) != -1)
+            target[torch.eye(l).cuda().byte()] = 1
+            data, target = Variable(data.view(-1, 264).float(), volatile=True), Variable(target.view(-1).long(),
+                                                                                         volatile=True)
 
-                output = model(data)
-                test_loss += criterion(output, target).item()  # sum up batch loss
-                pred = (output[:, 1] - output[:, 0]) > 0  # get the index of the max log-probability
-                correct += pred.eq(target.view_as(pred).byte()).sum().item()
-                miss += target.shape[0] - pred.eq(target.view_as(pred).byte()).sum().item()
-                output = output[:, 1] - output[:, 0]
-                line = torch.cat((spaGrpID * torch.ones(output.shape).cuda(), output), dim=0)
-                lines = torch.cat((lines, line), dim=0)
-                pass
-        print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.
-              format(test_loss, correct, correct + miss, 100. * correct / (correct + miss)))
+            output = model(data)
+            test_loss += criterion(output, target).data[0]  # sum up batch loss
+            pred = (output[:, 1] - output[:, 0]) > 0  # get the index of the max log-probability
+            correct += pred.eq(target.view_as(pred).byte()).data.sum()
+            miss += target.shape[0] - pred.eq(target.view_as(pred).byte()).data.sum()
+            output = output[:, 1] - output[:, 0]
+            line = output.data
+            lines = torch.cat((lines, line), dim=0)
+            pass
+    print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.
+          format(test_loss, correct, correct + miss, 100. * correct / (correct + miss)))
 
     lines = lines.cpu().numpy()
     if args.save_result:
-        output_fname = osp.dirname(args.data_path) + '/pairwise_dis_%d.h5' % iCam
+        output_fname = osp.dirname(args.data_path) + '/pairwise_dis_tmp.h5'
         with h5py.File(output_fname, 'w') as f:
             mat_data = np.vstack(lines)
             f.create_dataset('dis', data=mat_data, dtype=float)
@@ -127,7 +140,7 @@ def main():
                              "(batch_size // num_instances) identities, and "
                              "each identity has num_instances instances, "
                              "default: 4")
-    parser.add_argument('--epochs', type=int, default=10, metavar='N',
+    parser.add_argument('--epochs', type=int, default=100, metavar='N',
                         help='number of epochs to train (default: 10)')
     parser.add_argument('--lr', type=float, default=0.001, metavar='LR',
                         help='learning rate (default: 0.01)')
@@ -143,6 +156,8 @@ def main():
     parser.add_argument('--log-interval', type=int, default=100, metavar='N',
                         help='how many batches to wait before logging training status')
     args = parser.parse_args()
+    if '~' in args.data_path:
+        args.data_path = os.path.expanduser(args.data_path)
 
     torch.manual_seed(args.seed)
 
@@ -169,6 +184,7 @@ def main():
     checkpoint = torch.load('checkpoint.pth.tar')
     model_dict = checkpoint['state_dict']
     model.module.load_state_dict(model_dict)
+    save_model_as_mat(model.module)
     test(args, model, test_loader, criterion)
 
 
