@@ -49,7 +49,9 @@ def train(args, model, train_loader, optimizer, epoch, criterion):
             data, target = feat.cuda(), pid.cuda()
             data = (addzero(data, 4, 2).unsqueeze(0).expand(l, l, 264) -
                     addzero(data, 6, 2).unsqueeze(1).expand(l, l, 264)).abs()
-            target = (target.unsqueeze(0).expand(l, l) - target.unsqueeze(1).expand(l, l)) == 0
+            target = ((target.unsqueeze(0).expand(l, l) - target.unsqueeze(1).expand(l, l)) == 0) * \
+                     (target.unsqueeze(0).expand(l, l) != -1) * (target.unsqueeze(1).expand(l, l) != -1)
+            target[torch.eye(l).byte()] = 1
             data, target = data.view(-1, 264).float(), target.view(-1).long()
             # if target.shape[0] / sum(target).item() > 4+1:
             #     p_idx, n_idx = target.nonzero().view(-1), (target == 0).nonzero().view(-1)
@@ -78,7 +80,7 @@ def test(args, model, test_loader, criterion):
     miss = 0
     lines = torch.zeros([0]).cuda()
     if args.save_result:
-        iCam = int(args.data_dir[-4])
+        iCam = int(args.data_path[-4])
     else:
         iCam = 0
     with torch.no_grad():
@@ -106,7 +108,7 @@ def test(args, model, test_loader, criterion):
 
     lines = lines.cpu().numpy()
     if args.save_result:
-        output_fname = osp.dirname(args.data_dir) + '/pairwise_dis_%d.h5' % iCam
+        output_fname = osp.dirname(args.data_path) + '/pairwise_dis_%d.h5' % iCam
         with h5py.File(output_fname, 'w') as f:
             mat_data = np.vstack(lines)
             f.create_dataset('dis', data=mat_data, dtype=float)
@@ -134,7 +136,7 @@ def main():
     parser.add_argument('--train', action='store_true')
     parser.add_argument('--save_result', action='store_true')
     # parser.add_argument('--resume', type=str, default='', metavar='PATH')
-    parser.add_argument('--data-dir', type=str, default='~/Data/DukeMTMC/ground_truth/hyperGT_trainval_mini.h5',
+    parser.add_argument('--data-path', type=str, default='~/Data/DukeMTMC/ground_truth/hyperGT_trainval_mini.h5',
                         metavar='PATH')
     parser.add_argument('--seed', type=int, default=1, metavar='S',
                         help='random seed (default: 1)')
@@ -144,7 +146,7 @@ def main():
 
     torch.manual_seed(args.seed)
 
-    dataset = HyperFeat(args.data_dir)
+    dataset = HyperFeat(args.data_path)
     train_loader = DataLoader(dataset, batch_size=args.batch_size,
                               sampler=RandomIdentitySampler(dataset, args.num_instances),
                               num_workers=0, pin_memory=True)
