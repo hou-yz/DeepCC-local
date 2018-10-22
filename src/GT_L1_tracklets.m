@@ -51,13 +51,13 @@ parfor iCam = 1:8
         
         % Compute tracklets in current window
         % Then add them to the list of all tracklets
-        [appendedGTs,spatialGroupID_max(iCam)] = GT_processing(opts, filteredGTs, window_start_frame, window_end_frame,spatialGroupID_max(iCam),0);
+        [appendedGTs,spatialGroupID_max(iCam)] = GT_L1_processing(opts, filteredGTs, window_start_frame, window_end_frame,spatialGroupID_max(iCam),0);
         appendedGTs = [appendedGTs(),zeros(size(window_inds)),feat_in_window];
         newGT = [newGT;appendedGTs];
     end
     newGT(:,[1 2]) = newGT(:,[2 1]);
     newGT = [ones(size(newGT,1),1)*iCam,newGT];
-%     newGT = sort(newGT);
+%     newGT = sortrows(newGT);
     newGTs{iCam} = [newGTs{iCam};newGT];
 end
 
