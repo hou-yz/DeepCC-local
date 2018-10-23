@@ -15,6 +15,7 @@ from torch.nn import init
 import numpy, scipy.io
 
 import matplotlib
+
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 
@@ -46,16 +47,17 @@ class Net(nn.Module):
         return out
 
 
-def save_model_as_mat(model):
+def save_model_as_mat(args, model):
     fc1_w, fc1_b = model.fc1.weight.data.cpu().numpy(), model.fc1.bias.data.cpu().numpy()
     fc2_w, fc2_b = model.fc2.weight.data.cpu().numpy(), model.fc2.bias.data.cpu().numpy()
     fc3_w, fc3_b = model.fc3.weight.data.cpu().numpy(), model.fc3.bias.data.cpu().numpy()
     out_w, out_b = model.out_layer.weight.data.cpu().numpy(), model.out_layer.bias.data.cpu().numpy()
 
-    scipy.io.savemat('model_param.mat', mdict={'fc1_w': fc1_w, 'fc1_b': fc1_b,
-                                               'fc2_w': fc2_w, 'fc2_b': fc2_b,
-                                               'fc3_w': fc3_w, 'fc3_b': fc3_b,
-                                               'out_w': out_w, 'out_b': out_b, })
+    scipy.io.savemat('model_param_{}.mat'.format(args.L2_window),
+                     mdict={'fc1_w': fc1_w, 'fc1_b': fc1_b,
+                            'fc2_w': fc2_w, 'fc2_b': fc2_b,
+                            'fc3_w': fc3_w, 'fc3_b': fc3_b,
+                            'out_w': out_w, 'out_b': out_b, })
 
 
 def addzero(x, insert_pos, num_zero):
@@ -152,7 +154,7 @@ def main():
                         help='input batch size for training (default: 64)')
     parser.add_argument('--test-batch-size', type=int, default=256, metavar='N',
                         help='input batch size for training (default: 64)')
-    parser.add_argument('--epochs', type=int, default=200, metavar='N',
+    parser.add_argument('--epochs', type=int, default=100, metavar='N',
                         help='number of epochs to train (default: 10)')
     parser.add_argument('--step-size', type=int, default=60)
     parser.add_argument('--lr', type=float, default=0.01, metavar='LR',
@@ -213,9 +215,9 @@ def main():
             draw_curve(epoch, loss_s, prec_s)
             pass
         torch.save({'state_dict': model.module.state_dict(), }, 'checkpoint_{}.pth.tar'.format(args.L2_window))
-        save_model_as_mat(model.module)
+        save_model_as_mat(args, model.module)
 
-    checkpoint = torch.load('checkpoint.pth_{}.tar'.format(args.L2_window))
+    checkpoint = torch.load('checkpoint_{}.pth.tar'.format(args.L2_window))
     model_dict = checkpoint['state_dict']
     model.module.load_state_dict(model_dict)
     test(args, model, test_loader, criterion)
