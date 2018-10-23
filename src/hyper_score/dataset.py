@@ -22,20 +22,19 @@ class HyperFeat(Dataset):
         all_groupIDs = np.int_(np.unique(self.data[:, 3]))
         self.num_spatialGroup = len(all_groupIDs)
         self.min_groupID = min(all_groupIDs)
-        self.spaGrpID_dic = defaultdict(list)
-        self.pid_dic = defaultdict(list)
+        self.index_pool_dic = defaultdict(dict)
+        self.pid_pool_dic = defaultdict(list)
         for index in self.indexs:
             [pid, spaGrpID] = self.data[index, [1, 3]]
-            self.spaGrpID_dic[int(spaGrpID)].append(index)
-            self.pid_dic[int(spaGrpID)].append(int(pid))
+            pid, spaGrpID = int(pid), int(spaGrpID)
+            if spaGrpID not in self.index_pool_dic:
+                self.index_pool_dic[spaGrpID] = defaultdict(list)
+            self.index_pool_dic[spaGrpID][pid].append(index)
+            if pid not in self.pid_pool_dic[spaGrpID]:
+                self.pid_pool_dic[spaGrpID].append(pid)
         pass
 
-    def __getitem__(self, indices):
-        if isinstance(indices, (tuple, list)):
-            return [self._get_single_item(index) for index in indices]
-        return self._get_single_item(indices)
-
-    def _get_single_item(self, index):
+    def __getitem__(self, index):
         feat_col = [0, 2] + list(range(4, 8)) + list(range(9, 265))  # cam,frame,pos_x,pos_y,v_x,v_y,256-dim
         feat = self.data[index, feat_col]
         # pid = self.pid_hash[np.int_(self.data[index, 1])]
@@ -50,4 +49,42 @@ class HyperFeat(Dataset):
 class SiameseHyperFeat(Dataset):
     def __init__(self, h_dataset):
         self.h_dataset = h_dataset
+        self.num_spatialGroup = h_dataset.num_spatialGroup
 
+    def __len__(self):
+        return len(self.h_dataset)
+
+    def __getitem__(self, index):
+        target = np.random.randint(0, 2)
+        feat1, pid1, spaGrpID1 = self.h_dataset.__getitem__(index)
+        if pid1 == -1:
+            target = 0
+        if target == 1:  # 1 for same
+            index_pool = self.h_dataset.index_pool_dic[spaGrpID1][pid1]
+            if len(index_pool) > 1:
+                siamese_index = index
+                while siamese_index == index:
+                    siamese_index = np.random.choice(index_pool)
+            else:
+                siamese_index = np.random.choice(index_pool)
+        else:  # 0 for different
+            spatialGroupID = spaGrpID1
+            pid_pool = self.h_dataset.pid_pool_dic[spatialGroupID]
+            while len(pid_pool) <= 1:
+                spatialGroupID += 1
+                pid_pool = self.h_dataset.pid_pool_dic[spatialGroupID]
+            siamese_pid = pid1
+            while siamese_pid == pid1:
+                siamese_pid = np.random.choice(pid_pool)
+            index_pool = self.h_dataset.index_pool_dic[spatialGroupID][siamese_pid]
+            if len(index_pool) > 1:
+                siamese_index = index
+                while siamese_index == index:
+                    siamese_index = np.random.choice(index_pool)
+            else:
+                siamese_index = np.random.choice(index_pool)
+        feat2, pid2, spaGrpID2 = self.h_dataset.__getitem__(siamese_index)
+        if target != (pid1 == pid2):
+            target = (pid1 == pid2)
+            pass
+        return feat1, feat2, target
