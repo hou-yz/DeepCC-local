@@ -70,9 +70,12 @@ for i = 1 : length(allGroups)
     correlationMatrix(sameLabels) = 1;
     else
         correlationMatrix = getHyperScore(opts,tracklets(indices),featureVectors(indices),iCam,hyper_score_param);
+        [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinity(tracklets(indices), params.beta, params.speed_limit, params.indifference_time);
+        correlationMatrix(impossibilityMatrix == 1) = -inf;
+        correlationMatrix(sameLabels) = 1;
     end
     % show appearance group tracklets
-    if opts.visualize, trajectoriesVisualizePart2; end
+%     if opts.visualize, trajectoriesVisualizePart2; end
     
     % solve the optimization problem
     solutionTime = tic;

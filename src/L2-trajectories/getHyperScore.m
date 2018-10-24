@@ -29,10 +29,17 @@ newGTs = newGTs(:,[1,3,5:8,10:end]);
 a = [newGTs(:,1:4),zeros(numTracklets,2),newGTs(:,5:end)];
 b = [newGTs(:,1:6),zeros(numTracklets,2),newGTs(:,7:end)];
 input = repmat(reshape(a,1,numTracklets,[]),numTracklets,1,1) - repmat(reshape(b,numTracklets,1,[]),1,numTracklets,1);
-input = abs(reshape(input,numTracklets*numTracklets,[]));
+input(:,:,[5,6]) = -input(:,:,[5,6]);
+input = reshape(input,numTracklets*numTracklets,[]);
+% input = [input(:,1:8),vecnorm(input(:,9:end),2,2)];
 out = hyper_score_net(input,hyper_score_param);
-correlationMatrix = out(:,2)-out(:,1);
-correlationMatrix = reshape(correlationMatrix,numTracklets,numTracklets);
+out = (out(:,2)-0.5)*2;
+out = reshape(out,numTracklets,numTracklets);
+
+index = find(triu(ones(numTracklets),1));
+correlationMatrix = zeros(numTracklets);
+correlationMatrix(index) = out(index);
+correlationMatrix = correlationMatrix+correlationMatrix';
 
 t1=toc;
 fprintf('time elapsed: %d',t1)
@@ -43,6 +50,7 @@ output = max(input*double(hyper_score_param.fc1_w')+double(hyper_score_param.fc1
 output = max(output*double(hyper_score_param.fc2_w')+double(hyper_score_param.fc2_b),0);
 output = max(output*double(hyper_score_param.fc3_w')+double(hyper_score_param.fc3_b),0);
 output = output*double(hyper_score_param.out_w')+double(hyper_score_param.out_b);
+output = softmax(output')';
 end
 
 
