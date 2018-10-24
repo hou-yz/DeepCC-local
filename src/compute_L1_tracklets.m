@@ -36,14 +36,7 @@ for iCam = 1:8
     
     % Compute tracklets for every 1-second interval
     tracklets = struct([]);
-    newEmbedding = [];
-    newDet = [];
-    spatialGroupID_max = 0;
     
-    emb_filename = fullfile(opts.experiment_root, opts.experiment_name, 'L1-tracklets',sprintf('hyperEMB_%d.h5',iCam));
-    det_filename = fullfile(opts.experiment_root, opts.experiment_name, 'L1-tracklets',sprintf('newDet_%d.mat',iCam));
-    res_filename = fullfile(opts.experiment_root, opts.experiment_name, 'L1-tracklets',sprintf('pairwise_dis_%d.h5',iCam));
-    if ~exist(emb_filename, 'file') ||  ~exist(det_filename, 'file')
     for window_start_frame   = start_frame : opts.tracklets.window_width : end_frame
         fprintf('%d/%d\n', window_start_frame, end_frame);
         
@@ -66,31 +59,7 @@ for iCam = 1:8
         
         % Compute tracklets in current window
         % Then add them to the list of all tracklets
-        [newEmbedding,newDet,spatialGroupID_max] = createTracklets(opts, filteredDetections, filteredFeatures, iCam, window_start_frame, window_end_frame,newEmbedding,newDet,spatialGroupID_max);
-    end
-    hdf5write(emb_filename, '/hyperGT',newEmbedding');
-    save(det_filename,'newDet');
-    end
-    newEmbedding = h5read(emb_filename,'/hyperGT')';
-    if ~ opts.tracklets.compute_score
-        correlationMatrix_source = h5read(res_filename,'/dis')';
-    else
-        correlationMatrix_source = [];
-    end
-    load(det_filename);
-    for window_start_frame   = start_frame : opts.tracklets.window_width : end_frame
-        fprintf('%d/%d\n', window_start_frame, end_frame);
-        
-        % Retrieve detections in current window
-        window_end_frame     = window_start_frame + opts.tracklets.window_width - 1;
-        window_frames        = window_start_frame : window_end_frame;
-        window_inds          = find(ismember(newDet(:,1),window_frames));
-        detections_in_window = newDet(window_inds,:);
-        newEmb_in_window = newEmbedding(window_inds,:);
-        
-        % Compute tracklets in current window
-        % Then add them to the list of all tracklets
-        tracklets = solveTracklets(opts, detections_in_window, newEmb_in_window, correlationMatrix_source, iCam, window_start_frame, window_end_frame, tracklets);
+        tracklets = createTracklets(opts, filteredDetections, filteredFeatures, window_start_frame, window_end_frame, tracklets);
     end
     
     % Save tracklets
