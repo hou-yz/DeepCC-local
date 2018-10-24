@@ -30,16 +30,16 @@ a = [newGTs(:,1:4),zeros(numTracklets,2),newGTs(:,5:end)];
 b = [newGTs(:,1:6),zeros(numTracklets,2),newGTs(:,7:end)];
 input = repmat(reshape(a,1,numTracklets,[]),numTracklets,1,1) - repmat(reshape(b,numTracklets,1,[]),1,numTracklets,1);
 input(:,:,[5,6]) = -input(:,:,[5,6]);
-input = reshape(input,numTracklets*numTracklets,[]);
+input = abs(reshape(input,numTracklets*numTracklets,[]));
 % input = [input(:,1:8),vecnorm(input(:,9:end),2,2)];
 out = hyper_score_net(input,hyper_score_param);
-out = (out(:,2)-0.5)*2;
-out = reshape(out,numTracklets,numTracklets);
+correlationMatrix = (out(:,2)-0.5)*2;
+correlationMatrix = reshape(correlationMatrix,numTracklets,numTracklets);
 
-index = find(triu(ones(numTracklets),1));
-correlationMatrix = zeros(numTracklets);
-correlationMatrix(index) = out(index);
-correlationMatrix = correlationMatrix+correlationMatrix';
+% index = find(triu(ones(numTracklets),1));
+% correlationMatrix = zeros(numTracklets);
+% correlationMatrix(index) = out(index);
+% correlationMatrix = correlationMatrix+correlationMatrix';
 
 t1=toc;
 fprintf('time elapsed: %d',t1)
