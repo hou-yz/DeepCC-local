@@ -53,7 +53,7 @@ def save_model_as_mat(args, model):
     fc3_w, fc3_b = model.fc3.weight.data.cpu().numpy(), model.fc3.bias.data.cpu().numpy()
     out_w, out_b = model.out_layer.weight.data.cpu().numpy(), model.out_layer.bias.data.cpu().numpy()
 
-    scipy.io.savemat('logs/model_param_{}_{}.mat'.format(args.L2_window, args.L2_speed),
+    scipy.io.savemat(args.log_dir + '/model_param_{}_{}.mat'.format(args.L2_window, args.L2_speed),
                      mdict={'fc1_w': fc1_w, 'fc1_b': fc1_b,
                             'fc2_w': fc2_w, 'fc2_b': fc2_b,
                             'fc3_w': fc3_w, 'fc3_b': fc3_b,
@@ -187,6 +187,7 @@ def main():
                         metavar='PATH')
     parser.add_argument('--L2_window', type=int, default=300, choices=[150, 300, 1500])  # bad performance for 1200
     parser.add_argument('--L2_speed', type=str, default='mid', choices=['mid', 'head-tail'])
+    parser.add_argument('--log-dir', type=str, default='logs', metavar='PATH')
     parser.add_argument('--seed', type=int, default=1, metavar='S',
                         help='random seed (default: 1)')
     parser.add_argument('--log-interval', type=int, default=100, metavar='N',
@@ -196,12 +197,14 @@ def main():
         args.data_path = os.path.expanduser(args.data_path)
     args.data_path = args.data_path + 'hyperGT_trainval_mini_{}_{}.h5'.format(args.L2_window, args.L2_speed)
     torch.manual_seed(args.seed)
+    if not os.path.isdir(args.log_dir):
+        os.mkdir(args.log_dir)
 
     dataset = HyperFeat(args.data_path, args.L2_speed)
     train_loader = DataLoader(SiameseHyperFeat(dataset), batch_size=args.batch_size,
                               num_workers=4, pin_memory=True, shuffle=True)
 
-    test_loader = DataLoader(dataset, batch_size=args.test_batch_size,
+    test_loader = DataLoader(dataset, batch_size=args.batch_size,
                              sampler=HyperScoreSampler(dataset, 1024),
                              num_workers=0, pin_memory=True)
 
@@ -226,7 +229,7 @@ def main():
             if current_epoch == 0:
                 ax0.legend()
                 ax1.legend()
-            fig.savefig('logs/train.jpg')
+            fig.savefig(args.log_dir + '/train_{}_{}.jpg'.format(args.L2_window, args.L2_speed))
 
         for epoch in range(1, args.epochs + 1):
             loss, prec = train(args, model, train_loader, optimizer, epoch, criterion)
@@ -234,11 +237,11 @@ def main():
             prec_s.append(prec)
             draw_curve(epoch, loss_s, prec_s)
             pass
-        torch.save({'state_dict': model.module.state_dict(), }, 'logs/checkpoint_{}_{}.pth.tar'.
+        torch.save({'state_dict': model.module.state_dict(), }, args.log_dir + '/checkpoint_{}_{}.pth.tar'.
                    format(args.L2_window, args.L2_speed))
         save_model_as_mat(args, model.module)
 
-    checkpoint = torch.load('logs/checkpoint_{}_{}.pth.tar'.format(args.L2_window, args.L2_speed))
+    checkpoint = torch.load(args.log_dir + '/checkpoint_{}_{}.pth.tar'.format(args.L2_window, args.L2_speed))
     model_dict = checkpoint['state_dict']
     model.module.load_state_dict(model_dict)
     test(args, model, test_loader, criterion)

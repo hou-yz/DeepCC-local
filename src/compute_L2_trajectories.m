@@ -13,7 +13,7 @@ for iCam = 1:8
 %     [tracklets.velocity] = velocity{:};
     trajectoriesFromTracklets = trackletsToTrajectories(tracklets,1:length(tracklets));
     
-    hyper_score_param = load(fullfile('src','hyper_score','model_param.mat'));
+    hyper_score_param = load(fullfile('src','hyper_score',opts.trajectories.model_name));
     
     opts.current_camera = iCam;
     sequence_interval = opts.sequence_intervals{opts.sequence};
