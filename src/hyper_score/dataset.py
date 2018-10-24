@@ -13,10 +13,14 @@ from torch.utils.data import Dataset
 
 
 class HyperFeat(Dataset):
-    def __init__(self, root, train=True):
+    def __init__(self, root, L2_speed):
         self.root = root
         h5file = h5py.File(self.root, 'r')
         self.data = np.array(h5file['hyperGT'])
+        if L2_speed == 'mid':
+            self.feat_col = [0, 2] + list(range(4, 8)) + list(range(9, 265))  # cam,frame,pos_x,pos_y,v_x,v_y,256-dim
+        else:
+            self.feat_col = [0, 2] + list(range(4, 14)) + list(range(15, 271))
 
         self.indexs = list(range(self.data.shape[0]))
         all_groupIDs = np.int_(np.unique(self.data[:, 3]))
@@ -35,8 +39,7 @@ class HyperFeat(Dataset):
         pass
 
     def __getitem__(self, index):
-        feat_col = [0, 2] + list(range(4, 8)) + list(range(9, 265))  # cam,frame,pos_x,pos_y,v_x,v_y,256-dim
-        feat = self.data[index, feat_col]
+        feat = self.data[index, self.feat_col]
         # pid = self.pid_hash[np.int_(self.data[index, 1])]
         pid = int(self.data[index, 1])
         spaGrpID = int(self.data[index, 3])
@@ -87,4 +90,7 @@ class SiameseHyperFeat(Dataset):
         if target != (pid1 == pid2):
             target = (pid1 == pid2)
             pass
-        return feat1, feat2, target
+        if feat1[1] < feat2[1]:
+            return feat1, feat2, target
+        else:
+            return feat2, feat1, target

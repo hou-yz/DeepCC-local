@@ -53,7 +53,7 @@ def save_model_as_mat(args, model):
     fc3_w, fc3_b = model.fc3.weight.data.cpu().numpy(), model.fc3.bias.data.cpu().numpy()
     out_w, out_b = model.out_layer.weight.data.cpu().numpy(), model.out_layer.bias.data.cpu().numpy()
 
-    scipy.io.savemat('model_param_{}.mat'.format(args.L2_window),
+    scipy.io.savemat('model_param_{}_{}.mat'.format(args.L2_window, args.L2_speed),
                      mdict={'fc1_w': fc1_w, 'fc1_b': fc1_b,
                             'fc2_w': fc2_w, 'fc2_b': fc2_b,
                             'fc3_w': fc3_w, 'fc3_b': fc3_b,
@@ -84,7 +84,16 @@ def train(args, model, train_loader, optimizer, epoch, criterion):
     t0 = time.time()
     for batch_idx, (feat1, feat2, target) in enumerate(train_loader):
         l = target.shape[0]
-        data = (addzero(feat1.cuda(), 4, 2) - addzero(feat2.cuda(), 6, 2)).abs().float()
+        if args.L2_speed == 'mid':
+            pass
+        else:
+            # iCam,centerFrame,startFrame,endFrame,startpoint, endpoint,head_velocity,tail_velocity
+            seq1, seq2 = [0, 2, 6, 7, 10, 11, ], [0, 3, 4, 5, 8, 9, ]
+            seq1.extend(range(12, 268)), seq2.extend(range(12, 268))
+            feat1, feat2 = feat1[:, seq1], feat2[:, seq2]
+        data = (addzero(feat2.cuda(), 4, 2) - addzero(feat1.cuda(), 6, 2)).float()
+        data[:, [4, 5]] = -data[:, [4, 5]]
+
         target = target.cuda().long()
         # data = torch.cat((data[:, 0:8], torch.norm(data[:, 8:], 2, dim=1).view(-1, 1)), dim=1)
 
@@ -118,8 +127,16 @@ def test(args, model, test_loader, criterion):
                 l = pid.shape[0]
                 spaGrpID = int(np.unique(spaGrpID))
                 data, target = feat.cuda(), pid.cuda()
+
+                if args.L2_speed == 'mid':
+                    pass
+                else:
+                    # iCam,centerFrame,startFrame,endFrame,startpoint, endpoint,head_velocity,tail_velocity
+                    seq1, seq2 = [0, 2, 6, 7, 10, 11, ], [0, 3, 4, 5, 8, 9, ]
+                    seq1.extend(range(12, 268)), seq2.extend(range(12, 268))
+                    feat1, feat2 = data[:, seq1], data[:, seq2]
                 data = (addzero(data, 4, 2).unsqueeze(0).expand(l, l, 264) -
-                        addzero(data, 6, 2).unsqueeze(1).expand(l, l, 264)).abs()
+                        addzero(data, 6, 2).unsqueeze(1).expand(l, l, 264))
                 target = (target.unsqueeze(0).expand(l, l) - target.unsqueeze(1).expand(l, l)) == 0
                 target[torch.eye(l).cuda().byte()] = 1
                 data, target = Variable(data.view(-1, 264).float()), Variable(target.view(-1).long())
@@ -166,7 +183,8 @@ def main():
     # parser.add_argument('--resume', type=str, default='', metavar='PATH')
     parser.add_argument('--data-path', type=str, default='~/Data/DukeMTMC/ground_truth/',
                         metavar='PATH')
-    parser.add_argument('--L2_window', type=int, default=300, choices=[300, 1200])
+    parser.add_argument('--L2_window', type=int, default=300, choices=[150, 300, 1200])  # bad performance for 1200
+    parser.add_argument('--L2_speed', type=str, default='mid', choices=['mid', 'head-tail'])
     parser.add_argument('--seed', type=int, default=1, metavar='S',
                         help='random seed (default: 1)')
     parser.add_argument('--log-interval', type=int, default=100, metavar='N',
@@ -174,10 +192,10 @@ def main():
     args = parser.parse_args()
     if '~' in args.data_path:
         args.data_path = os.path.expanduser(args.data_path)
-    args.data_path = args.data_path + 'hyperGT_trainval_mini_{}.h5'.format(args.L2_window)
+    args.data_path = args.data_path + 'hyperGT_trainval_mini_{}_{}.h5'.format(args.L2_window, args.L2_speed)
     torch.manual_seed(args.seed)
 
-    dataset = HyperFeat(args.data_path)
+    dataset = HyperFeat(args.data_path, args.L2_speed)
     train_loader = DataLoader(SiameseHyperFeat(dataset), batch_size=args.batch_size,
                               num_workers=4, pin_memory=True, shuffle=True)
 
@@ -214,10 +232,11 @@ def main():
             prec_s.append(prec)
             draw_curve(epoch, loss_s, prec_s)
             pass
-        torch.save({'state_dict': model.module.state_dict(), }, 'checkpoint_{}.pth.tar'.format(args.L2_window))
+        torch.save({'state_dict': model.module.state_dict(), }, 'checkpoint_{}_{}.pth.tar'.
+                   format(args.L2_window, args.L2_speed))
         save_model_as_mat(args, model.module)
 
-    checkpoint = torch.load('checkpoint_{}.pth.tar'.format(args.L2_window))
+    checkpoint = torch.load('checkpoint_{}_{}.pth.tar'.format(args.L2_window, args.L2_speed))
     model_dict = checkpoint['state_dict']
     model.module.load_state_dict(model_dict)
     test(args, model, test_loader, criterion)
