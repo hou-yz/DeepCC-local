@@ -2,7 +2,7 @@
 % VISUALIZE 3: SHOW ALL MERGED TRACKLETS IN WINDOWS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-figure, imshow(opts.reader.getFrame(opts.current_camera,endTime));
+imshow(opts.reader.getFrame(opts.current_camera,endTime));
 hold on;
 
 currentTrajectories = smoothTrajectories;
