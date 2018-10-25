@@ -138,13 +138,13 @@ def test(args, model, test_loader, criterion):
                 #     feat1, feat2 = feat1[:, seq1], feat2[:, seq2]
                 # data = (addzero(feat1, 4, 2).unsqueeze(0).expand(l, l, 264) -
                 #         addzero(feat2, 6, 2).unsqueeze(1).expand(l, l, 264))
-                data = (feat1.unsqueeze(0).expand(l, l, 256) - feat2.unsqueeze(0).expand(l, l, 256)).abs()
+                data = (feat1.unsqueeze(0).expand(l, l, 256) - feat2.unsqueeze(1).expand(l, l, 256)).abs()
                 # data[:, 0:8] = 0
                 # data[:, :, [4, 5]] = -data[:, :, [4, 5]]
                 target = (target.unsqueeze(0).expand(l, l) - target.unsqueeze(1).expand(l, l)) == 0
                 target[torch.eye(l).cuda().byte()] = 1
-                index = torch.ones(l, l).triu().byte()
-                data, target = data[index, :].view(-1, 264).float(), target[index].long()
+                # index = torch.ones(l, l).triu().byte()
+                data, target = data.view(-1, 256).float(), target.view(-1).long()
                 # data = torch.cat((data[:, 0:8], torch.norm(data[:, 8:], 2, dim=1).view(-1, 1)), dim=1)
 
                 output = model(data)
