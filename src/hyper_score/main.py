@@ -187,7 +187,7 @@ def main():
                         metavar='PATH')
     parser.add_argument('--L2_window', type=int, default=300, choices=[150, 300, 1500])  # bad performance for 1200
     parser.add_argument('--L2_speed', type=str, default='mid', choices=['mid', 'head-tail'])
-    parser.add_argument('--log-dir', type=str, default='logs', metavar='PATH')
+    parser.add_argument('--log-dir', type=str, default='', metavar='PATH')
     parser.add_argument('--seed', type=int, default=1, metavar='S',
                         help='random seed (default: 1)')
     parser.add_argument('--log-interval', type=int, default=100, metavar='N',
@@ -195,7 +195,8 @@ def main():
     args = parser.parse_args()
     if '~' in args.data_path:
         args.data_path = os.path.expanduser(args.data_path)
-    args.data_path = args.data_path + 'hyperGT_trainval_mini_{}_{}.h5'.format(args.L2_window, args.L2_speed)
+    args.data_path = args.data_path + 'hyperGT_trainval_{}_{}.h5'.format(args.L2_window, args.L2_speed)
+    args.log_dir = 'logs/' + args.log_dir
     torch.manual_seed(args.seed)
     if not os.path.isdir(args.log_dir):
         os.mkdir(args.log_dir)
