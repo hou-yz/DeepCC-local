@@ -3,14 +3,13 @@ clear
 
 opts=get_opts();
 
-opts.trajectories.window_width = 1500;
+opts.trajectories.window_width = 150;
 L2_speed = 'mid';
-L2_speed = 'head-tail';
+% L2_speed = 'head-tail';
 
 % opts.visualize = true;
-opts.sequence = 2;
-opts.experiment_name = '1fps_L2_test';
-opts.feature_dir = 'det_features_fc256_1fps_trainBN_crop_trainval_mini';
+opts.sequence = 1;
+opts.experiment_name = '1fps_og';
 
 newGTs = cellmat(1,8,0,0,0);
 spatialGroupID_max = zeros(1,8);
@@ -37,20 +36,16 @@ for iCam = 1:8
         gts_in_window = all_gts(ismember(all_gts(:,2),window_frames),:);
         gts_in_window(:,[1 2]) = gts_in_window(:,[2 1]);
         pids = unique(gts_in_window(:,2));
+		fprintf('iCam %d, track #%d/%d, id_pool size: %d. \n',iCam,i,length(tracklets),length(pids))
         IoUs = zeros(length(window_frames),length(pids));
-        for k = 1:length(window_frames)
-            frame = window_frames(k);
-            bbox_det = tracklets(i).data(k,3:6);
-            for j = 1:length(pids)
-                pid = pids(j);
-                index = find((gts_in_window(:,2)==pid) .* (gts_in_window(:,1)==frame));
-                bbox_gt = gts_in_window(index,3:6);
-                if isempty(bbox_gt)
-                    IoUs(k,j) = 0;
-                else
-                    IoUs(k,j) = bboxOverlapRatio(bbox_det,bbox_gt);
-                end
-            end
+        bbox_det_s = tracklets(i).data(:,3:6);
+        for j = 1:length(pids)
+            pid = pids(j);
+            index = find((gts_in_window(:,2)==pid));
+            bbox_gt_s = gts_in_window(index,3:6);
+            gt_frames = gts_in_window(index,1);
+            det_overlap_index = ismember(window_frames,gt_frames);
+            IoUs(det_overlap_index,j) = diag(bboxOverlapRatio(bbox_det_s(det_overlap_index,:),bbox_gt_s));
         end
         IoUs=mean(IoUs,1);
         [IoU,j]=max(IoUs);
@@ -64,6 +59,13 @@ for iCam = 1:8
         tracklets(i).id=pid;
         if isempty(tracklets(i).id)
             i
+        end
+        if opts.visualize
+            index = find((gts_in_window(:,2)==pid));
+            bbox_gt_s = gts_in_window(index,3:6);
+            gt_frames = gts_in_window(index,1);
+            det_overlap_index = find(ismember(window_frames,gt_frames),1);
+            show_bbox(opts,iCam,window_frames(det_overlap_index),bbox_det_s(det_overlap_index,:),bbox_gt_s(1,:))
         end
     end
     
