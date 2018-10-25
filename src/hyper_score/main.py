@@ -24,24 +24,22 @@ class Net(nn.Module):
     def __init__(self, num_class=0):
         super(Net, self).__init__()
         self.num_class = num_class
-        self.fc1 = nn.Linear(264, 1024)
-        self.fc2 = nn.Linear(1024, 1024)
-        self.fc3 = nn.Linear(1024, 128)
+        self.fc1_s = nn.Sequential(nn.Linear(8, 8), nn.ReLU(),
+                                   nn.Linear(8, 8), nn.ReLU(), )
+        self.fc2_s = nn.Sequential(nn.Linear(256, 128), nn.ReLU(),
+                                   nn.Linear(128, 8), nn.ReLU(), )
         if self.num_class > 0:
             if self.num_class == 1:
-                self.out_layer = nn.Sequential(nn.Linear(128, self.num_class), nn.Sigmoid())
+                self.out_layer = nn.Sequential(nn.Linear(8, self.num_class), nn.Sigmoid())
             else:
-                self.out_layer = nn.Linear(128, self.num_class)
+                self.out_layer = nn.Linear(8, self.num_class)
                 init.normal_(self.out_layer.weight, std=0.001)
                 init.constant_(self.out_layer.bias, 0)
 
     def forward(self, x):
-        out = self.fc1(x)
-        out = F.relu(out)
-        out = self.fc2(out)
-        out = F.relu(out)
-        out = self.fc3(out)
-        out = F.relu(out)
+        part1 = self.fc1_s(x[:, 0:8])
+        part2 = self.fc2_s(x[:, 8:])
+        out = part1 + part2
         if self.num_class > 0:
             out = self.out_layer(out)
         return out
@@ -93,7 +91,7 @@ def train(args, model, train_loader, optimizer, epoch, criterion):
             feat1, feat2 = feat1[:, seq1], feat2[:, seq2]
         data = (addzero(feat2.cuda(), 4, 2) - addzero(feat1.cuda(), 6, 2)).float()
         data = data.abs()
-        data[:, [0, 1, 2, 3, 4, 5, 6, 7, ]] = 0
+        # data[:, 0:8] = 0
         # data[:, [4, 5]] = -data[:, [4, 5]]
 
         target = target.cuda().long()
@@ -140,7 +138,7 @@ def test(args, model, test_loader, criterion):
                 data = (addzero(feat1, 4, 2).unsqueeze(0).expand(l, l, 264) -
                         addzero(feat2, 6, 2).unsqueeze(1).expand(l, l, 264))
                 data = data.abs()
-                data[:, [0, 1, 2, 3, 4, 5, 6, 7, ]] = 0
+                # data[:, 0:8] = 0
                 # data[:, :, [4, 5]] = -data[:, :, [4, 5]]
                 target = (target.unsqueeze(0).expand(l, l) - target.unsqueeze(1).expand(l, l)) == 0
                 target[torch.eye(l).cuda().byte()] = 1
@@ -198,7 +196,7 @@ def main():
     if '~' in args.data_path:
         args.data_path = os.path.expanduser(args.data_path)
     args.data_path = args.data_path + 'hyperGT_trainval_{}_{}.h5'.format(args.L2_window, args.L2_speed)
-    args.log_dir = 'logs/appear_only/' + args.log_dir
+    args.log_dir = 'logs/two_ways/' + args.log_dir
     torch.manual_seed(args.seed)
     if not os.path.isdir(args.log_dir):
         os.mkdir(args.log_dir)
@@ -242,7 +240,7 @@ def main():
             pass
         torch.save({'state_dict': model.module.state_dict(), }, args.log_dir + '/checkpoint_{}_{}.pth.tar'.
                    format(args.L2_window, args.L2_speed))
-        save_model_as_mat(args, model.module)
+        # save_model_as_mat(args, model.module)
 
     checkpoint = torch.load(args.log_dir + '/checkpoint_{}_{}.pth.tar'.format(args.L2_window, args.L2_speed))
     model_dict = checkpoint['state_dict']
