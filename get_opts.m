@@ -8,7 +8,6 @@ opts.dataset_path    = 'D:/MATLAB/Data/DukeMTMC';
 opts.gurobi_path     = 'C:/Utils/gurobi801/win64/matlab';
 opts.experiment_root = 'experiments';
 opts.experiment_name = 'demo';
-opts.python = '/home/houyz/miniconda3/envs/torch-0.3.1/bin/python';
 
 opts.reader = MyVideoReader(opts.dataset_path);
 
