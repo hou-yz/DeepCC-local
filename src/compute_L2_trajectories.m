@@ -1,5 +1,7 @@
 function compute_L2_trajectories(opts)
 % Computes single-camera trajectories from tracklets
+
+hyper_score_param = load(fullfile('src','hyper_score/logs',opts.trajectories.model_name));
 for iCam = 1:8
 
     % Initialize
@@ -12,8 +14,6 @@ for iCam = 1:8
 %     velocity = num2cell(velocity,2);
 %     [tracklets.velocity] = velocity{:};
     trajectoriesFromTracklets = trackletsToTrajectories(tracklets,1:length(tracklets));
-    
-    hyper_score_param = load(fullfile('src','hyper_score',opts.trajectories.model_name));
     
     opts.current_camera = iCam;
     sequence_interval = opts.sequence_intervals{opts.sequence};

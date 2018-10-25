@@ -5,3 +5,5 @@ src/hyper_score/.idea/*
 *.asv
 *.pyc
 *.mat
+*.tar
+*.jpg

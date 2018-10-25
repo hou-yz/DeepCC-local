@@ -69,7 +69,7 @@ for i = 1 : length(allGroups)
     correlationMatrix(impossibilityMatrix == 1) = -inf;
     correlationMatrix(sameLabels) = 1;
     else
-        correlationMatrix = getHyperScore(opts,tracklets(indices),featureVectors(indices),iCam,hyper_score_param);
+        correlationMatrix = getHyperScore(opts,featureVectors(indices),hyper_score_param);
         [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinity(tracklets(indices), params.beta, params.speed_limit, params.indifference_time);
         correlationMatrix(impossibilityMatrix == 1) = -inf;
         correlationMatrix(sameLabels) = 1;

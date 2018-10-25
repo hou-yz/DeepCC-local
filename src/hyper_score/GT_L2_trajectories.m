@@ -108,4 +108,4 @@ for iCam = 1:8
 %     hdf5write(fullfile(opts.dataset_path, 'ground_truth',sprintf('hyperGT_%s_%d.h5',opts.sequence_names{opts.sequence},iCam)), '/hyperGT',newGTs{iCam}');
 end
 
-hdf5write(fullfile(opts.dataset_path, 'ground_truth',sprintf('hyperGT_%s_%d_%s.h5',opts.sequence_names{opts.sequence},opts.trajectories.window_width,L2_speed)), '/hyperGT',res');
+hdf5write(fullfile(opts.dataset_path, 'ground_truth',sprintf('hyperGT_L2_%s_%d_%s.h5',opts.sequence_names{opts.sequence},opts.trajectories.window_width,L2_speed)), '/hyperGT',res');

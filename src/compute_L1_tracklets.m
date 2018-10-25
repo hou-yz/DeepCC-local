@@ -1,6 +1,7 @@
 function compute_L1_tracklets(opts)
 % Computes tracklets for all cameras
 
+hyper_score_param = load(fullfile('src','hyper_score/logs',opts.trajectories.model_name));
 for iCam = 1:8
     
     opts.current_camera = iCam;
@@ -59,7 +60,7 @@ for iCam = 1:8
         
         % Compute tracklets in current window
         % Then add them to the list of all tracklets
-        tracklets = createTracklets(opts, filteredDetections, filteredFeatures, window_start_frame, window_end_frame, tracklets);
+        tracklets = createTracklets(opts, filteredDetections, filteredFeatures, window_start_frame, window_end_frame, tracklets,hyper_score_param);
     end
     
     % Save tracklets

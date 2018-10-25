@@ -1,4 +1,4 @@
-function  tracklets = createTracklets(opts, originalDetections, allFeatures, startFrame, endFrame, tracklets)
+function  tracklets = createTracklets(opts, originalDetections, allFeatures, startFrame, endFrame, tracklets,hyper_score_param)
 % CREATETRACKLETS This function creates short tracks composed of several detections.
 %   In the first stage our method groups detections into space-time groups.
 %   In the second stage a Binary Integer Program is solved for every space-time
@@ -51,6 +51,7 @@ for spatialGroupID = 1 : max(spatialGroupIDs)
     elements = find(spatialGroupIDs == spatialGroupID);
     spatialGroupObservations        = currentDetectionsIDX(elements);
     
+    if params.compute_score
     % Create an appearance affinity matrix and a motion affinity matrix
     appearanceCorrelation           = getAppearanceSubMatrix(spatialGroupObservations, allFeatures, threshold,diff_p,diff_n,params.step);
     spatialGroupDetectionCenters    = detectionCenters(elements,:);
@@ -65,7 +66,11 @@ for spatialGroupID = 1 : max(spatialGroupIDs)
 %     correlationMatrix               = correlationMatrix .* discountMatrix;
     correlationMatrix               = params.alpha*motionCorrelation .* discountMatrix + appearanceCorrelation; 
     correlationMatrix(impMatrix==1) = -inf;
-    
+    else
+        correlationMatrix = getHyperScore(opts,allFeatures,hyper_score_param);
+        [motionCorrelation, impMatrix]  = motionAffinity(spatialGroupDetectionCenters,spatialGroupDetectionFrames,spatialGroupEstimatedVelocity,params.speed_limit, params.beta);
+        correlationMatrix(impMatrix==1) = -inf;
+    end
     % Show spatial grouping and correlations
     % if opts.visualize, trackletsVisualizePart2; end
     

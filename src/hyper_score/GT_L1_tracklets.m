@@ -4,7 +4,7 @@ clear
 opts=get_opts();
 
 % opts.visualize = true;
-opts.sequence = 5;
+opts.sequence = 1;
 opts.feature_dir = 'gt_features_fc256_1fps_trainBN_crop';
 % Computes tracklets for all cameras
 
@@ -69,6 +69,6 @@ for iCam = 1:8
 %     hdf5write(fullfile(opts.dataset_path, 'ground_truth',sprintf('hyperGT_%s_%d.h5',opts.sequence_names{opts.sequence},iCam)), '/hyperGT',newGTs{iCam}');
 end
 
-hdf5write(fullfile(opts.dataset_path, 'ground_truth',sprintf('hyperGT_%s.h5',opts.sequence_names{opts.sequence})), '/hyperGT',res');
+hdf5write(fullfile(opts.dataset_path, 'ground_truth',sprintf('hyperGT_L1_%s.h5',opts.sequence_names{opts.sequence})), '/hyperGT',res');
 
 

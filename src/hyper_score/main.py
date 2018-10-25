@@ -24,7 +24,7 @@ class Net(nn.Module):
     def __init__(self, num_class=0):
         super(Net, self).__init__()
         self.num_class = num_class
-        self.fc1 = nn.Linear(264, 1024)
+        self.fc1 = nn.Linear(256, 1024)
         self.fc2 = nn.Linear(1024, 1024)
         self.fc3 = nn.Linear(1024, 128)
         if self.num_class > 0:
@@ -84,16 +84,16 @@ def train(args, model, train_loader, optimizer, epoch, criterion):
     t0 = time.time()
     for batch_idx, (feat1, feat2, target) in enumerate(train_loader):
         l = target.shape[0]
-        if args.L2_speed == 'mid':
-            pass
-        else:
-            # iCam,centerFrame,startFrame,endFrame,startpoint, endpoint,head_velocity,tail_velocity
-            seq1, seq2 = [0, 2, 6, 7, 10, 11, ], [0, 3, 4, 5, 8, 9, ]
-            seq1.extend(range(12, 268)), seq2.extend(range(12, 268))
-            feat1, feat2 = feat1[:, seq1], feat2[:, seq2]
-        data = (addzero(feat2.cuda(), 4, 2) - addzero(feat1.cuda(), 6, 2)).float()
-        data = data.abs()
-        data[:, [0, 1, 2, 3, 4, 5, 6, 7, ]] = 0
+        # if args.L2_speed == 'mid':
+        #     pass
+        # else:
+        #     # iCam,centerFrame,startFrame,endFrame,startpoint, endpoint,head_velocity,tail_velocity
+        #     seq1, seq2 = [0, 2, 6, 7, 10, 11, ], [0, 3, 4, 5, 8, 9, ]
+        #     seq1.extend(range(12, 268)), seq2.extend(range(12, 268))
+        #     feat1, feat2 = feat1[:, seq1], feat2[:, seq2]
+        # data = (addzero(feat2.cuda(), 4, 2) - addzero(feat1.cuda(), 6, 2)).float()
+        data = (feat2.cuda() - feat1.cuda()).float().abs()
+        # data[:, 0:8] = 0
         # data[:, [4, 5]] = -data[:, [4, 5]]
 
         target = target.cuda().long()
@@ -129,18 +129,17 @@ def test(args, model, test_loader, criterion):
                 l = pid.shape[0]
                 spaGrpID = int(np.unique(spaGrpID))
                 feat1, feat2, target = feat.cuda(), feat.cuda(), pid.cuda()
-
-                if args.L2_speed == 'mid':
-                    pass
-                else:
-                    # iCam,centerFrame,startFrame,endFrame,startpoint, endpoint,head_velocity,tail_velocity
-                    seq1, seq2 = [0, 2, 6, 7, 10, 11, ], [0, 3, 4, 5, 8, 9, ]
-                    seq1.extend(range(12, 268)), seq2.extend(range(12, 268))
-                    feat1, feat2 = feat1[:, seq1], feat2[:, seq2]
-                data = (addzero(feat1, 4, 2).unsqueeze(0).expand(l, l, 264) -
-                        addzero(feat2, 6, 2).unsqueeze(1).expand(l, l, 264))
-                data = data.abs()
-                data[:, [0, 1, 2, 3, 4, 5, 6, 7, ]] = 0
+                # if args.L2_speed == 'mid':
+                #     pass
+                # else:
+                #     # iCam,centerFrame,startFrame,endFrame,startpoint, endpoint,head_velocity,tail_velocity
+                #     seq1, seq2 = [0, 2, 6, 7, 10, 11, ], [0, 3, 4, 5, 8, 9, ]
+                #     seq1.extend(range(12, 268)), seq2.extend(range(12, 268))
+                #     feat1, feat2 = feat1[:, seq1], feat2[:, seq2]
+                # data = (addzero(feat1, 4, 2).unsqueeze(0).expand(l, l, 264) -
+                #         addzero(feat2, 6, 2).unsqueeze(1).expand(l, l, 264))
+                data = (feat1.unsqueeze(0).expand(l, l, 256) - feat2.unsqueeze(0).expand(l, l, 256)).abs()
+                # data[:, 0:8] = 0
                 # data[:, :, [4, 5]] = -data[:, :, [4, 5]]
                 target = (target.unsqueeze(0).expand(l, l) - target.unsqueeze(1).expand(l, l)) == 0
                 target[torch.eye(l).cuda().byte()] = 1
@@ -187,6 +186,7 @@ def main():
     # parser.add_argument('--resume', type=str, default='', metavar='PATH')
     parser.add_argument('--data-path', type=str, default='~/Data/DukeMTMC/ground_truth/',
                         metavar='PATH')
+    parser.add_argument('-L', type=str, default='L2', choices=['L1', 'L2'])
     parser.add_argument('--L2_window', type=int, default=300, choices=[150, 300, 1500])  # bad performance for 1200
     parser.add_argument('--L2_speed', type=str, default='mid', choices=['mid', 'head-tail'])
     parser.add_argument('--log-dir', type=str, default='', metavar='PATH')
@@ -197,8 +197,8 @@ def main():
     args = parser.parse_args()
     if '~' in args.data_path:
         args.data_path = os.path.expanduser(args.data_path)
-    args.data_path = args.data_path + 'hyperGT_trainval_{}_{}.h5'.format(args.L2_window, args.L2_speed)
-    args.log_dir = 'logs/appear_only/' + args.log_dir
+    args.data_path = args.data_path + 'hyperGT_{}_trainval_{}_{}.h5'.format(args.L, args.L2_window, args.L2_speed)
+    args.log_dir = 'logs/{}/appear_only/'.format(args.L, ) + args.log_dir
     torch.manual_seed(args.seed)
     if not os.path.isdir(args.log_dir):
         os.mkdir(args.log_dir)
