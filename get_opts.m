@@ -30,6 +30,7 @@ opts.start_frames = [5543, 3607, 27244, 31182, 1, 22402, 18968, 46766];
 opts.render_threshold = 0.05;
 opts.load_tracklets = 1;
 opts.load_trajectories = 1;
+opts.model_name = 'L2/appear_only/model_param_300_mid.mat';
 
 % Tracklets
 tracklets = [];
@@ -61,7 +62,6 @@ trajectories.diff_p = 0;
 trajectories.diff_n = 0;
 trajectories.step = false;
 trajectories.compute_score = true;
-trajectories.model_name = 'L2/appear_only/model_param_300_mid.mat';
 
 % Identities
 identities = [];

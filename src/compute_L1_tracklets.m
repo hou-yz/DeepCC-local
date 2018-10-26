@@ -1,7 +1,7 @@
 function compute_L1_tracklets(opts)
 % Computes tracklets for all cameras
 
-hyper_score_param = load(fullfile('src','hyper_score/logs',opts.trajectories.model_name));
+hyper_score_param = load(fullfile('src','hyper_score/logs',opts.model_name));
 for iCam = 1:8
     
     opts.current_camera = iCam;

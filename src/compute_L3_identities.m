@@ -1,5 +1,6 @@
 function compute_L3_identities(opts)
 % Computes multi-camera trajectories from single-camera trajectories
+hyper_score_param = load(fullfile('src','hyper_score/logs',opts.model_name));
 
 filename = sprintf('%s/%s/L3-identities/L2trajectories.mat',opts.experiment_root, opts.experiment_name);
 
@@ -33,7 +34,7 @@ endFrame = global_interval(1) + opts.identities.window_width - 1;
 while startFrame <= global_interval(end)
     clc; fprintf('Window %d...%d\n', startFrame, endFrame);
     
-    identities = linkIdentities(opts, identities, startFrame, endFrame);
+    identities = linkIdentities(opts, identities, startFrame, endFrame,hyper_score_param);
     
     % advance sliding temporal window
     startFrame = endFrame   - opts.identities.window_width/2;

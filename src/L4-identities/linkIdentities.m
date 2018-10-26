@@ -1,4 +1,4 @@
-function outputIdentities = linkIdentities( opts, inputIdentities, startTime, endTime)
+function outputIdentities = linkIdentities( opts, inputIdentities, startTime, endTime,hyper_score_param)
 
 
 % find current, old, and future tracklets
@@ -32,7 +32,7 @@ inAssociation = logical(inAssociation);
 % if VISUALIZE, trajectoriesVisualizePart1; end
 
 % solve the graph partitioning problem for each appearance group
-result = solveInGroupsIdentities(opts, trajectories(inAssociation), trajectoryLabels(inAssociation));
+result = solveInGroupsIdentities(opts, trajectories(inAssociation), trajectoryLabels(inAssociation),hyper_score_param);
 
 % merge back solution. Tracklets that were associated are now merged back
 % with the rest of the tracklets that were sharing the same trajectory

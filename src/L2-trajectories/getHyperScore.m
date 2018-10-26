@@ -1,7 +1,11 @@
 function correlationMatrix = getHyperScore(opts,features,hyper_score_param)
 tic;
-numFeatures = length(features);
-feat = reshape(cell2mat(features)',256,[])';
+if iscell(features)
+    numFeatures = length(features);
+    features = reshape(cell2mat(features)',256,[])';
+else
+    numFeatures = size(features,1);
+end
 
 % [~, ~, startpoint, endpoint, intervals, ~, velocity] = getTrackletFeatures(tracklets);
 % centerFrame     = round(mean(intervals,2));
@@ -13,7 +17,7 @@ feat = reshape(cell2mat(features)',256,[])';
 % a = [newGTs(:,1:4),zeros(numFeatures,2),newGTs(:,5:end)];
 % b = [newGTs(:,1:6),zeros(numFeatures,2),newGTs(:,7:end)];
 
-input = repmat(reshape(feat,1,numFeatures,[]),numFeatures,1,1) - repmat(reshape(feat,numFeatures,1,[]),1,numFeatures,1);
+input = repmat(reshape(features,1,numFeatures,[]),numFeatures,1,1) - repmat(reshape(features,numFeatures,1,[]),1,numFeatures,1);
 input = abs(reshape(input,numFeatures*numFeatures,[]));
 % input = [input(:,1:8),vecnorm(input(:,9:end),2,2)];
 out = hyper_score_net(input,hyper_score_param);
