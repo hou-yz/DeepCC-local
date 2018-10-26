@@ -8,8 +8,7 @@ for i = 1:length(uniqueLabels)
     
     trackletIndices = find(labels == uniqueLabels(i));
     
-    trajectory =  struct('tracklets',[],'startFrame',inf,'endFrame',-inf,'segmentStart',inf,'segmentEnd',-inf);
-    
+    trajectory =  struct('tracklets',[],'startFrame',inf,'endFrame',-inf,'segmentStart',inf,'segmentEnd',-inf,'features',[]);
     for k = 1:length(trackletIndices)
         ind = trackletIndices(k);
         trajectory.tracklets = [trajectory.tracklets; tracklets(ind)];
@@ -17,8 +16,10 @@ for i = 1:length(uniqueLabels)
         trajectory.endFrame = max(trajectory.startFrame, tracklets(ind).endFrame);
         trajectory.segmentStart = min(trajectory.segmentStart, tracklets(ind).segmentStart);
         trajectory.segmentEnd = max(trajectory.segmentEnd, tracklets(ind).segmentEnd);
-        trajectory.feature = tracklets(ind).feature;
+%         trajectory.feature = tracklets(ind).feature;
+        trajectory.features = [trajectory.features;tracklets(ind).features];
     end
+    trajectory.feature = mean(cell2mat(trajectory.features));
     
     trajectories = [trajectories; trajectory];
 end

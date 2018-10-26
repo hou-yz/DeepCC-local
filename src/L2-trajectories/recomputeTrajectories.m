@@ -46,6 +46,8 @@ for i = 1:length(trajectories)
     newTrajectory = trajectories(i);
     sampleTracklet = trajectories(i).tracklets(1);
     newTrajectory.tracklets = [];
+    features = trajectories(i).features;
+    feature = trajectories(i).feature;
     
     
     for k = 1:numSegments
@@ -64,7 +66,12 @@ for i = 1:length(trajectories)
         
         tracklet.startFrame = min(tracklet.data(:,1));
         tracklet.endFrame = max(tracklet.data(:,1));
-        
+        tracklet.feature = feature;
+        if k == 1
+            tracklet.features = features;
+        else
+            tracklet.features = [];
+        end
         
 %         if isempty(tracklet.data)
 %             tracklet.startFrame = min(tracklet.realdata(:,1));
@@ -88,3 +95,4 @@ for i = 1:length(trajectories)
 
 end
 
+end
