@@ -19,6 +19,13 @@ consecutive_cam = zeros(length(ids),8);
 consecutive_cam_matrix = zeros(8,8);  % LINES (i): out from iCam (i) into iCam (j): COLUMN (j)
 same_id_same_cam_outage_times=[];
 iCam_i_reintro_time_lists = cellmat(8,8,0,0,0);
+
+num_optimal_path = 0;
+num_non_optimal_path = 0;
+length_optimal_path = 0;
+length_non_optimal_path = 0;
+
+
 for i = 1:length(ids)
     id = ids(i);
     lines = trainData(trainData(:,2)==id,:);
@@ -32,6 +39,26 @@ for i = 1:length(ids)
     all=1:length(switch_cam_lines_id);
     intro_lines_id = all(switch_cam_lines_id==1);
     outro_lines_id = all([intro_lines_id(2:end)-1,end]);
+    
+    start_point = lines(intro_lines_id,[8,9]);
+    end_point = lines(outro_lines_id,[8,9]);
+    
+    duration = lines(outro_lines_id,3) - lines(intro_lines_id,3);
+    
+    L1 = sqrt(sum((end_point(1:end-1,:) - start_point(2:end,:)).^2,2));
+    L2 = sqrt(sum((end_point(1:end-1,:) - end_point(2:end,:)).^2,2));
+    L3 = sqrt(sum((start_point(1:end-1,:) - start_point(2:end,:)).^2,2));
+    
+    tmp = (L1 < L2) .* (L1 < L3);
+    correct_duration = sum(duration(logical([1;tmp])));
+    false_duration = sum(duration)-correct_duration;
+    
+    num_optimal_path = num_optimal_path + sum(tmp);
+    num_non_optimal_path = num_non_optimal_path + length(L1)-sum(tmp);
+    
+    length_optimal_path = length_optimal_path+correct_duration;
+    length_non_optimal_path = length_non_optimal_path+false_duration;
+    
     cams = lines(intro_lines_id,1);
     in_times  = repmat(lines(intro_lines_id,3),1,length(intro_lines_id))';
     out_times = repmat(lines(outro_lines_id,3),1,length(outro_lines_id));
@@ -42,6 +69,7 @@ for i = 1:length(ids)
     % reintro_logging
     intro_lines_id = intro_lines_id(2:end);
     outro_lines_id = intro_lines_id-1;
+    
     cams_reintro_time = lines(intro_lines_id,3)-lines(outro_lines_id,3);
     if length(cams)~=length(unique(cams))
         all=1:length(switch_cam_lines_id);

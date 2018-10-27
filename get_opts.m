@@ -78,6 +78,7 @@ identities.diff_n = 0;
 identities.optimal_filter = true;
 identities.step = false;
 identities.extract_images = true;
+identities.compute_score = true;
 
 identities.consecutive_icam_matrix = [1,1,1,1,1,1,1,1;1,1,1,1,1,1,0,0;1,1,1,1,1,0,0,0;1,1,1,1,1,0,0,0;1,1,1,1,1,1,1,0;1,1,0,0,1,1,1,1;1,0,0,0,1,1,1,1;1,0,0,0,0,1,1,1];%same_track
 %[1,1,0,0,1,0,1,1;1,1,1,0,1,0,1,1;0,1,1,1,1,1,1,0;0,1,1,0,1,0,0,0;1,1,1,1,1,1,1,1;0,0,0,0,1,1,1,0;1,0,0,0,1,1,1,1;1,1,0,0,1,0,1,1];%>0%

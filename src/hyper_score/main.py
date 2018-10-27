@@ -187,7 +187,7 @@ def main():
     parser.add_argument('--data-path', type=str, default='~/Data/DukeMTMC/ground_truth/',
                         metavar='PATH')
     parser.add_argument('-L', type=str, default='L2', choices=['L1', 'L2'])
-    parser.add_argument('--L2_window', type=int, default=300, choices=[150, 300, 1500])  # bad performance for 1200
+    parser.add_argument('--L2_window', type=str, default='300', choices=['inf', '150', '300', '1500'])
     parser.add_argument('--L2_speed', type=str, default='mid', choices=['mid', 'head-tail'])
     parser.add_argument('--log-dir', type=str, default='', metavar='PATH')
     parser.add_argument('--seed', type=int, default=1, metavar='S',
