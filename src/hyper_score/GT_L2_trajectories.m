@@ -110,4 +110,4 @@ end
 
 
 newGT(:,4) = 0;
-hdf5write(fullfile(opts.dataset_path, 'ground_truth',sprintf('hyperGT_L2_%s_%d_%s.h5',opts.sequence_names{opts.sequence},opts.trajectories.window_width,L2_speed)), '/hyperGT',res');
+hdf5write(fullfile(opts.dataset_path, 'ground_truth',sprintf('hyperGT_L2_%s_%d.h5',opts.sequence_names{opts.sequence},opts.trajectories.window_width)), '/hyperGT',res');
