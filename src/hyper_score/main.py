@@ -53,11 +53,11 @@ def save_model_as_mat(args, model):
     fc3_w, fc3_b = model.fc3.weight.data.cpu().numpy(), model.fc3.bias.data.cpu().numpy()
     out_w, out_b = model.out_layer.weight.data.cpu().numpy(), model.out_layer.bias.data.cpu().numpy()
 
-    scipy.io.savemat(args.log_dir + '/model_param_{}_{}.mat'.format(args.L2_window, args.L2_speed),
+    scipy.io.savemat(args.log_dir + '/model_param_{}_{}.mat'.format(args.L, args.window),
                      mdict={'fc1_w': fc1_w, 'fc1_b': fc1_b,
                             'fc2_w': fc2_w, 'fc2_b': fc2_b,
                             'fc3_w': fc3_w, 'fc3_b': fc3_b,
-                            'out_w': out_w, 'out_b': out_b, })
+                            'out_w': out_w, 'out_b': out_b,})
 
 
 def addzero(x, insert_pos, num_zero):
@@ -174,9 +174,9 @@ def main():
     parser = argparse.ArgumentParser(description='Hyper Score')
     parser.add_argument('--batch-size', type=int, default=64, metavar='N',
                         help='input batch size for training (default: 64)')
-    parser.add_argument('--epochs', type=int, default=300, metavar='N',
+    parser.add_argument('--epochs', type=int, default=500, metavar='N',
                         help='number of epochs to train (default: 10)')
-    parser.add_argument('--step-size', type=int, default=200)
+    parser.add_argument('--step-size', type=int, default=400)
     parser.add_argument('--lr', type=float, default=0.01, metavar='LR',
                         help='learning rate (default: 0.01)')
     parser.add_argument('--momentum', type=float, default=0.5, metavar='M',
@@ -187,7 +187,7 @@ def main():
     parser.add_argument('--data-path', type=str, default='~/Data/DukeMTMC/ground_truth/',
                         metavar='PATH')
     parser.add_argument('-L', type=str, default='L2', choices=['L1', 'L2'])
-    parser.add_argument('--L2_window', type=str, default='300', choices=['inf', '150', '300', '1500'])
+    parser.add_argument('--window', type=str, default='300', choices=['inf', '150', '300', '1500'])
     parser.add_argument('--L2_speed', type=str, default='mid', choices=['mid', 'head-tail'])
     parser.add_argument('--log-dir', type=str, default='', metavar='PATH')
     parser.add_argument('--seed', type=int, default=1, metavar='S',
@@ -197,7 +197,7 @@ def main():
     args = parser.parse_args()
     if '~' in args.data_path:
         args.data_path = os.path.expanduser(args.data_path)
-    args.data_path = args.data_path + 'hyperGT_{}_trainval_{}_{}.h5'.format(args.L, args.L2_window, args.L2_speed)
+    args.data_path = args.data_path + 'hyperGT_{}_trainval_{}.h5'.format(args.L, args.window)
     args.log_dir = 'logs/{}/appear_only/'.format(args.L, ) + args.log_dir
     torch.manual_seed(args.seed)
     if not os.path.isdir(args.log_dir):
@@ -232,7 +232,7 @@ def main():
             if current_epoch == 0:
                 ax0.legend()
                 ax1.legend()
-            fig.savefig(args.log_dir + '/train_{}_{}.jpg'.format(args.L2_window, args.L2_speed))
+            fig.savefig(args.log_dir + '/train_{}_{}.jpg'.format(args.L, args.window))
 
         for epoch in range(1, args.epochs + 1):
             loss, prec = train(args, model, train_loader, optimizer, epoch, criterion)
@@ -241,10 +241,10 @@ def main():
             draw_curve(epoch, loss_s, prec_s)
             pass
         torch.save({'state_dict': model.module.state_dict(), }, args.log_dir + '/checkpoint_{}_{}.pth.tar'.
-                   format(args.L2_window, args.L2_speed))
+                   format(args.L, args.window))
         save_model_as_mat(args, model.module)
 
-    checkpoint = torch.load(args.log_dir + '/checkpoint_{}_{}.pth.tar'.format(args.L2_window, args.L2_speed))
+    checkpoint = torch.load(args.log_dir + '/checkpoint_{}_{}.pth.tar'.format(args.L, args.window))
     model_dict = checkpoint['state_dict']
     model.module.load_state_dict(model_dict)
     test(args, model, test_loader, criterion)

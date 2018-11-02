@@ -9,7 +9,7 @@ for iCam = 1:8
 end
 
 % 150s
-same_id_same_cam_threshold = 150;
+same_id_same_cam_threshold = 1;
 
 ids = unique(trainData(:,2));
 same_track_cam = zeros(length(ids),8);
@@ -49,15 +49,6 @@ for i = 1:length(ids)
     L2 = sqrt(sum((end_point(1:end-1,:) - end_point(2:end,:)).^2,2));
     L3 = sqrt(sum((start_point(1:end-1,:) - start_point(2:end,:)).^2,2));
     
-    tmp = (L1 < L2) .* (L1 < L3);
-    correct_duration = sum(duration(logical([1;tmp])));
-    false_duration = sum(duration)-correct_duration;
-    
-    num_optimal_path = num_optimal_path + sum(tmp);
-    num_non_optimal_path = num_non_optimal_path + length(L1)-sum(tmp);
-    
-    length_optimal_path = length_optimal_path+correct_duration;
-    length_non_optimal_path = length_non_optimal_path+false_duration;
     
     cams = lines(intro_lines_id,1);
     in_times  = repmat(lines(intro_lines_id,3),1,length(intro_lines_id))';
@@ -69,6 +60,20 @@ for i = 1:length(ids)
     % reintro_logging
     intro_lines_id = intro_lines_id(2:end);
     outro_lines_id = intro_lines_id-1;
+    
+    
+    intro_cams = lines(intro_lines_id,1);
+    outro_cams = lines(outro_lines_id,1);
+    
+    correct_trans = (L1 < L2) .* (L1 < L3);% .* (intro_cams~=outro_cams)
+    correct_duration = sum(duration(logical([1;correct_trans])));
+    false_duration = sum(duration)-correct_duration;
+    
+    num_optimal_path = num_optimal_path + sum(correct_trans);
+    num_non_optimal_path = num_non_optimal_path + length(L1)-sum(correct_trans);
+    
+    length_optimal_path = length_optimal_path+correct_duration;
+    length_non_optimal_path = length_non_optimal_path+false_duration;
     
     cams_reintro_time = lines(intro_lines_id,3)-lines(outro_lines_id,3);
     if length(cams)~=length(unique(cams))
