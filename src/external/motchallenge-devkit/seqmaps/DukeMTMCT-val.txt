@@ -1,0 +1,9 @@
+name
+cam1_val
+cam2_val
+cam3_val
+cam4_val
+cam5_val
+cam6_val
+cam7_val
+cam8_val

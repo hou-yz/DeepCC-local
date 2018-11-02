@@ -3,13 +3,13 @@ clear
 
 opts=get_opts();
 
-opts.trajectories.window_width = 150;
+opts.trajectories.window_width = 1500;
 L2_speed = 'mid';
 % L2_speed = 'head-tail';
 
 % opts.visualize = true;
-opts.sequence = 1;
-opts.experiment_name = '1fps_og';
+opts.sequence = 7;
+opts.experiment_name = '1fps_og_cc';
 
 newGTs = cellmat(1,8,0,0,0);
 spatialGroupID_max = zeros(1,8);
@@ -78,7 +78,7 @@ for iCam = 1:8
         
         if strcmp(L2_speed,'mid')
         [~, ~, startpoint, endpoint, intervals, ~, velocity] = getTrackletFeatures(tracklets);
-        centerFrame     = round(mean(intervals,2));
+        centerFrame     = local2global(opts.start_frames(iCam),round(mean(intervals,2)));
         centers         = 0.5 * (endpoint + startpoint);
         newGTs{iCam} = [ones(size(pids))*iCam,pids,centerFrame,zeros(size(pids,1),1),centers,velocity,zeros(size(pids,1),1),feat];
         else

@@ -1,6 +1,6 @@
 function [allMets, metsBenchmark, metsMultiCam] = evaluate(opts)
 
-evalNames   = {'trainval', 'trainval-mini', 'test-easy', 'test-hard'};
+evalNames   = {'trainval', 'trainval-mini', 'test-easy', 'test-hard','','','','val'};
 seqMap      = sprintf('DukeMTMCT-%s.txt', evalNames{opts.sequence});
 eval_folder = [opts.experiment_root, filesep, opts.experiment_name, filesep, opts.eval_dir];
 gt_folder   = [opts.dataset_path, 'ground_truth'];

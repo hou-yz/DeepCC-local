@@ -99,7 +99,10 @@ for ind = 1:8
             load(fullfile(dataset_path,'ground_truth', 'trainval.mat'));
             gtdata = trainData;
             testInterval = [127720:187540];
-%             testInterval = [127720:137540];
+        elseif strcmp(seqmap,'DukeMTMCT-val.txt') % shorter version of trainval
+            load(fullfile(dataset_path,'ground_truth', 'trainval.mat'));
+            gtdata = trainData;
+            testInterval = [187541:227540];
         else
             fprintf('Unknown test set %s\n',testSet);
             return;
