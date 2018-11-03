@@ -214,8 +214,7 @@ def main():
     parser.add_argument('--data-path', type=str, default='~/Data/DukeMTMC/ground_truth/',
                         metavar='PATH')
     parser.add_argument('-L', type=str, default='L2', choices=['L1', 'L2'])
-    parser.add_argument('--window', type=str, default='300', choices=['inf', '150', '300', '1500'])
-    parser.add_argument('--L2_speed', type=str, default='mid', choices=['mid', 'head-tail'])
+    parser.add_argument('--window', type=str, default='1500', choices=['inf', '150', '300', '1500'])
     parser.add_argument('--log-dir', type=str, default='', metavar='PATH')
     parser.add_argument('--seed', type=int, default=1, metavar='S',
                         help='random seed (default: 1)')
@@ -234,8 +233,8 @@ def main():
     if not os.path.isdir(args.log_dir):
         os.mkdir(args.log_dir)
 
-    trainset = SiameseHyperFeat(HyperFeat(train_data_path, args.L2_speed))
-    testset = SiameseHyperFeat(HyperFeat(test_data_path, args.L2_speed))
+    trainset = SiameseHyperFeat(HyperFeat(train_data_path))
+    testset = SiameseHyperFeat(HyperFeat(test_data_path))
     train_loader = DataLoader(trainset, batch_size=args.batch_size,
                               num_workers=4, pin_memory=True, shuffle=True)
 
