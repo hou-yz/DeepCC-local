@@ -8,7 +8,11 @@ function [thres_uni,diff_p_uni,diff_n_uni]=view_distance_distribution(opts,type)
 features = [];
 for iCam = 1:8
     tmp_features = h5read(fullfile(opts.net.experiment_root, sprintf('features%d.h5',iCam)),'/emb');
-    features = [features;tmp_features'];
+    tmp_features = tmp_features';
+    sequence_window   = opts.sequence_intervals{opts.sequence};
+    sequence_window = global2local(opts.start_frames(iCam), sequence_window);
+    in_time_range_ids = ismember(tmp_features(:,3),sequence_window);
+    features = [features;tmp_features(in_time_range_ids,:)];
 end
 % pooling
 pooling = 2;
