@@ -12,7 +12,7 @@ opts.experiment_name = 'demo';
 opts.reader = MyVideoReader(opts.dataset_path);
 
 % General settings
-opts.eval_dir = 'L4-identities';
+opts.eval_dir = 'L3-identities';
 opts.visualize = false;
 opts.image_width = 1920;
 opts.image_height = 1080;
