@@ -50,17 +50,13 @@ for i = 1 : length(allGroups)
     
     % compute appearance and spacetime scores
     if params.compute_score
-    appearanceCorrelation = getAppearanceMatrix(featureVectors(indices),featureVectors(indices), params.threshold,params.diff_p,params.diff_n,params.step);
+        appearanceCorrelation = getAppearanceMatrix(featureVectors(indices),featureVectors(indices), params.threshold,params.diff_p,params.diff_n,params.step);
+    else
+        appearanceCorrelation = getHyperScore(opts,featureVectors(indices),hyper_score_param);
+    end
     [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinityID(trajectories(indices),opts.identities.consecutive_icam_matrix,opts.identities.reintro_time_matrix,opts.identities.optimal_filter);
     correlationMatrix = 1 * appearanceCorrelation + params.alpha*(spacetimeAffinity).*(1-indifferenceMatrix);
     correlationMatrix(impossibilityMatrix) = -Inf;
-    else
-        correlationMatrix = getHyperScore(opts,featureVectors(indices),hyper_score_param);
-        [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinityID(trajectories(indices),opts.identities.consecutive_icam_matrix,opts.identities.reintro_time_matrix,opts.identities.optimal_filter);
-        correlationMatrix(impossibilityMatrix == 1) = -inf;
-    end
-    
-
     
     correlationMatrix(sameLabels) = max(10, correlationMatrix(sameLabels));
     

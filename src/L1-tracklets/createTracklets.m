@@ -55,8 +55,12 @@ for spatialGroupID = 1 : max(spatialGroupIDs)
     spatialGroupEstimatedVelocity   = estimatedVelocity(elements,:);
     
     if params.compute_score
-    % Create an appearance affinity matrix and a motion affinity matrix
-    appearanceCorrelation           = getAppearanceSubMatrix(spatialGroupObservations, allFeatures, threshold,diff_p,diff_n,params.step);
+        % Create an appearance affinity matrix and a motion affinity matrix
+        appearanceCorrelation = getAppearanceSubMatrix(spatialGroupObservations, allFeatures, threshold,diff_p,diff_n,params.step);
+    else
+        features = cell2mat(allFeatures.appearance(spatialGroupObservations));
+        appearanceCorrelation = getHyperScore(opts,features,hyper_score_param);
+    end
     [motionCorrelation, impMatrix]  = motionAffinity(spatialGroupDetectionCenters,spatialGroupDetectionFrames,spatialGroupEstimatedVelocity,params.speed_limit, params.beta);
     
     % Combine affinities into correlations
@@ -66,12 +70,7 @@ for spatialGroupID = 1 : max(spatialGroupIDs)
 %     correlationMatrix               = correlationMatrix .* discountMatrix;
     correlationMatrix               = params.alpha*motionCorrelation .* discountMatrix + appearanceCorrelation; 
     correlationMatrix(impMatrix==1) = -inf;
-    else
-        features = cell2mat(allFeatures.appearance(spatialGroupObservations));
-        correlationMatrix = getHyperScore(opts,features,hyper_score_param);
-        [motionCorrelation, impMatrix]  = motionAffinity(spatialGroupDetectionCenters,spatialGroupDetectionFrames,spatialGroupEstimatedVelocity,params.speed_limit, params.beta);
-        correlationMatrix(impMatrix==1) = -inf;
-    end
+    
     % Show spatial grouping and correlations
     % if opts.visualize, trackletsVisualizePart2; end
     
