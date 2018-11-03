@@ -1,23 +1,25 @@
 function [thres_uni,diff_p_uni,diff_n_uni]=view_distance_distribution(opts,type)
-data = readtable('src/visualization/file_list.csv', 'Delimiter',','); % gt@1fps
 % data = readtable('src/triplet-reid/data/duke_test.csv', 'Delimiter',','); % reid
 
 % opts.net.experiment_root = 'experiments/fc256_6fps_epoch45';
-labels = data.Var1;
-paths  = data.Var2;
 %% Compute features
-features = h5read(fullfile(opts.net.experiment_root, 'features.h5'),'/emb');
-features = features';
+
+% pid, cam, frame, 256-dim feat
+features = [];
+for iCam = 1:8
+    tmp_features = h5read(fullfile(opts.net.experiment_root, sprintf('features%d.h5',iCam)),'/emb');
+    features = [features;tmp_features'];
+end
 % pooling
-pooling = 4;
-labels = labels(1:pooling:length(labels),:);
-features = features(1:pooling:length(features),:);
+pooling = 2;
+labels = features(1:pooling:length(features),1);
+features = single(features(1:pooling:length(features),4:end));
 dist = pdist2(features,features);
 %% Visualize distance distribution
     same_label = triu(pdist2(labels,labels) == 0,1);
     different_label = triu(pdist2(labels,labels) ~= 0);
-    pos_dists = dist(same_label);
-    neg_dists = dist(different_label);
+    pos_dists = double(dist(same_label));
+    neg_dists = double(dist(different_label));
     % pooling
 %     pooling = floor(length(neg_dists)/length(pos_dists));
 %     neg_dists = neg_dists(1:pooling:length(neg_dists));

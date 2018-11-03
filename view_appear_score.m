@@ -2,8 +2,8 @@ clc
 clear
 %% Options
 opts = get_opts();
-opts.net.experiment_root =  'experiments/fc256_1fps_trainBN_crop_separate_icam'; %'experiments/fc256_1fps';%
-unified_model=~contains(opts.net.experiment_root,'_icam');
+opts.net.experiment_root =  'experiments/fc256_train_1fps_trainBN'; %'experiments/fc256_1fps_trainBN_crop_base_on_uni'; %'experiments/fc256_1fps';%
+unified_model=~( contains(opts.net.experiment_root,'_icam') || contains(opts.net.experiment_root,'_base_on_uni'));
 type='mid' %'1x'%
 
 if unified_model
@@ -11,4 +11,4 @@ if unified_model
 else
 thres_uni=0;diff_p_uni=0;diff_n_uni=0;
 end
-[threshold_s,diff_p_s,diff_n_s]=view_distance_distribution_separate_icam(opts,type,unified_model,thres_uni,diff_p_uni,diff_n_uni);
+% [threshold_s,diff_p_s,diff_n_s]=view_distance_distribution_separate_icam(opts,type,unified_model,thres_uni,diff_p_uni,diff_n_uni);
