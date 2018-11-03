@@ -57,7 +57,7 @@ def save_model_as_mat(args, model):
                      mdict={'fc1_w': fc1_w, 'fc1_b': fc1_b,
                             'fc2_w': fc2_w, 'fc2_b': fc2_b,
                             'fc3_w': fc3_w, 'fc3_b': fc3_b,
-                            'out_w': out_w, 'out_b': out_b,})
+                            'out_w': out_w, 'out_b': out_b, })
 
 
 def addzero(x, insert_pos, num_zero):
@@ -117,56 +117,81 @@ def train(args, model, train_loader, optimizer, epoch, criterion):
     return losses / (batch_idx + 1), correct / (correct + miss)
 
 
-def test(args, model, test_loader, criterion):
+def test(args, model, test_loader, criterion, save_result=False):
     model.eval()
-    test_loss = 0
+    # test_loss = 0
+    # correct = 0
+    # miss = 0
+    # lines = torch.zeros([0]).cuda()
+    # with torch.no_grad():
+    #     for batch_idx in range(1, test_loader.dataset.num_spatialGroup + 1):
+    #         for (feat, pid, spaGrpID) in test_loader:
+    #             l = pid.shape[0]
+    #             spaGrpID = int(np.unique(spaGrpID))
+    #             feat1, feat2, target = feat.cuda(), feat.cuda(), pid.cuda()
+    #             # if args.L2_speed == 'mid':
+    #             #     pass
+    #             # else:
+    #             #     # iCam,centerFrame,startFrame,endFrame,startpoint, endpoint,head_velocity,tail_velocity
+    #             #     seq1, seq2 = [0, 2, 6, 7, 10, 11, ], [0, 3, 4, 5, 8, 9, ]
+    #             #     seq1.extend(range(12, 268)), seq2.extend(range(12, 268))
+    #             #     feat1, feat2 = feat1[:, seq1], feat2[:, seq2]
+    #             # data = (addzero(feat1, 4, 2).unsqueeze(0).expand(l, l, 264) -
+    #             #         addzero(feat2, 6, 2).unsqueeze(1).expand(l, l, 264))
+    #             data = (feat1.unsqueeze(0).expand(l, l, 256) - feat2.unsqueeze(1).expand(l, l, 256)).abs()
+    #             # data[:, 0:8] = 0
+    #             # data[:, :, [4, 5]] = -data[:, :, [4, 5]]
+    #             target = (target.unsqueeze(0).expand(l, l) - target.unsqueeze(1).expand(l, l)) == 0
+    #             target[torch.eye(l).cuda().byte()] = 1
+    #             # index = torch.ones(l, l).triu().byte()
+    #             data, target = data.view(-1, 256).float(), target.view(-1).long()
+    #             # data = torch.cat((data[:, 0:8], torch.norm(data[:, 8:], 2, dim=1).view(-1, 1)), dim=1)
+    #
+    #             output = model(data)
+    #             test_loss += criterion(output, target).item()  # sum up batch loss
+    #             _, pred = torch.max(output, 1)  # get the index of the max log-probability
+    #             correct += pred.eq(target).sum().item()
+    #             miss += target.shape[0] - pred.eq(target).sum().item()
+    #             output = F.softmax(output, dim=1)
+    #             line = (output[:, 1] - 0.5) * 2
+    #             lines = torch.cat((lines, line), dim=0)
+    #             pass
+    #
+    # print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.1f}%)\n'.
+    #       format(test_loss, correct, correct + miss, 100. * correct / (correct + miss)))
+    #
+    #
+    # lines = lines.cpu().numpy()
+    # if save_result:
+    #     output_fname = args.data_path + '/pairwise_dis_tmp.h5'
+    #     with h5py.File(output_fname, 'w') as f:
+    #         mat_data = np.vstack(lines)
+    #         f.create_dataset('dis', data=mat_data, dtype=float)
+    #         pass
+
+    losses = 0
     correct = 0
     miss = 0
-    lines = torch.zeros([0]).cuda()
-    with torch.no_grad():
-        for batch_idx in range(1, test_loader.dataset.num_spatialGroup + 1):
-            for (feat, pid, spaGrpID) in test_loader:
-                l = pid.shape[0]
-                spaGrpID = int(np.unique(spaGrpID))
-                feat1, feat2, target = feat.cuda(), feat.cuda(), pid.cuda()
-                # if args.L2_speed == 'mid':
-                #     pass
-                # else:
-                #     # iCam,centerFrame,startFrame,endFrame,startpoint, endpoint,head_velocity,tail_velocity
-                #     seq1, seq2 = [0, 2, 6, 7, 10, 11, ], [0, 3, 4, 5, 8, 9, ]
-                #     seq1.extend(range(12, 268)), seq2.extend(range(12, 268))
-                #     feat1, feat2 = feat1[:, seq1], feat2[:, seq2]
-                # data = (addzero(feat1, 4, 2).unsqueeze(0).expand(l, l, 264) -
-                #         addzero(feat2, 6, 2).unsqueeze(1).expand(l, l, 264))
-                data = (feat1.unsqueeze(0).expand(l, l, 256) - feat2.unsqueeze(1).expand(l, l, 256)).abs()
-                # data[:, 0:8] = 0
-                # data[:, :, [4, 5]] = -data[:, :, [4, 5]]
-                target = (target.unsqueeze(0).expand(l, l) - target.unsqueeze(1).expand(l, l)) == 0
-                target[torch.eye(l).cuda().byte()] = 1
-                # index = torch.ones(l, l).triu().byte()
-                data, target = data.view(-1, 256).float(), target.view(-1).long()
-                # data = torch.cat((data[:, 0:8], torch.norm(data[:, 8:], 2, dim=1).view(-1, 1)), dim=1)
-
-                output = model(data)
-                test_loss += criterion(output, target).item()  # sum up batch loss
-                _, pred = torch.max(output, 1)  # get the index of the max log-probability
-                correct += pred.eq(target).sum().item()
-                miss += target.shape[0] - pred.eq(target).sum().item()
-                output = F.softmax(output, dim=1)
-                line = (output[:, 1] - 0.5) * 2
-                lines = torch.cat((lines, line), dim=0)
-                pass
-
-    print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.1f}%)\n'.
-          format(test_loss, correct, correct + miss, 100. * correct / (correct + miss)))
-
-    lines = lines.cpu().numpy()
-    if args.save_result:
-        output_fname = osp.dirname(args.data_path) + '/pairwise_dis_tmp.h5'
-        with h5py.File(output_fname, 'w') as f:
-            mat_data = np.vstack(lines)
-            f.create_dataset('dis', data=mat_data, dtype=float)
-            pass
+    model.train()
+    t0 = time.time()
+    for batch_idx, (feat1, feat2, target) in enumerate(test_loader):
+        l = target.shape[0]
+        data = (feat2.cuda() - feat1.cuda()).float().abs()
+        target = target.cuda().long()
+        with torch.no_grad():
+            output = model(data)
+        pred = torch.argmax(output, 1)
+        correct += pred.eq(target).sum().item()
+        miss += l - pred.eq(target).sum().item()
+        loss = criterion(output, target)
+        losses += loss.item()
+        if (batch_idx + 1) % args.log_interval == 0:
+            t1 = time.time()
+            t_batch = t1 - t0
+            t0 = time.time()
+            print('Test on val, Batch:{}, \tLoss: {:.6f}, Prec: {:.1f}%, Time: {:.3f}'.format(
+                (batch_idx + 1), losses / (batch_idx + 1), 100. * correct / (correct + miss), t_batch))
+    return losses / (batch_idx + 1), correct / (correct + miss)
 
 
 def main():
@@ -174,12 +199,14 @@ def main():
     parser = argparse.ArgumentParser(description='Hyper Score')
     parser.add_argument('--batch-size', type=int, default=64, metavar='N',
                         help='input batch size for training (default: 64)')
-    parser.add_argument('--epochs', type=int, default=500, metavar='N',
+    parser.add_argument('--epochs', type=int, default=60, metavar='N',
                         help='number of epochs to train (default: 10)')
-    parser.add_argument('--step-size', type=int, default=400)
+    parser.add_argument('--step-size', type=int, default=40)
     parser.add_argument('--lr', type=float, default=0.01, metavar='LR',
                         help='learning rate (default: 0.01)')
-    parser.add_argument('--momentum', type=float, default=0.5, metavar='M',
+    parser.add_argument('--combine-trainval', action='store_true',
+                        help="train and val sets together for training, val set alone for validation")
+    parser.add_argument('--momentum', type=float, default=0, metavar='M',
                         help='SGD momentum (default: 0.5)')
     parser.add_argument('--train', action='store_true')
     parser.add_argument('--save_result', action='store_true')
@@ -197,24 +224,29 @@ def main():
     args = parser.parse_args()
     if '~' in args.data_path:
         args.data_path = os.path.expanduser(args.data_path)
-    args.data_path = args.data_path + 'hyperGT_{}_trainval_{}.h5'.format(args.L, args.window)
+    if args.combine_trainval:
+        train_data_path = args.data_path + 'hyperGT_{}_trainval_{}.h5'.format(args.L, args.window)
+    else:
+        train_data_path = args.data_path + 'hyperGT_{}_train_{}.h5'.format(args.L, args.window)
+    test_data_path = args.data_path + 'hyperGT_{}_val_{}.h5'.format(args.L, args.window)
     args.log_dir = 'logs/{}/appear_only/'.format(args.L, ) + args.log_dir
     torch.manual_seed(args.seed)
     if not os.path.isdir(args.log_dir):
         os.mkdir(args.log_dir)
 
-    dataset = HyperFeat(args.data_path, args.L2_speed)
-    train_loader = DataLoader(SiameseHyperFeat(dataset), batch_size=args.batch_size,
+    trainset = SiameseHyperFeat(HyperFeat(train_data_path, args.L2_speed))
+    testset = SiameseHyperFeat(HyperFeat(test_data_path, args.L2_speed))
+    train_loader = DataLoader(trainset, batch_size=args.batch_size,
                               num_workers=4, pin_memory=True, shuffle=True)
 
-    test_loader = DataLoader(dataset, batch_size=args.batch_size,
-                             sampler=HyperScoreSampler(dataset, 1024),
-                             num_workers=0, pin_memory=True)
+    test_loader = DataLoader(testset, batch_size=args.batch_size,
+                             # sampler=HyperScoreSampler(testset, 1024),
+                             num_workers=4, pin_memory=True)
 
     model = Net(num_class=2)
     model = nn.DataParallel(model).cuda()
     criterion = nn.CrossEntropyLoss().cuda()
-    optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
+    optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=0.005)
 
     if args.train:
         # Draw Curve
@@ -222,23 +254,30 @@ def main():
         fig = plt.figure()
         ax0 = fig.add_subplot(121, title="loss")
         ax1 = fig.add_subplot(122, title="prec")
-        loss_s = []
-        prec_s = []
+        train_loss_s = []
+        train_prec_s = []
+        test_loss_s = []
+        test_prec_s = []
 
-        def draw_curve(current_epoch, train_loss, train_prec):
+        def draw_curve(current_epoch, train_loss, train_prec, test_loss, test_prec):
             x_epoch.append(current_epoch)
             ax0.plot(x_epoch, train_loss, 'bo-', label='train')
+            ax0.plot(x_epoch, test_loss, 'ro-', label='test')
             ax1.plot(x_epoch, train_prec, 'bo-', label='train')
+            ax1.plot(x_epoch, test_prec, 'ro-', label='test')
             if current_epoch == 0:
                 ax0.legend()
                 ax1.legend()
             fig.savefig(args.log_dir + '/train_{}_{}.jpg'.format(args.L, args.window))
 
         for epoch in range(1, args.epochs + 1):
-            loss, prec = train(args, model, train_loader, optimizer, epoch, criterion)
-            loss_s.append(loss)
-            prec_s.append(prec)
-            draw_curve(epoch, loss_s, prec_s)
+            train_loss, train_prec = train(args, model, train_loader, optimizer, epoch, criterion)
+            test_loss, test_prec = test(args, model, test_loader, criterion)
+            train_loss_s.append(train_loss)
+            train_prec_s.append(train_prec)
+            test_loss_s.append(test_loss)
+            test_prec_s.append(test_prec)
+            draw_curve(epoch, train_loss_s, train_prec_s, test_loss_s, test_prec_s)
             pass
         torch.save({'state_dict': model.module.state_dict(), }, args.log_dir + '/checkpoint_{}_{}.pth.tar'.
                    format(args.L, args.window))
@@ -247,7 +286,7 @@ def main():
     checkpoint = torch.load(args.log_dir + '/checkpoint_{}_{}.pth.tar'.format(args.L, args.window))
     model_dict = checkpoint['state_dict']
     model.module.load_state_dict(model_dict)
-    test(args, model, test_loader, criterion)
+    test(args, model, test_loader, criterion, save_result=args.save_result)
 
 
 if __name__ == '__main__':
