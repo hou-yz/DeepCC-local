@@ -20,44 +20,57 @@ matplotlib.use('agg')
 import matplotlib.pyplot as plt
 
 
-class Net(nn.Module):
+class MetricNet(nn.Module):
     def __init__(self, num_class=0):
-        super(Net, self).__init__()
+        super(MetricNet, self).__init__()
         self.num_class = num_class
         self.fc1 = nn.Linear(256, 1024)
         self.fc2 = nn.Linear(1024, 1024)
         self.fc3 = nn.Linear(1024, 128)
-        if self.num_class > 0:
-            if self.num_class == 1:
-                self.out_layer = nn.Sequential(nn.Linear(128, self.num_class), nn.Sigmoid())
-            else:
-                self.out_layer = nn.Linear(128, self.num_class)
-                init.normal_(self.out_layer.weight, std=0.001)
-                init.constant_(self.out_layer.bias, 0)
+        self.out_layer = nn.Linear(128, self.num_class)
+        init.normal_(self.out_layer.weight, std=0.001)
+        init.constant_(self.out_layer.bias, 0)
 
     def forward(self, x):
+        # feat = x[:, 0:-1]
+        # motion_score = x[:, -1].view(-1, 1)
         out = self.fc1(x)
         out = F.relu(out)
         out = self.fc2(out)
         out = F.relu(out)
         out = self.fc3(out)
         out = F.relu(out)
-        if self.num_class > 0:
-            out = self.out_layer(out)
+        # out = torch.cat((out, motion_score), dim=1)
+        out = self.out_layer(out)
         return out
 
 
-def save_model_as_mat(args, model):
-    fc1_w, fc1_b = model.fc1.weight.data.cpu().numpy(), model.fc1.bias.data.cpu().numpy()
-    fc2_w, fc2_b = model.fc2.weight.data.cpu().numpy(), model.fc2.bias.data.cpu().numpy()
-    fc3_w, fc3_b = model.fc3.weight.data.cpu().numpy(), model.fc3.bias.data.cpu().numpy()
-    out_w, out_b = model.out_layer.weight.data.cpu().numpy(), model.out_layer.bias.data.cpu().numpy()
+class AppearMotionNet(nn.Module):
+    def __init__(self):
+        super(AppearMotionNet, self).__init__()
+        self.linear = nn.Linear(2, 2)
 
-    scipy.io.savemat(args.log_dir + '/model_param_{}_{}.mat'.format(args.L, args.window),
-                     mdict={'fc1_w': fc1_w, 'fc1_b': fc1_b,
-                            'fc2_w': fc2_w, 'fc2_b': fc2_b,
-                            'fc3_w': fc3_w, 'fc3_b': fc3_b,
-                            'out_w': out_w, 'out_b': out_b, })
+    def forward(self, x):
+        out = self.linear(x)
+        return out
+
+
+def save_model_as_mat(args, net):
+    if isinstance(net, MetricNet):
+        fc1_w, fc1_b = net.fc1.weight.data.cpu().numpy(), net.fc1.bias.data.cpu().numpy()
+        fc2_w, fc2_b = net.fc2.weight.data.cpu().numpy(), net.fc2.bias.data.cpu().numpy()
+        fc3_w, fc3_b = net.fc3.weight.data.cpu().numpy(), net.fc3.bias.data.cpu().numpy()
+        out_w, out_b = net.out_layer.weight.data.cpu().numpy(), net.out_layer.bias.data.cpu().numpy()
+
+        scipy.io.savemat(args.log_dir + '/metric_param_{}_{}.mat'.format(args.L, args.window),
+                         mdict={'fc1_w': fc1_w, 'fc1_b': fc1_b,
+                                'fc2_w': fc2_w, 'fc2_b': fc2_b,
+                                'fc3_w': fc3_w, 'fc3_b': fc3_b,
+                                'out_w': out_w, 'out_b': out_b, })
+    else:
+        linear_w, linear_b = net.linear.weight.data.cpu().numpy(), net.linear.bias.data.cpu().numpy()
+        scipy.io.savemat(args.log_dir + '/appearance_motion_param_{}_{}.mat'.format(args.L, args.window),
+                         mdict={'linear_w': linear_w, 'linear_b': linear_b})
 
 
 def addzero(x, insert_pos, num_zero):
@@ -66,59 +79,73 @@ def addzero(x, insert_pos, num_zero):
     return torch.cat((x1, z.type_as(x1), x2), dim=1)
 
 
-def train(args, model, train_loader, optimizer, epoch, criterion):
+def train(args, metric_net, appear_motion_net, train_loader, optimizer, epoch, criterion, train_motion=False):
     # Schedule learning rate
-
-    if args.epochs == 20:
-        step_size = 10
-    else:
-        step_size = args.step_size
-    lr = args.lr * (0.1 ** (epoch // step_size))
+    lr = args.lr * (0.1 ** (epoch // args.step_size))
     for g in optimizer.param_groups:
         g['lr'] = lr * g.get('lr_mult', 1)
 
     losses = 0
     correct = 0
     miss = 0
-    model.train()
+    metric_net.train()
     t0 = time.time()
-    for batch_idx, (feat1, feat2, target) in enumerate(train_loader):
-        l = target.shape[0]
-        # if args.L2_speed == 'mid':
-        #     pass
-        # else:
-        #     # iCam,centerFrame,startFrame,endFrame,startpoint, endpoint,head_velocity,tail_velocity
-        #     seq1, seq2 = [0, 2, 6, 7, 10, 11, ], [0, 3, 4, 5, 8, 9, ]
-        #     seq1.extend(range(12, 268)), seq2.extend(range(12, 268))
-        #     feat1, feat2 = feat1[:, seq1], feat2[:, seq2]
-        # data = (addzero(feat2.cuda(), 4, 2) - addzero(feat1.cuda(), 6, 2)).float()
-        data = (feat2.cuda() - feat1.cuda()).float().abs()
-        # data[:, 0:8] = 0
-        # data[:, [4, 5]] = -data[:, [4, 5]]
+    for batch_idx, (feat1, feat2, motion_score, target) in enumerate(train_loader):
+        if not train_motion:
+            l = target.shape[0]
+            # data = torch.cat(((feat2.cuda() - feat1.cuda()).abs().float(), motion_score.cuda().float().view(-1, 1)), dim=1)
+            data = (feat2.cuda() - feat1.cuda()).abs().float()
+            target = target.cuda().long()
 
-        target = target.cuda().long()
-        # data = torch.cat((data[:, 0:8], torch.norm(data[:, 8:], 2, dim=1).view(-1, 1)), dim=1)
+            optimizer.zero_grad()
+            output = metric_net(data)
+            pred = torch.argmax(output, 1)
+            correct += pred.eq(target).sum().item()
+            miss += l - pred.eq(target).sum().item()
+            loss = criterion(output, target)
+            loss.backward()
+            optimizer.step()
+            losses += loss.item()
+            if (batch_idx + 1) % args.log_interval == 0:
+                t1 = time.time()
+                t_batch = t1 - t0
+                t0 = time.time()
+                print('Train Epoch: {}, Batch:{}, \tLoss: {:.6f}, Prec: {:.1f}%, Time: {:.3f}'.format(
+                    epoch, (batch_idx + 1), losses / (batch_idx + 1), 100. * correct / (correct + miss), t_batch))
+        else:
+            metric_net.eval()
+            l = target.shape[0]
+            # data = torch.cat(((feat2.cuda() - feat1.cuda()).abs().float(), motion_score.cuda().float().view(-1, 1)), dim=1)
+            data = (feat2.cuda() - feat1.cuda()).abs().float()
+            target = target.cuda().long()
+            output = metric_net(data)
+            output = (output[:, 1] - 0.5) * 2
+            data = torch.cat((output.view(-1, 1), motion_score.cuda().float().view(-1, 1)), dim=1)
 
-        optimizer.zero_grad()
-        output = model(data)
-        pred = torch.argmax(output, 1)
-        correct += pred.eq(target).sum().item()
-        miss += l - pred.eq(target).sum().item()
-        loss = criterion(output, target)
-        loss.backward()
-        optimizer.step()
-        losses += loss.item()
-        if (batch_idx + 1) % args.log_interval == 0:
-            t1 = time.time()
-            t_batch = t1 - t0
-            t0 = time.time()
-            print('Train Epoch: {}, Batch:{}, \tLoss: {:.6f}, Prec: {:.1f}%, Time: {:.3f}'.format(
-                epoch, (batch_idx + 1), losses / (batch_idx + 1), 100. * correct / (correct + miss), t_batch))
+            # train appear_motion_net
+            appear_motion_net.train()
+            optimizer.zero_grad()
+            output = appear_motion_net(data)
+            pred = torch.argmax(output, 1)
+            correct += pred.eq(target).sum().item()
+            miss += l - pred.eq(target).sum().item()
+            loss = criterion(output, target)
+            loss.backward()
+            optimizer.step()
+            losses += loss.item()
+            if (batch_idx + 1) % args.log_interval == 0:
+                t1 = time.time()
+                t_batch = t1 - t0
+                t0 = time.time()
+                print('Train Epoch: {}, Batch:{}, \tLoss: {:.6f}, Prec: {:.1f}%, Time: {:.3f}'.format(
+                    epoch, (batch_idx + 1), losses / (batch_idx + 1), 100. * correct / (correct + miss), t_batch))
+
     return losses / (batch_idx + 1), correct / (correct + miss)
 
 
-def test(args, model, test_loader, criterion, save_result=False):
-    model.eval()
+def test(args, metric_net, appear_motion_net, test_loader, criterion, test_motion=False):
+    metric_net.eval()
+    appear_motion_net.eval()
     # test_loss = 0
     # correct = 0
     # miss = 0
@@ -147,7 +174,7 @@ def test(args, model, test_loader, criterion, save_result=False):
     #             data, target = data.view(-1, 256).float(), target.view(-1).long()
     #             # data = torch.cat((data[:, 0:8], torch.norm(data[:, 8:], 2, dim=1).view(-1, 1)), dim=1)
     #
-    #             output = model(data)
+    #             output = metric_net(data)
     #             test_loss += criterion(output, target).item()  # sum up batch loss
     #             _, pred = torch.max(output, 1)  # get the index of the max log-probability
     #             correct += pred.eq(target).sum().item()
@@ -172,26 +199,66 @@ def test(args, model, test_loader, criterion, save_result=False):
     losses = 0
     correct = 0
     miss = 0
-    model.train()
     t0 = time.time()
-    for batch_idx, (feat1, feat2, target) in enumerate(test_loader):
-        l = target.shape[0]
-        data = (feat2.cuda() - feat1.cuda()).float().abs()
-        target = target.cuda().long()
-        with torch.no_grad():
-            output = model(data)
-        pred = torch.argmax(output, 1)
-        correct += pred.eq(target).sum().item()
-        miss += l - pred.eq(target).sum().item()
-        loss = criterion(output, target)
-        losses += loss.item()
-        if (batch_idx + 1) % args.log_interval == 0:
-            t1 = time.time()
-            t_batch = t1 - t0
-            t0 = time.time()
-            print('Test on val, Batch:{}, \tLoss: {:.6f}, Prec: {:.1f}%, Time: {:.3f}'.format(
-                (batch_idx + 1), losses / (batch_idx + 1), 100. * correct / (correct + miss), t_batch))
+    for batch_idx, (feat1, feat2, motion_score, target) in enumerate(test_loader):
+        if not test_motion:
+            l = target.shape[0]
+            # data = torch.cat(((feat2.cuda() - feat1.cuda()).abs().float(), motion_score.cuda().float().view(-1, 1)), dim=1)
+            data = (feat2.cuda() - feat1.cuda()).abs().float()
+            target = target.cuda().long()
+            with torch.no_grad():
+                output = metric_net(data)
+            pred = torch.argmax(output, 1)
+            correct += pred.eq(target).sum().item()
+            miss += l - pred.eq(target).sum().item()
+            loss = criterion(output, target)
+            losses += loss.item()
+            if (batch_idx + 1) % args.log_interval == 0:
+                t1 = time.time()
+                t_batch = t1 - t0
+                t0 = time.time()
+                print('Test on val, Batch:{}, \tLoss: {:.6f}, Prec: {:.1f}%, Time: {:.3f}'.format(
+                    (batch_idx + 1), losses / (batch_idx + 1), 100. * correct / (correct + miss), t_batch))
+        else:
+            metric_net.eval()
+            l = target.shape[0]
+            # data = torch.cat(((feat2.cuda() - feat1.cuda()).abs().float(), motion_score.cuda().float().view(-1, 1)), dim=1)
+            data = (feat2.cuda() - feat1.cuda()).abs().float()
+            target = target.cuda().long()
+            output = metric_net(data)
+            output = (output[:, 1] - 0.5) * 2
+            data = torch.cat((output.view(-1, 1), motion_score.cuda().float().view(-1, 1)), dim=1)
+
+            # test appear_motion_net
+            output = appear_motion_net(data)
+            pred = torch.argmax(output, 1)
+            correct += pred.eq(target).sum().item()
+            miss += l - pred.eq(target).sum().item()
+            loss = criterion(output, target)
+            losses += loss.item()
+            if (batch_idx + 1) % args.log_interval == 0:
+                t1 = time.time()
+                t_batch = t1 - t0
+                t0 = time.time()
+                print('Test on val, Batch:{}, \tLoss: {:.6f}, Prec: {:.1f}%, Time: {:.3f}'.format(
+                    (batch_idx + 1), losses / (batch_idx + 1), 100. * correct / (correct + miss), t_batch))
     return losses / (batch_idx + 1), correct / (correct + miss)
+
+
+def draw_curve(args, x_epoch, train_loss, train_prec, test_loss, test_prec, train_motion=False):
+    fig = plt.figure()
+    ax0 = fig.add_subplot(121, title="loss")
+    ax1 = fig.add_subplot(122, title="prec")
+    ax0.plot(x_epoch, train_loss, 'bo-', label='train')
+    ax0.plot(x_epoch, test_loss, 'ro-', label='test')
+    ax1.plot(x_epoch, train_prec, 'bo-', label='train')
+    ax1.plot(x_epoch, test_prec, 'ro-', label='test')
+    ax0.legend()
+    ax1.legend()
+    if not train_motion:
+        fig.savefig(args.log_dir + '/MetricNet_{}_{}.jpg'.format(args.L, args.window))
+    else:
+        fig.savefig(args.log_dir + '/AppearMotionNet_{}_{}.jpg'.format(args.L, args.window))
 
 
 def main():
@@ -209,12 +276,12 @@ def main():
     parser.add_argument('--momentum', type=float, default=0, metavar='M',
                         help='SGD momentum (default: 0.5)')
     parser.add_argument('--train', action='store_true')
-    parser.add_argument('--save_result', action='store_true')
-    # parser.add_argument('--resume', type=str, default='', metavar='PATH')
+    # parser.add_argument('--save_result', action='store_true')
+    parser.add_argument('--resume', action='store_true')
     parser.add_argument('--data-path', type=str, default='~/Data/DukeMTMC/ground_truth/',
                         metavar='PATH')
     parser.add_argument('-L', type=str, default='L2', choices=['L1', 'L2'])
-    parser.add_argument('--window', type=str, default='1500', choices=['inf', '150', '300', '1500'])
+    parser.add_argument('--window', type=str, default='300', choices=['Inf', '150', '300', '1500'])
     parser.add_argument('--log-dir', type=str, default='', metavar='PATH')
     parser.add_argument('--seed', type=int, default=1, metavar='S',
                         help='random seed (default: 1)')
@@ -242,50 +309,63 @@ def main():
                              # sampler=HyperScoreSampler(testset, 1024),
                              num_workers=4, pin_memory=True)
 
-    model = Net(num_class=2)
-    model = nn.DataParallel(model).cuda()
+    metric_net = nn.DataParallel(MetricNet(num_class=2)).cuda()
+    if args.resume:
+        checkpoint = torch.load(args.log_dir + '/metric_net_{}_{}.pth.tar'.format(args.L, args.window))
+        model_dict = checkpoint['state_dict']
+        metric_net.module.load_state_dict(model_dict)
+
+    appear_motion_net = nn.DataParallel(AppearMotionNet()).cuda()
     criterion = nn.CrossEntropyLoss().cuda()
-    optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=0.005)
+    optimizer = optim.SGD(metric_net.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=0.005)
 
     if args.train:
         # Draw Curve
         x_epoch = []
-        fig = plt.figure()
-        ax0 = fig.add_subplot(121, title="loss")
-        ax1 = fig.add_subplot(122, title="prec")
         train_loss_s = []
         train_prec_s = []
         test_loss_s = []
         test_prec_s = []
-
-        def draw_curve(current_epoch, train_loss, train_prec, test_loss, test_prec):
-            x_epoch.append(current_epoch)
-            ax0.plot(x_epoch, train_loss, 'bo-', label='train')
-            ax0.plot(x_epoch, test_loss, 'ro-', label='test')
-            ax1.plot(x_epoch, train_prec, 'bo-', label='train')
-            ax1.plot(x_epoch, test_prec, 'ro-', label='test')
-            if current_epoch == 0:
-                ax0.legend()
-                ax1.legend()
-            fig.savefig(args.log_dir + '/train_{}_{}.jpg'.format(args.L, args.window))
-
+        if not args.resume:
+            for epoch in range(1, args.epochs + 1):
+                train_loss, train_prec = train(args, metric_net, appear_motion_net, train_loader, optimizer, epoch,
+                                               criterion)
+                test_loss, test_prec = test(args, metric_net, appear_motion_net, test_loader, criterion)
+                x_epoch.append(epoch)
+                train_loss_s.append(train_loss)
+                train_prec_s.append(train_prec)
+                test_loss_s.append(test_loss)
+                test_prec_s.append(test_prec)
+                draw_curve(args, x_epoch, train_loss_s, train_prec_s, test_loss_s, test_prec_s)
+                pass
+            torch.save({'state_dict': metric_net.module.state_dict(), }, args.log_dir + '/metric_net_{}_{}.pth.tar'.
+                       format(args.L, args.window))
+            save_model_as_mat(args, metric_net.module)
+        else:
+            test(args, metric_net, appear_motion_net, test_loader, criterion, )
+        # train appear_motion_net
         for epoch in range(1, args.epochs + 1):
-            train_loss, train_prec = train(args, model, train_loader, optimizer, epoch, criterion)
-            test_loss, test_prec = test(args, model, test_loader, criterion)
+            train_loss, train_prec = train(args, metric_net, appear_motion_net, train_loader, optimizer, epoch,
+                                           criterion, train_motion=True)
+            test_loss, test_prec = test(args, metric_net, appear_motion_net, test_loader, criterion, test_motion=True)
+            x_epoch.append(epoch)
             train_loss_s.append(train_loss)
             train_prec_s.append(train_prec)
             test_loss_s.append(test_loss)
             test_prec_s.append(test_prec)
-            draw_curve(epoch, train_loss_s, train_prec_s, test_loss_s, test_prec_s)
+            draw_curve(args, x_epoch, train_loss_s, train_prec_s, test_loss_s, test_prec_s, train_motion=True)
             pass
-        torch.save({'state_dict': model.module.state_dict(), }, args.log_dir + '/checkpoint_{}_{}.pth.tar'.
-                   format(args.L, args.window))
-        save_model_as_mat(args, model.module)
+        torch.save({'state_dict': appear_motion_net.module.state_dict(), },
+                   args.log_dir + '/appear_motion_net_{}_{}.pth.tar'.format(args.L, args.window))
+        save_model_as_mat(args, appear_motion_net.module)
 
-    checkpoint = torch.load(args.log_dir + '/checkpoint_{}_{}.pth.tar'.format(args.L, args.window))
+    checkpoint = torch.load(args.log_dir + '/metric_net_{}_{}.pth.tar'.format(args.L, args.window))
     model_dict = checkpoint['state_dict']
-    model.module.load_state_dict(model_dict)
-    test(args, model, test_loader, criterion, save_result=args.save_result)
+    metric_net.module.load_state_dict(model_dict)
+    checkpoint = torch.load(args.log_dir + '/appear_motion_net_{}_{}.pth.tar'.format(args.L, args.window))
+    model_dict = checkpoint['state_dict']
+    appear_motion_net.module.load_state_dict(model_dict)
+    test(args, metric_net, appear_motion_net, test_loader, criterion, test_motion=True)
 
 
 if __name__ == '__main__':

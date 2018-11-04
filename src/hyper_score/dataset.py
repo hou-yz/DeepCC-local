@@ -19,6 +19,7 @@ class HyperFeat(Dataset):
         self.data = np.array(h5file['hyperGT'])
         # iCam, pid, centerFrame, SpaGrpID, pos*2, v*2, 0, 256-dim feat
         self.feat_col = list(range(9, 265))
+        self.motion_col = [0, 2, 4, 5, 6, 7]
         # train frame: [47720:187540]; val frame: [187541:227540]
 
         self.indexs = list(range(self.data.shape[0]))
@@ -39,10 +40,11 @@ class HyperFeat(Dataset):
 
     def __getitem__(self, index):
         feat = self.data[index, self.feat_col]
+        motion = self.data[index, self.motion_col]
         # pid = self.pid_hash[np.int_(self.data[index, 1])]
         pid = int(self.data[index, 1])
         spaGrpID = int(self.data[index, 3])
-        return feat, pid, spaGrpID
+        return feat, motion, pid, spaGrpID
 
     def __len__(self):
         return len(self.indexs)
@@ -58,7 +60,7 @@ class SiameseHyperFeat(Dataset):
 
     def __getitem__(self, index):
         target = np.random.randint(0, 2)
-        feat1, pid1, spaGrpID1 = self.h_dataset.__getitem__(index)
+        feat1, motion1, pid1, spaGrpID1 = self.h_dataset.__getitem__(index)
         if pid1 == -1:
             target = 0
         if target == 1:  # 1 for same
@@ -85,7 +87,7 @@ class SiameseHyperFeat(Dataset):
                     siamese_index = np.random.choice(index_pool)
             else:
                 siamese_index = np.random.choice(index_pool)
-        feat2, pid2, spaGrpID2 = self.h_dataset.__getitem__(siamese_index)
+        feat2, motion2, pid2, spaGrpID2 = self.h_dataset.__getitem__(siamese_index)
         if target != (pid1 == pid2):
             target = (pid1 == pid2)
             pass
@@ -93,4 +95,13 @@ class SiameseHyperFeat(Dataset):
         #     return feat1, feat2, target
         # else:
         #     return feat2, feat1, target
-        return feat2, feat1, target
+        if motion1[0] != motion2[0]:
+            motion_score = 0
+        else:
+            frame_dif = motion2[1] - motion1[1]
+            pos_dif = motion2[[2, 3]] - motion1[[2, 3]]
+            forward_err = motion1[[4, 5]] * frame_dif - pos_dif
+            backward_err = motion2[[4, 5]] * frame_dif - pos_dif
+            error = min(np.linalg.norm(forward_err), np.linalg.norm(backward_err))
+            motion_score = error / 2203  # norm for [1920,1080]
+        return feat2, feat1, motion_score, target
