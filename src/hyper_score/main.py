@@ -48,29 +48,31 @@ class MetricNet(nn.Module):
 class AppearMotionNet(nn.Module):
     def __init__(self):
         super(AppearMotionNet, self).__init__()
-        self.linear = nn.Linear(2, 2)
+        self.fc4 = nn.Linear(2, 8)
+        self.fc5 = nn.Linear(8, 2)
 
     def forward(self, x):
-        out = self.linear(x)
+        out = self.fc4(x)
+        out = self.fc5(out)
         return out
 
 
-def save_model_as_mat(args, net):
-    if isinstance(net, MetricNet):
-        fc1_w, fc1_b = net.fc1.weight.data.cpu().numpy(), net.fc1.bias.data.cpu().numpy()
-        fc2_w, fc2_b = net.fc2.weight.data.cpu().numpy(), net.fc2.bias.data.cpu().numpy()
-        fc3_w, fc3_b = net.fc3.weight.data.cpu().numpy(), net.fc3.bias.data.cpu().numpy()
-        out_w, out_b = net.out_layer.weight.data.cpu().numpy(), net.out_layer.bias.data.cpu().numpy()
+def save_model_as_mat(args, metric_net, appear_motion_net):
+    fc1_w, fc1_b = metric_net.fc1.weight.data.cpu().numpy(), metric_net.fc1.bias.data.cpu().numpy()
+    fc2_w, fc2_b = metric_net.fc2.weight.data.cpu().numpy(), metric_net.fc2.bias.data.cpu().numpy()
+    fc3_w, fc3_b = metric_net.fc3.weight.data.cpu().numpy(), metric_net.fc3.bias.data.cpu().numpy()
+    out_w, out_b = metric_net.out_layer.weight.data.cpu().numpy(), metric_net.out_layer.bias.data.cpu().numpy()
 
-        scipy.io.savemat(args.log_dir + '/metric_param_{}_{}.mat'.format(args.L, args.window),
-                         mdict={'fc1_w': fc1_w, 'fc1_b': fc1_b,
-                                'fc2_w': fc2_w, 'fc2_b': fc2_b,
-                                'fc3_w': fc3_w, 'fc3_b': fc3_b,
-                                'out_w': out_w, 'out_b': out_b, })
-    else:
-        linear_w, linear_b = net.linear.weight.data.cpu().numpy(), net.linear.bias.data.cpu().numpy()
-        scipy.io.savemat(args.log_dir + '/appearance_motion_param_{}_{}.mat'.format(args.L, args.window),
-                         mdict={'linear_w': linear_w, 'linear_b': linear_b})
+
+    fc4_w, fc4_b = appear_motion_net.fc4.weight.data.cpu().numpy(), appear_motion_net.fc4.bias.data.cpu().numpy()
+    fc5_w, fc5_b = appear_motion_net.fc5.weight.data.cpu().numpy(), appear_motion_net.fc5.bias.data.cpu().numpy()
+    scipy.io.savemat(args.log_dir + '/model_param_{}_{}.mat'.format(args.L, args.window),
+                     mdict={'fc1_w': fc1_w, 'fc1_b': fc1_b,
+                            'fc2_w': fc2_w, 'fc2_b': fc2_b,
+                            'fc3_w': fc3_w, 'fc3_b': fc3_b,
+                            'out_w': out_w, 'out_b': out_b,
+                            'fc4_w': fc4_w, 'fc4_b': fc4_b,
+                            'fc5_w': fc5_w, 'fc5_b': fc5_b,})
 
 
 def addzero(x, insert_pos, num_zero):
@@ -269,8 +271,8 @@ def main():
     parser.add_argument('--epochs', type=int, default=60, metavar='N',
                         help='number of epochs to train (default: 10)')
     parser.add_argument('--step-size', type=int, default=40)
-    parser.add_argument('--lr', type=float, default=0.01, metavar='LR',
-                        help='learning rate (default: 0.01)')
+    parser.add_argument('--lr', type=float, default=0.001, metavar='LR',
+                        help='learning rate (default: 0.001)')
     parser.add_argument('--combine-trainval', action='store_true',
                         help="train and val sets together for training, val set alone for validation")
     parser.add_argument('--momentum', type=float, default=0, metavar='M',
@@ -317,7 +319,6 @@ def main():
 
     appear_motion_net = nn.DataParallel(AppearMotionNet()).cuda()
     criterion = nn.CrossEntropyLoss().cuda()
-    optimizer = optim.SGD(metric_net.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=0.005)
 
     if args.train:
         # Draw Curve
@@ -326,6 +327,7 @@ def main():
         train_prec_s = []
         test_loss_s = []
         test_prec_s = []
+        optimizer = optim.SGD(metric_net.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=0.005)
         if not args.resume:
             for epoch in range(1, args.epochs + 1):
                 train_loss, train_prec = train(args, metric_net, appear_motion_net, train_loader, optimizer, epoch,
@@ -340,10 +342,16 @@ def main():
                 pass
             torch.save({'state_dict': metric_net.module.state_dict(), }, args.log_dir + '/metric_net_{}_{}.pth.tar'.
                        format(args.L, args.window))
-            save_model_as_mat(args, metric_net.module)
         else:
             test(args, metric_net, appear_motion_net, test_loader, criterion, )
+
+        x_epoch = []
+        train_loss_s = []
+        train_prec_s = []
+        test_loss_s = []
+        test_prec_s = []
         # train appear_motion_net
+        optimizer = optim.SGD(metric_net.parameters(), lr=0.1 * args.lr, momentum=args.momentum, weight_decay=0.0005)
         for epoch in range(1, args.epochs + 1):
             train_loss, train_prec = train(args, metric_net, appear_motion_net, train_loader, optimizer, epoch,
                                            criterion, train_motion=True)
@@ -357,7 +365,7 @@ def main():
             pass
         torch.save({'state_dict': appear_motion_net.module.state_dict(), },
                    args.log_dir + '/appear_motion_net_{}_{}.pth.tar'.format(args.L, args.window))
-        save_model_as_mat(args, appear_motion_net.module)
+        save_model_as_mat(args, metric_net.module, appear_motion_net.module)
 
     checkpoint = torch.load(args.log_dir + '/metric_net_{}_{}.pth.tar'.format(args.L, args.window))
     model_dict = checkpoint['state_dict']
