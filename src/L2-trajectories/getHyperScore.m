@@ -37,40 +37,31 @@ input = [input,reshape(errorMatrix,numFeatures*numFeatures,[])];
 end
 
 
-out = hyper_score_net_bypass(input,hyper_score_param,alpha);
-correlationMatrix = (out(:,2)-0.5)*2;
+correlationMatrix = hyper_score_net_regress(input,hyper_score_param,alpha);
 correlationMatrix = reshape(correlationMatrix,numFeatures,numFeatures);
 
 t1=toc;
 fprintf('time elapsed: %d',t1)
 end
 
-function output = hyper_score_net(input,hyper_score_param,alpha)
-% if alpha == 0
-%     hyper_score_param.fc1_w(:,257)=[];
-% end
-output = max(input*double(hyper_score_param.fc1_w')+double(hyper_score_param.fc1_b),0);
-output = max(output*double(hyper_score_param.fc2_w')+double(hyper_score_param.fc2_b),0);
-output = max(output*double(hyper_score_param.fc3_w')+double(hyper_score_param.fc3_b),0);
-output = output*double(hyper_score_param.out_w')+double(hyper_score_param.out_b);
-output = softmax(output')';
-end
-
-function output = hyper_score_net_bypass(input,hyper_score_param,alpha)
+function output = hyper_score_net_regress(input,hyper_score_param,alpha)
 feat = input(:,1:256);
 if alpha
     motion_score = input(:,257);
 end
+% output=0;
 output = max(feat*double(hyper_score_param.fc1_w')+double(hyper_score_param.fc1_b),0);
 output = max(output*double(hyper_score_param.fc2_w')+double(hyper_score_param.fc2_b),0);
 output = max(output*double(hyper_score_param.fc3_w')+double(hyper_score_param.fc3_b),0);
 output = output*double(hyper_score_param.out_w')+double(hyper_score_param.out_b);
 output = softmax(output')';
-if alpha
-    output = (output(:,2)-0.5)*2;
-    output = [output,motion_score];
-    output = output*double(hyper_score_param.fc4_w')+double(hyper_score_param.fc4_b);
-    output = softmax(output')';
-end
+% if alpha
+% appear_score = output(:,2);
+% X = [ones(size(appear_score)),appear_score,motion_score,appear_score.*motion_score,appear_score.^2,motion_score.^2];
+% b = [-1.0099;3.0465;-0.0486;-1.5418;-1.0273;0.0155];
+% output = X*b;
+% else
+output = (output(:,2)-0.49)/0.46;
+% end
 
 end

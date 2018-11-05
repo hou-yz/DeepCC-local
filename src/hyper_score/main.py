@@ -61,14 +61,20 @@ def save_model_as_mat(args, metric_net, appear_motion_net):
     fc3_w, fc3_b = metric_net.fc3.weight.data.cpu().numpy(), metric_net.fc3.bias.data.cpu().numpy()
     out_w, out_b = metric_net.out_layer.weight.data.cpu().numpy(), metric_net.out_layer.bias.data.cpu().numpy()
 
-
-    fc4_w, fc4_b = appear_motion_net.fc4.weight.data.cpu().numpy(), appear_motion_net.fc4.bias.data.cpu().numpy()
-    scipy.io.savemat(args.log_dir + '/model_param_{}_{}.mat'.format(args.L, args.window),
-                     mdict={'fc1_w': fc1_w, 'fc1_b': fc1_b,
-                            'fc2_w': fc2_w, 'fc2_b': fc2_b,
-                            'fc3_w': fc3_w, 'fc3_b': fc3_b,
-                            'out_w': out_w, 'out_b': out_b,
-                            'fc4_w': fc4_w, 'fc4_b': fc4_b,})
+    if isinstance(appear_motion_net, AppearMotionNet):
+        fc4_w, fc4_b = appear_motion_net.fc4.weight.data.cpu().numpy(), appear_motion_net.fc4.bias.data.cpu().numpy()
+        scipy.io.savemat(args.log_dir + '/model_param_{}_{}.mat'.format(args.L, args.window),
+                         mdict={'fc1_w': fc1_w, 'fc1_b': fc1_b,
+                                'fc2_w': fc2_w, 'fc2_b': fc2_b,
+                                'fc3_w': fc3_w, 'fc3_b': fc3_b,
+                                'out_w': out_w, 'out_b': out_b,
+                                'fc4_w': fc4_w, 'fc4_b': fc4_b, })
+    else:
+        scipy.io.savemat(args.log_dir + '/model_param_{}_{}.mat'.format(args.L, args.window),
+                         mdict={'fc1_w': fc1_w, 'fc1_b': fc1_b,
+                                'fc2_w': fc2_w, 'fc2_b': fc2_b,
+                                'fc3_w': fc3_w, 'fc3_b': fc3_b,
+                                'out_w': out_w, 'out_b': out_b, })
 
 
 def addzero(x, insert_pos, num_zero):
@@ -95,12 +101,12 @@ def train(args, metric_net, appear_motion_net, train_loader, optimizer, epoch, c
             data = (feat2.cuda() - feat1.cuda()).abs().float()
             target = target.cuda().long()
 
-            optimizer.zero_grad()
             output = metric_net(data)
             pred = torch.argmax(output, 1)
             correct += pred.eq(target).sum().item()
             miss += l - pred.eq(target).sum().item()
             loss = criterion(output, target)
+            optimizer.zero_grad()
             loss.backward()
             optimizer.step()
             losses += loss.item()
@@ -122,12 +128,12 @@ def train(args, metric_net, appear_motion_net, train_loader, optimizer, epoch, c
 
             # train appear_motion_net
             appear_motion_net.train()
-            optimizer.zero_grad()
             output = appear_motion_net(data)
             pred = torch.argmax(output, 1)
             correct += pred.eq(target).sum().item()
             miss += l - pred.eq(target).sum().item()
             loss = criterion(output, target)
+            optimizer.zero_grad()
             loss.backward()
             optimizer.step()
             losses += loss.item()
@@ -141,7 +147,8 @@ def train(args, metric_net, appear_motion_net, train_loader, optimizer, epoch, c
     return losses / (batch_idx + 1), correct / (correct + miss)
 
 
-def test(args, metric_net, appear_motion_net, test_loader, criterion, test_motion=False):
+def test(args, metric_net, appear_motion_net, test_loader, criterion, test_motion=False, save_result=False,
+         epoch_max=1):
     metric_net.eval()
     appear_motion_net.eval()
     # test_loss = 0
@@ -197,49 +204,63 @@ def test(args, metric_net, appear_motion_net, test_loader, criterion, test_motio
     losses = 0
     correct = 0
     miss = 0
+    lines = torch.zeros([0]).cuda()
     t0 = time.time()
-    for batch_idx, (feat1, feat2, motion_score, target) in enumerate(test_loader):
-        if not test_motion:
-            l = target.shape[0]
-            # data = torch.cat(((feat2.cuda() - feat1.cuda()).abs().float(), motion_score.cuda().float().view(-1, 1)), dim=1)
-            data = (feat2.cuda() - feat1.cuda()).abs().float()
-            target = target.cuda().long()
-            with torch.no_grad():
+    for epoch in range(epoch_max):
+        for batch_idx, (feat1, feat2, motion_score, target) in enumerate(test_loader):
+            if not test_motion:
+                l = target.shape[0]
+                # data = torch.cat(((feat2.cuda() - feat1.cuda()).abs().float(), motion_score.cuda().float().view(-1, 1)), dim=1)
+                data = (feat2.cuda() - feat1.cuda()).abs().float()
+                target = target.cuda().long()
+                with torch.no_grad():
+                    output = metric_net(data)
+                pred = torch.argmax(output, 1)
+                correct += pred.eq(target).sum().item()
+                miss += l - pred.eq(target).sum().item()
+                loss = criterion(output, target)
+                losses += loss.item()
+                output = F.softmax(output, dim=1)
+                line = torch.cat((output[:, 1].view(-1, 1),
+                                  motion_score.view(-1, 1).cuda().float(),
+                                  target.view(-1, 1).float()), dim=1)
+                lines = torch.cat((lines, line), dim=0)
+                if (batch_idx + 1) % args.log_interval == 0:
+                    t1 = time.time()
+                    t_batch = t1 - t0
+                    t0 = time.time()
+                    print('Test on val, epoch:{}, Batch:{}, \tLoss: {:.6f}, Prec: {:.1f}%, Time: {:.3f}'.format(
+                        epoch, (batch_idx + 1), losses / (batch_idx + 1), 100. * correct / (correct + miss), t_batch))
+            else:
+                metric_net.eval()
+                l = target.shape[0]
+                # data = torch.cat(((feat2.cuda() - feat1.cuda()).abs().float(), motion_score.cuda().float().view(-1, 1)), dim=1)
+                data = (feat2.cuda() - feat1.cuda()).abs().float()
+                target = target.cuda().long()
                 output = metric_net(data)
-            pred = torch.argmax(output, 1)
-            correct += pred.eq(target).sum().item()
-            miss += l - pred.eq(target).sum().item()
-            loss = criterion(output, target)
-            losses += loss.item()
-            if (batch_idx + 1) % args.log_interval == 0:
-                t1 = time.time()
-                t_batch = t1 - t0
-                t0 = time.time()
-                print('Test on val, Batch:{}, \tLoss: {:.6f}, Prec: {:.1f}%, Time: {:.3f}'.format(
-                    (batch_idx + 1), losses / (batch_idx + 1), 100. * correct / (correct + miss), t_batch))
-        else:
-            metric_net.eval()
-            l = target.shape[0]
-            # data = torch.cat(((feat2.cuda() - feat1.cuda()).abs().float(), motion_score.cuda().float().view(-1, 1)), dim=1)
-            data = (feat2.cuda() - feat1.cuda()).abs().float()
-            target = target.cuda().long()
-            output = metric_net(data)
-            output = (output[:, 1] - 0.5) * 2
-            data = torch.cat((output.view(-1, 1), motion_score.cuda().float().view(-1, 1)), dim=1)
+                output = (output[:, 1] - 0.5) * 2
+                data = torch.cat((output.view(-1, 1), motion_score.cuda().float().view(-1, 1)), dim=1)
 
-            # test appear_motion_net
-            output = appear_motion_net(data)
-            pred = torch.argmax(output, 1)
-            correct += pred.eq(target).sum().item()
-            miss += l - pred.eq(target).sum().item()
-            loss = criterion(output, target)
-            losses += loss.item()
-            if (batch_idx + 1) % args.log_interval == 0:
-                t1 = time.time()
-                t_batch = t1 - t0
-                t0 = time.time()
-                print('Test on val, Batch:{}, \tLoss: {:.6f}, Prec: {:.1f}%, Time: {:.3f}'.format(
-                    (batch_idx + 1), losses / (batch_idx + 1), 100. * correct / (correct + miss), t_batch))
+                # test appear_motion_net
+                output = appear_motion_net(data)
+                pred = torch.argmax(output, 1)
+                correct += pred.eq(target).sum().item()
+                miss += l - pred.eq(target).sum().item()
+                loss = criterion(output, target)
+                losses += loss.item()
+                if (batch_idx + 1) % args.log_interval == 0:
+                    t1 = time.time()
+                    t_batch = t1 - t0
+                    t0 = time.time()
+                    print('Test on val, epoch:{}, Batch:{}, \tLoss: {:.6f}, Prec: {:.1f}%, Time: {:.3f}'.format(
+                        epoch, (batch_idx + 1), losses / (batch_idx + 1), 100. * correct / (correct + miss), t_batch))
+    lines = lines.cpu().numpy()
+    if save_result:
+        output_fname = args.data_path + '/target_data.h5'
+        with h5py.File(output_fname, 'w') as f:
+            mat_data = np.vstack(lines)
+            f.create_dataset('emb', data=mat_data, dtype=float)
+            pass
     return losses / (batch_idx + 1), correct / (correct + miss)
 
 
@@ -274,7 +295,8 @@ def main():
     parser.add_argument('--momentum', type=float, default=0, metavar='M',
                         help='SGD momentum (default: 0.5)')
     parser.add_argument('--train', action='store_true')
-    # parser.add_argument('--save_result', action='store_true')
+    parser.add_argument('--use_AM', action='store_true')
+    parser.add_argument('--save_result', action='store_true')
     parser.add_argument('--resume', action='store_true')
     parser.add_argument('--data-path', type=str, default='~/Data/DukeMTMC/ground_truth/',
                         metavar='PATH')
@@ -292,7 +314,10 @@ def main():
         train_data_path = args.data_path + 'hyperGT_{}_trainval_{}.h5'.format(args.L, args.window)
     else:
         train_data_path = args.data_path + 'hyperGT_{}_train_{}.h5'.format(args.L, args.window)
-    test_data_path = args.data_path + 'hyperGT_{}_val_{}.h5'.format(args.L, args.window)
+    if args.save_result:
+        test_data_path = args.data_path + 'hyperGT_{}_train_{}.h5'.format(args.L, args.window)
+    else:
+        test_data_path = args.data_path + 'hyperGT_{}_val_{}.h5'.format(args.L, args.window)
     args.log_dir = 'logs/{}/appear_only/'.format(args.L, ) + args.log_dir
     torch.manual_seed(args.seed)
     if not os.path.isdir(args.log_dir):
@@ -348,28 +373,35 @@ def main():
         test_prec_s = []
         # train appear_motion_net
         optimizer = optim.SGD(metric_net.parameters(), lr=0.1 * args.lr, momentum=args.momentum)
-        for epoch in range(1, args.epochs + 1):
-            train_loss, train_prec = train(args, metric_net, appear_motion_net, train_loader, optimizer, epoch,
-                                           criterion, train_motion=True)
-            test_loss, test_prec = test(args, metric_net, appear_motion_net, test_loader, criterion, test_motion=True)
-            x_epoch.append(epoch)
-            train_loss_s.append(train_loss)
-            train_prec_s.append(train_prec)
-            test_loss_s.append(test_loss)
-            test_prec_s.append(test_prec)
-            draw_curve(args, x_epoch, train_loss_s, train_prec_s, test_loss_s, test_prec_s, train_motion=True)
-            pass
-        torch.save({'state_dict': appear_motion_net.module.state_dict(), },
-                   args.log_dir + '/appear_motion_net_{}_{}.pth.tar'.format(args.L, args.window))
-        save_model_as_mat(args, metric_net.module, appear_motion_net.module)
+        if args.use_AM:
+            for epoch in range(1, args.epochs + 1):
+                train_loss, train_prec = train(args, metric_net, appear_motion_net, train_loader, optimizer, epoch,
+                                               criterion, train_motion=True)
+                test_loss, test_prec = test(args, metric_net, appear_motion_net, test_loader, criterion,
+                                            test_motion=True)
+                x_epoch.append(epoch)
+                train_loss_s.append(train_loss)
+                train_prec_s.append(train_prec)
+                test_loss_s.append(test_loss)
+                test_prec_s.append(test_prec)
+                draw_curve(args, x_epoch, train_loss_s, train_prec_s, test_loss_s, test_prec_s, train_motion=True)
+                pass
+            torch.save({'state_dict': appear_motion_net.module.state_dict(), },
+                       args.log_dir + '/appear_motion_net_{}_{}.pth.tar'.format(args.L, args.window))
+        if args.use_AM:
+            save_model_as_mat(args, metric_net.module, appear_motion_net.module)
+        else:
+            save_model_as_mat(args, metric_net.module, [])
 
     checkpoint = torch.load(args.log_dir + '/metric_net_{}_{}.pth.tar'.format(args.L, args.window))
     model_dict = checkpoint['state_dict']
     metric_net.module.load_state_dict(model_dict)
-    checkpoint = torch.load(args.log_dir + '/appear_motion_net_{}_{}.pth.tar'.format(args.L, args.window))
-    model_dict = checkpoint['state_dict']
-    appear_motion_net.module.load_state_dict(model_dict)
-    test(args, metric_net, appear_motion_net, test_loader, criterion, test_motion=True)
+    if args.use_AM:
+        checkpoint = torch.load(args.log_dir + '/appear_motion_net_{}_{}.pth.tar'.format(args.L, args.window))
+        model_dict = checkpoint['state_dict']
+        appear_motion_net.module.load_state_dict(model_dict)
+    test(args, metric_net, appear_motion_net, test_loader, criterion,
+         test_motion=args.use_AM, save_result=args.save_result, epoch_max=100)
 
 
 if __name__ == '__main__':
