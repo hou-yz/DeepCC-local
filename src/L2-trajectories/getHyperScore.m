@@ -7,9 +7,6 @@ else
     numFeatures = size(features,1);
 end
 numTracklets = length(tracklets);
-if alpha == 0
-    hyper_score_param.fc1_w(:,257)=[];
-end
 
 
 input = repmat(reshape(features,1,numFeatures,[]),numFeatures,1,1) - repmat(reshape(features,numFeatures,1,[]),1,numFeatures,1);
@@ -40,7 +37,7 @@ input = [input,reshape(errorMatrix,numFeatures*numFeatures,[])];
 end
 
 
-out = hyper_score_net_bypass(input,hyper_score_param);
+out = hyper_score_net_bypass(input,hyper_score_param,alpha);
 correlationMatrix = (out(:,2)-0.5)*2;
 correlationMatrix = reshape(correlationMatrix,numFeatures,numFeatures);
 
@@ -48,7 +45,10 @@ t1=toc;
 fprintf('time elapsed: %d',t1)
 end
 
-function output = hyper_score_net(input,hyper_score_param)
+function output = hyper_score_net(input,hyper_score_param,alpha)
+% if alpha == 0
+%     hyper_score_param.fc1_w(:,257)=[];
+% end
 output = max(input*double(hyper_score_param.fc1_w')+double(hyper_score_param.fc1_b),0);
 output = max(output*double(hyper_score_param.fc2_w')+double(hyper_score_param.fc2_b),0);
 output = max(output*double(hyper_score_param.fc3_w')+double(hyper_score_param.fc3_b),0);
@@ -56,13 +56,21 @@ output = output*double(hyper_score_param.out_w')+double(hyper_score_param.out_b)
 output = softmax(output')';
 end
 
-function output = hyper_score_net_bypass(input,hyper_score_param)
+function output = hyper_score_net_bypass(input,hyper_score_param,alpha)
 feat = input(:,1:256);
-motion_score = input(:,257);
+if alpha
+    motion_score = input(:,257);
+end
 output = max(feat*double(hyper_score_param.fc1_w')+double(hyper_score_param.fc1_b),0);
 output = max(output*double(hyper_score_param.fc2_w')+double(hyper_score_param.fc2_b),0);
 output = max(output*double(hyper_score_param.fc3_w')+double(hyper_score_param.fc3_b),0);
-output = [output,motion_score];
 output = output*double(hyper_score_param.out_w')+double(hyper_score_param.out_b);
 output = softmax(output')';
+if alpha
+    output = (output(:,2)-0.5)*2;
+    output = [output,motion_score];
+    output = output*double(hyper_score_param.fc4_w')+double(hyper_score_param.fc4_b);
+    output = softmax(output')';
+end
+
 end

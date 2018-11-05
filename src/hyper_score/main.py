@@ -48,12 +48,10 @@ class MetricNet(nn.Module):
 class AppearMotionNet(nn.Module):
     def __init__(self):
         super(AppearMotionNet, self).__init__()
-        self.fc4 = nn.Linear(2, 8)
-        self.fc5 = nn.Linear(8, 2)
+        self.fc4 = nn.Linear(2, 2)
 
     def forward(self, x):
         out = self.fc4(x)
-        out = self.fc5(out)
         return out
 
 
@@ -65,14 +63,12 @@ def save_model_as_mat(args, metric_net, appear_motion_net):
 
 
     fc4_w, fc4_b = appear_motion_net.fc4.weight.data.cpu().numpy(), appear_motion_net.fc4.bias.data.cpu().numpy()
-    fc5_w, fc5_b = appear_motion_net.fc5.weight.data.cpu().numpy(), appear_motion_net.fc5.bias.data.cpu().numpy()
     scipy.io.savemat(args.log_dir + '/model_param_{}_{}.mat'.format(args.L, args.window),
                      mdict={'fc1_w': fc1_w, 'fc1_b': fc1_b,
                             'fc2_w': fc2_w, 'fc2_b': fc2_b,
                             'fc3_w': fc3_w, 'fc3_b': fc3_b,
                             'out_w': out_w, 'out_b': out_b,
-                            'fc4_w': fc4_w, 'fc4_b': fc4_b,
-                            'fc5_w': fc5_w, 'fc5_b': fc5_b,})
+                            'fc4_w': fc4_w, 'fc4_b': fc4_b,})
 
 
 def addzero(x, insert_pos, num_zero):
@@ -268,9 +264,9 @@ def main():
     parser = argparse.ArgumentParser(description='Hyper Score')
     parser.add_argument('--batch-size', type=int, default=64, metavar='N',
                         help='input batch size for training (default: 64)')
-    parser.add_argument('--epochs', type=int, default=60, metavar='N',
+    parser.add_argument('--epochs', type=int, default=40, metavar='N',
                         help='number of epochs to train (default: 10)')
-    parser.add_argument('--step-size', type=int, default=40)
+    parser.add_argument('--step-size', type=int, default=30)
     parser.add_argument('--lr', type=float, default=0.001, metavar='LR',
                         help='learning rate (default: 0.001)')
     parser.add_argument('--combine-trainval', action='store_true',
@@ -351,7 +347,7 @@ def main():
         test_loss_s = []
         test_prec_s = []
         # train appear_motion_net
-        optimizer = optim.SGD(metric_net.parameters(), lr=0.1 * args.lr, momentum=args.momentum, weight_decay=0.0005)
+        optimizer = optim.SGD(metric_net.parameters(), lr=0.1 * args.lr, momentum=args.momentum)
         for epoch in range(1, args.epochs + 1):
             train_loss, train_prec = train(args, metric_net, appear_motion_net, train_loader, optimizer, epoch,
                                            criterion, train_motion=True)
