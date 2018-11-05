@@ -3,19 +3,19 @@ clear
 
 opts=get_opts();
 
-opts.trajectories.window_width = 1500;
+opts.trajectories.window_width = inf;
 L2_speed = 'mid';
 % L2_speed = 'head-tail';
 
 % opts.visualize = true;
-opts.sequence = 7;
+opts.sequence = 8;
 opts.experiment_name = '1fps_og_cc';
 
 newGTs = cellmat(1,8,0,0,0);
 spatialGroupID_max = zeros(1,8);
 % Computes single-camera trajectories from tracklets
 for iCam = 1:8
-    sequence_window   = opts.sequence_intervals{opts.sequence};
+    sequence_window   = opts.sequence_intervals{1};
     start_frame       = global2local(opts.start_frames(iCam), sequence_window(1));
     end_frame         = global2local(opts.start_frames(iCam), sequence_window(end));
     
@@ -103,6 +103,9 @@ res = [];
 for iCam = 1:8
     newGT = newGTs{iCam};
     newGT(:,4) = newGT(:,4)+sum(spatialGroupID_max(1:iCam-1));
+    if opts.tracklets.window_width == inf
+        newGT(:,4) = iCam;
+    end
     res = [res;newGT];
 %     hdf5write(fullfile(opts.dataset_path, 'ground_truth',sprintf('hyperGT_%s_%d.h5',opts.sequence_names{opts.sequence},iCam)), '/hyperGT',newGTs{iCam}');
 end

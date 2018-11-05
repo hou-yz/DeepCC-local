@@ -8,8 +8,8 @@ for iCam = 1:8
     trainData(line_id==1,3) = local2global(opts.start_frames(iCam), trainData(line_id==1,3));
 end
 
-% 150s
-same_id_same_cam_threshold = 1;
+% 150 frames
+same_id_same_cam_threshold = 150;
 
 ids = unique(trainData(:,2));
 same_track_cam = zeros(length(ids),8);

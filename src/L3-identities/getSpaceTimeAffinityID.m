@@ -45,11 +45,11 @@ for idx1 = 1 : numTrajectories-1
         L3 = sqrt(sum((A.data(  1, [7 8]) - B.data(  1, [7 8])).^2));
         
         if optimal_filter % disable: same camera self transfer
-            if frames_betw > min_number_of_required_frames && if_in_target_iCams && if_in_reintro_time&& L1 < L2 && L1 < L3 && ~isequal(A.camera, B.camera) 
+            if frames_betw > min_number_of_required_frames && if_in_target_iCams && if_in_reintro_time && L1 < L2 && L1 < L3 && ~isequal(A.camera, B.camera) 
                 feasibilityMatrix(idx1,idx2) = 1; % feasible association
             end
         else % enable: same camera self transfer
-            if frames_betw > min_number_of_required_frames && if_in_target_iCams && if_in_reintro_time
+            if frames_betw > min_number_of_required_frames && if_in_target_iCams && if_in_reintro_time && L1 < L2 && L1 < L3
                 feasibilityMatrix(idx1,idx2) = 1; % feasible association
             end
         end
