@@ -61,7 +61,7 @@ output = softmax(output')';
 % b = [-1.0099;3.0465;-0.0486;-1.5418;-1.0273;0.0155];
 % output = X*b;
 % else
-output = (output(:,2)-0.49)/0.46;
+output = 2*output(:,2)-1;
 % end
 
 end

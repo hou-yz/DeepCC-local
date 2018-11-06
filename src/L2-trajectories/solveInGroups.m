@@ -66,6 +66,8 @@ for i = 1 : length(allGroups)
         correlationMatrix = correlationMatrix .* indifferenceMatrix;
     else
         correlationMatrix = getHyperScore(featureVectors(indices),tracklets(indices),hyper_score_param,params.alpha);
+        correlationMatrix = correlationMatrix + params.alpha*(spacetimeAffinity-1);
+%         correlationMatrix = correlationMatrix .* indifferenceMatrix;
     end
     
     

@@ -52,7 +52,7 @@ for i = 1 : length(allGroups)
     if params.compute_score
         appearanceCorrelation = getAppearanceMatrix(featureVectors(indices),featureVectors(indices), params.threshold,params.diff_p,params.diff_n,params.step);
     else
-        appearanceCorrelation = getHyperScore(opts,featureVectors(indices),hyper_score_param);
+        appearanceCorrelation = getHyperScore(featureVectors(indices),[],hyper_score_param,params.alpha);
     end
     [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinityID(trajectories(indices),opts.identities.consecutive_icam_matrix,opts.identities.reintro_time_matrix,opts.identities.optimal_filter);
     correlationMatrix = 1 * appearanceCorrelation + params.alpha*(spacetimeAffinity).*(1-indifferenceMatrix);
