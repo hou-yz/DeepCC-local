@@ -61,15 +61,12 @@ for i = 1 : length(allGroups)
     if params.compute_score
         % compute appearance and spacetime scores
         appearanceAffinity = getAppearanceMatrix(featureVectors(indices),featureVectors(indices), threshold, diff_p,diff_n,params.step);
-        
+        % compute the correlation matrix
+        correlationMatrix = appearanceAffinity + params.alpha*(spacetimeAffinity-1);
     else
-        appearanceAffinity = getHyperScore(featureVectors(indices),tracklets(indices),hyper_score_param,params.alpha);
-        
+        correlationMatrix = getHyperScore(featureVectors(indices),tracklets(indices),hyper_score_param,params.alpha);
     end
-    % compute the correlation matrix
-    correlationMatrix = appearanceAffinity + params.alpha*(spacetimeAffinity-1);
     correlationMatrix = correlationMatrix .* indifferenceMatrix;
-    
     correlationMatrix(impossibilityMatrix == 1) = -inf;
     correlationMatrix(sameLabels) = 1;
     
