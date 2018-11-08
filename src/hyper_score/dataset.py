@@ -17,7 +17,7 @@ class HyperFeat(Dataset):
         self.root = root
         h5file = h5py.File(self.root, 'r')
         self.data = np.array(h5file['hyperGT'])
-        self.data = self.data[self.data[:, 1] != -1, :]
+        self.data = self.data[self.data[:, 1] != -1, :] # rm -1 terms
         # iCam, pid, centerFrame, SpaGrpID, pos*2, v*2, 0, 256-dim feat
         self.feat_col = list(range(9, 265))
         self.motion_col = [0, 2, 4, 5, 6, 7]
@@ -31,8 +31,8 @@ class HyperFeat(Dataset):
         self.pid_by_SGid_dic = defaultdict(list)
         self.index_by_icam_pid_dic = defaultdict(dict)
         for index in self.indexs:
-            [icam,pid, spaGrpID] = self.data[index, [0,1, 3]]
-            icam,pid, spaGrpID = int(icam),int(pid), int(spaGrpID)
+            [icam, pid, spaGrpID] = self.data[index, [0, 1, 3]]
+            icam, pid, spaGrpID = int(icam), int(pid), int(spaGrpID)
             if spaGrpID not in self.index_by_SGid_pid_dic:
                 self.index_by_SGid_pid_dic[spaGrpID] = defaultdict(list)
             self.index_by_SGid_pid_dic[spaGrpID][pid].append(index)
@@ -75,8 +75,8 @@ class SiameseHyperFeat(Dataset):
         if pid1 == -1:
             target = 0
         # 1 for same
-        if target == 1:  
-            # index_pool = self.h_dataset.index_by_icam_pid_dic[motion1[0]][pid1]
+        if target == 1:
+            # index_pool = self.h_dataset.index_by_icam_pid_dic[motion1[0]][pid1]  #
             index_pool = self.h_dataset.index_by_SGid_pid_dic[spaGrpID1][pid1]
             if len(index_pool) > 1:
                 siamese_index = index
@@ -85,7 +85,7 @@ class SiameseHyperFeat(Dataset):
             else:
                 siamese_index = np.random.choice(index_pool)
         # 0 for different
-        else: 
+        else:
             spatialGroupID = spaGrpID1
             pid_pool = self.h_dataset.pid_by_SGid_dic[spatialGroupID]
             while len(pid_pool) <= 1:

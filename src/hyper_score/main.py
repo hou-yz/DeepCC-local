@@ -207,7 +207,7 @@ def test(args, metric_net, appear_motion_net, test_loader, criterion, test_motio
     lines = torch.zeros([0]).cuda()
     t0 = time.time()
     if not save_result:
-        epoch_max=1
+        epoch_max = 1
     for epoch in range(epoch_max):
         for batch_idx, (feat1, feat2, motion_score, target) in enumerate(test_loader):
             if not test_motion:
@@ -326,7 +326,7 @@ def main():
         os.mkdir(args.log_dir)
 
     trainset = SiameseHyperFeat(HyperFeat(train_data_path))
-    testset = SiameseHyperFeat(HyperFeat(test_data_path),train=False)
+    testset = SiameseHyperFeat(HyperFeat(test_data_path), train=True)
     train_loader = DataLoader(trainset, batch_size=args.batch_size,
                               num_workers=4, pin_memory=True, shuffle=True)
 
