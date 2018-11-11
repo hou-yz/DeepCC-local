@@ -62,6 +62,7 @@ trajectories.diff_p = 0;
 trajectories.diff_n = 0;
 trajectories.step = false;
 trajectories.compute_score = true;
+trajectories.use_indiff = true;
 
 % Identities
 identities = [];
