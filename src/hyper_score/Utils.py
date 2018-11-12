@@ -16,10 +16,10 @@ class MetricNet(nn.Module):
     def __init__(self, num_class=0):
         super(MetricNet, self).__init__()
         self.num_class = num_class
-        self.fc1 = nn.Linear(256, 128)
-        self.fc2 = nn.Linear(128, 128)
-        self.fc3 = nn.Linear(128, 128)
-        self.out_layer = nn.Linear(128, self.num_class)
+        self.fc1 = nn.Linear(256, 64)
+        self.fc2 = nn.Linear(64, 64)
+        self.fc3 = nn.Linear(64, 16)
+        self.out_layer = nn.Linear(16, self.num_class)
         init.normal_(self.out_layer.weight, std=0.001)
         init.constant_(self.out_layer.bias, 0)
 

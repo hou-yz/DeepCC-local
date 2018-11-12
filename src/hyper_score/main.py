@@ -26,11 +26,11 @@ def main():
     parser.add_argument('--use_AM', action='store_true')
     parser.add_argument('--save_result', action='store_true')
     parser.add_argument('--resume', action='store_true')
-    parser.add_argument('--data-path', type=str, default='1fps_train_IDE_40/',
+    parser.add_argument('--data-path', type=str, default='1fps_train_IDE_20/',
                         metavar='PATH')
     parser.add_argument('-L', type=str, default='L2', choices=['L1', 'L2'])
     # parser.add_argument('--tracklet', type=int, default=20, choices=[20, 40])
-    parser.add_argument('--window', type=str, default='300', choices=['Inf', '150', '300', '600', '1200'])
+    parser.add_argument('--window', type=str, default='300', choices=['Inf','75', '150', '300', '600', '1200'])
     parser.add_argument('--log-dir', type=str, default='', metavar='PATH')
     parser.add_argument('--seed', type=int, default=1, metavar='S',
                         help='random seed (default: 1)')
@@ -44,9 +44,9 @@ def main():
     else:
         train_data_path = args.data_path + 'hyperGT_{}_train_{}.h5'.format(args.L, args.window)
     if args.save_result:
-        test_data_path = args.data_path + 'hyperGT_{}_train_{}.h5'.format(args.L, args.window)
+        test_data_path = args.data_path + 'hyperGT_{}_train_Inf.h5'.format(args.L)
     else:
-        test_data_path = args.data_path + 'hyperGT_{}_val_{}.h5'.format(args.L, args.window)
+        test_data_path = args.data_path + 'hyperGT_{}_val_Inf.h5'.format(args.L)
     torch.manual_seed(args.seed)
     if not os.path.isdir(args.log_dir):
         os.mkdir(args.log_dir)
