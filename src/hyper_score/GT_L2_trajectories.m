@@ -3,13 +3,13 @@ clear
 
 opts=get_opts();
 
-opts.trajectories.window_width = inf;
+opts.trajectories.window_width = 75;
 L2_speed = 'mid';
 % L2_speed = 'head-tail';
 
 % opts.visualize = true;
-opts.sequence = 8;
-opts.experiment_name = '1fps_og_cc';
+opts.sequence = 7;
+opts.experiment_name = '1fps_train_IDE_40';
 
 newGTs = cellmat(1,8,0,0,0);
 spatialGroupID_max = zeros(1,8);
@@ -19,7 +19,8 @@ for iCam = 1:8
     start_frame       = global2local(opts.start_frames(iCam), sequence_window(1));
     end_frame         = global2local(opts.start_frames(iCam), sequence_window(end));
     
-    filename =sprintf('%s/ground_truth/tracklets%d_trainval.mat',opts.dataset_path,iCam);
+    mkdir(sprintf('%s/ground_truth/%s',opts.dataset_path,opts.experiment_name))
+    filename =sprintf('%s/ground_truth/%s/tracklets%d_trainval.mat',opts.dataset_path,opts.experiment_name,iCam);
     if ~exist(filename, 'file')
     % Load GTs for current camera
     trainData = load(fullfile(opts.dataset_path, 'ground_truth','trainval.mat'));
@@ -104,7 +105,7 @@ for iCam = 1:8
     newGT = newGTs{iCam};
     newGT(:,4) = newGT(:,4)+sum(spatialGroupID_max(1:iCam-1));
     if opts.tracklets.window_width == inf
-        newGT(:,4) = iCam;
+        newGT(:,4) = 0;
     end
     res = [res;newGT];
 %     hdf5write(fullfile(opts.dataset_path, 'ground_truth',sprintf('hyperGT_%s_%d.h5',opts.sequence_names{opts.sequence},iCam)), '/hyperGT',newGTs{iCam}');
@@ -112,4 +113,4 @@ end
 
 
 % res(:,4) = 0;
-hdf5write(fullfile(opts.dataset_path, 'ground_truth',sprintf('hyperGT_L2_%s_%d.h5',opts.sequence_names{opts.sequence},opts.trajectories.window_width)), '/hyperGT',res');
+hdf5write(fullfile(opts.dataset_path, 'ground_truth',opts.experiment_name,sprintf('hyperGT_L2_%s_%d.h5',opts.sequence_names{opts.sequence},opts.trajectories.window_width)), '/hyperGT',res');

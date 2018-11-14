@@ -84,7 +84,7 @@ identities.compute_score = true;
 identities.consecutive_icam_matrix = [0,1,1,1,1,1,0,1;1,0,1,1,1,1,0,0;1,1,0,1,1,0,0,0;1,1,1,0,1,0,0,0;1,1,1,1,0,1,1,0;1,1,0,0,1,0,1,1;0,0,0,0,1,1,0,1;1,0,0,0,0,1,1,0];%same_track
 identities.reintro_time_matrix = ones(1,8)*inf;
 
-
+opts.soft = 0.1;
 opts.tracklets = tracklets;
 opts.trajectories = trajectories;
 opts.identities = identities;

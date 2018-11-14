@@ -26,7 +26,7 @@ def main():
     parser.add_argument('--use_AM', action='store_true')
     parser.add_argument('--save_result', action='store_true')
     parser.add_argument('--resume', action='store_true')
-    parser.add_argument('--data-path', type=str, default='1fps_train_IDE_20/',
+    parser.add_argument('--data-path', type=str, default='1fps_train_IDE_40/',
                         metavar='PATH')
     parser.add_argument('-L', type=str, default='L2', choices=['L1', 'L2'])
     # parser.add_argument('--tracklet', type=int, default=20, choices=[20, 40])
@@ -37,7 +37,7 @@ def main():
     parser.add_argument('--log-interval', type=int, default=100, metavar='N',
                         help='how many batches to wait before logging training status')
     args = parser.parse_args()
-    args.log_dir = 'logs/{}/appear_only/'.format(args.L, ) + args.log_dir + args.data_path
+    args.log_dir = 'logs/{}/appear_only/'.format(args.L, ) + args.data_path + args.log_dir
     args.data_path = os.path.expanduser('~/Data/DukeMTMC/ground_truth/') + args.data_path
     if args.combine_trainval:
         train_data_path = args.data_path + 'hyperGT_{}_trainval_{}.h5'.format(args.L, args.window)

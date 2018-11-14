@@ -64,7 +64,7 @@ for i = 1 : length(allGroups)
         % compute the correlation matrix
         correlationMatrix = appearanceAffinity + params.alpha*(spacetimeAffinity-1);
     else
-        correlationMatrix = getHyperScore(featureVectors(indices),tracklets(indices),hyper_score_param,0);
+        correlationMatrix = getHyperScore(featureVectors(indices),tracklets(indices),hyper_score_param,0,opts.soft,threshold, diff_p);
         correlationMatrix = correlationMatrix + params.alpha*(spacetimeAffinity-1);
     end
     correlationMatrix = correlationMatrix .* indifferenceMatrix.^params.use_indiff;
