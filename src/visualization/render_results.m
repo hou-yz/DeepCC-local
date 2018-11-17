@@ -17,7 +17,7 @@ mkdir([opts.experiment_root, filesep, opts.experiment_name, filesep, folder]);
 load(fullfile(opts.dataset_path, 'ground_truth', 'trainval.mat'));
 
 % Render one video per camera
-for iCam = 1:opts.num_cam
+for iCam = 1:1%opts.num_cam
     
     % Create video
     filename = sprintf('%s/%s/%s/cam%d_%s.mp4',opts.experiment_root, opts.experiment_name, folder, iCam, opts.sequence_names{opts.sequence});
@@ -50,17 +50,15 @@ for iCam = 1:opts.num_cam
     gtMatViz = sortrows(gtMatViz, [1 2]);
     predMatViz = sortrows(predMatViz, [1 2]);
     
-    tic
-    for iFrame = global2local(opts.start_frames(iCam), sequence_interval(1)):1:global2local(opts.start_frames(iCam),sequence_interval(end))
+%     tic
+    for iFrame = global2local(opts.start_frames(iCam), sequence_interval(1)):20:global2local(opts.start_frames(iCam),sequence_interval(end))
         %IDFP
-        if mod(iFrame,100)==1
-            t_100 = toc
-            tic
-            fprintf('Cam %d:  %d/%d\n', iCam, iFrame, global2local(opts.start_frames(iCam),sequence_interval(end)));
-        end
-        if mod(iFrame,5) >0
-            continue;
-        end
+%         if mod(iFrame,100)==1
+%             t_100 = toc
+%             tic
+%             fprintf('Cam %d:  %d/%d\n', iCam, iFrame, global2local(opts.start_frames(iCam),sequence_interval(end)));
+%         end
+        fprintf('Cam %d:  %d/%d\n', iCam, iFrame, global2local(opts.start_frames(iCam),sequence_interval(end)));
         image  = opts.reader.getFrame(iCam,iFrame);
 
         rows        = find(predMatViz(:, 1) == iFrame);

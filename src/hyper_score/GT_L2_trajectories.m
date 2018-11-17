@@ -9,7 +9,7 @@ L2_speed = 'mid';
 
 % opts.visualize = true;
 opts.sequence = 7;
-opts.experiment_name = '1fps_train_IDE_40';
+opts.experiment_name = '1fps_train_PCB_40';
 
 newGTs = cellmat(1,8,0,0,0);
 spatialGroupID_max = zeros(1,8);
@@ -72,7 +72,7 @@ for iCam = 1:8
     end
     load(filename)
     pids = [tracklets.id]';
-    feat = reshape([tracklets.feature]',256,[])';
+    feat = reshape([tracklets.feature]',length(tracklets(1).feature),[])';
     
     if strcmp(L2_speed,'mid')
         [~, ~, startpoint, endpoint, intervals, ~, velocity] = getTrackletFeatures(tracklets);

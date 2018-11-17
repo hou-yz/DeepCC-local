@@ -59,7 +59,7 @@ for spatialGroupID = 1 : max(spatialGroupIDs)
         appearanceCorrelation = getAppearanceSubMatrix(spatialGroupObservations, allFeatures, threshold,diff_p,diff_n,params.step);
     else
         features = cell2mat(allFeatures.appearance(spatialGroupObservations));
-        appearanceCorrelation = getHyperScore(opts,features,hyper_score_param);
+        appearanceCorrelation = getHyperScore(features,[],hyper_score_param,0,opts.soft, threshold,diff_p);
     end
     [motionCorrelation, impMatrix]  = motionAffinity(spatialGroupDetectionCenters,spatialGroupDetectionFrames,spatialGroupEstimatedVelocity,params.speed_limit, params.beta);
     

@@ -20,18 +20,17 @@ for iCam = 1:8
     else
         features   = h5read(sprintf('%s/L0-features/%s/features%d.h5',opts.dataset_path,opts.feature_dir,iCam),'/emb');
     end
-    features   = double(features');
     in_time_range_ids = detections(:,2)>=start_frame & detections(:,2)<=end_frame;
     all_dets   = detections(in_time_range_ids,:);
-    if size(features,1) == size(detections,1)
-        features = features(in_time_range_ids,:);
+    if size(features,2) == size(detections,1)
+        features = features(:,in_time_range_ids);
     else
-        features = features(features(:,2)>=start_frame & features(:,2)<=end_frame,3:end);
+        features = features(3:end,features(2,:)>=start_frame & features(2,:)<=end_frame);
     end
     appearance = cell(size(all_dets,1),1);
     frames     = cell(size(all_dets,1),1);
     for k = 1:length(frames)
-        appearance{k} = features(k,:);
+        appearance{k} = double(features(:,k)');
         frames{k} = detections(k,2);
     end
     
@@ -69,7 +68,7 @@ for iCam = 1:8
         opts.experiment_name, ...
         iCam, ...
         opts.sequence_names{opts.sequence}), ...
-        'tracklets');
+        'tracklets', '-v7.3');
     
     % Clean up
     clear all_dets appearance detections features frames

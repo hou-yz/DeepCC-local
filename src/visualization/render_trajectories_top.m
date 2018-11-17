@@ -5,7 +5,7 @@ opts = get_opts();
 % Load ground truth trajectories (or your own)
 load(fullfile(opts.dataset_path, 'ground_truth', 'trainval.mat'));
 trajectories = trainData;
-trajectories = trajectories(trajectories(:,2)==725,:);
+trajectories = trajectories(trajectories(:,2)==724,:);%724%751
 
 % Load map
 map = imread('src/visualization/data/map.jpg');
@@ -16,9 +16,9 @@ mkdir([folder]);
 video_name = fullfile(opts.experiment_root, folder, 'duke_topview.mp4');
 
 % Params
-% colors     = distinguishable_colors(1000);
+colors     = distinguishable_colors(8)*255;
 
-colors = [38,35,226;251,128,114;253,180,98;152,78,163];%206,18,86
+% colors = [38,35,226;251,128,114;253,180,98;152,78,163];%206,18,86
 tail_size  = inf;
 fps        = 120;
 rois       = opts.ROIs;
@@ -35,7 +35,7 @@ end
 
 trajectories = sortrows(trajectories,3);
 % 150 frames
-same_id_same_cam_threshold = 150;
+same_id_same_cam_threshold = 75;
 switch_cam_lines_id = [1;(trajectories(1:end-1,1)==trajectories(2:end,1))==0];
 % also add person_id who leave and enter the same camera after a while 
 switch_cam_lines_id(([0;(trajectories(1:end-1,3)+same_id_same_cam_threshold<trajectories(2:end,3)).*(trajectories(1:end-1,1)==trajectories(2:end,1))])==1)=1;
@@ -86,11 +86,11 @@ for frame = endFrame:endFrame
         img = cv.polylines(img, polylines{k}, 'Closed', false, 'Thickness', 4, 'Color', polycolors{k});
     end
     img = rot90(img,3);
-%     for k = 1:length(ids)
-%         pos = [0,size(img,2)];
-%         pos = pos+[1,-1].*polylines{k}(end,:);
-%         img = insertText(img,pos([2,1]), sprintf('%d',k),'FontSize',20, 'BoxColor','black','TextColor', 255*polycolors{k});
-%     end 
+    for k = 1:length(ids)
+        pos = [0,size(img,2)];
+        pos = pos+[1,-1].*polylines{k}(end,:);
+        img = insertText(img,pos([2,1]), sprintf('%d',k),'FontSize',20, 'BoxColor','black','TextColor', 255*polycolors{k});
+    end 
 end
 imwrite(img,'non-optimal_path.png')
 imshow(img)
