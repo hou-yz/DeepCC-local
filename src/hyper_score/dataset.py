@@ -13,13 +13,13 @@ from torch.utils.data import Dataset
 
 
 class HyperFeat(Dataset):
-    def __init__(self, root):
+    def __init__(self, root, feature_dim=256):
         self.root = root
         h5file = h5py.File(self.root, 'r')
         self.data = np.array(h5file['hyperGT'])
-        self.data = self.data[self.data[:, 1] != -1, :] # rm -1 terms
+        self.data = self.data[self.data[:, 1] != -1, :]  # rm -1 terms
         # iCam, pid, centerFrame, SpaGrpID, pos*2, v*2, 0, 256-dim feat
-        self.feat_col = list(range(9, 265))
+        self.feat_col = list(range(9, feature_dim + 9))
         self.motion_col = [0, 2, 4, 5, 6, 7]
         # train frame: [47720:187540]; val frame: [187541:227540]
 

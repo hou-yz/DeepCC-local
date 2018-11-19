@@ -2,7 +2,7 @@ function correlationMatrix = getHyperScore(features,tracklets,hyper_score_param,
 tic;
 if iscell(features)
     numFeatures = length(features);
-    features = reshape(cell2mat(features)',256,[])';
+    features = reshape(cell2mat(features)', numel(features{1}),[])';
 else
     numFeatures = size(features,1);
 end
@@ -45,7 +45,7 @@ fprintf('time elapsed: %d',t1)
 end
 
 function output = hyper_score_net_regress(input,hyper_score_param,alpha,soft,threshold, norm)
-feat = input(:,1:256);
+feat = input;
 % feat = feat.^2;
 % if alpha
 %     motion_score = input(:,257);

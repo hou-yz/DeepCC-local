@@ -26,16 +26,17 @@ def main():
     parser.add_argument('--use_AM', action='store_true')
     parser.add_argument('--save_result', action='store_true')
     parser.add_argument('--resume', action='store_true')
-    parser.add_argument('--data-path', type=str, default='1fps_train_IDE_40/',
+    parser.add_argument('--data-path', type=str, default='1fps_train_PCB_40/',
                         metavar='PATH')
     parser.add_argument('-L', type=str, default='L2', choices=['L1', 'L2'])
     # parser.add_argument('--tracklet', type=int, default=20, choices=[20, 40])
-    parser.add_argument('--window', type=str, default='300', choices=['Inf','75', '150', '300', '600', '1200'])
+    parser.add_argument('--window', type=str, default='300', choices=['Inf', '75', '150', '300', '600', '1200'])
     parser.add_argument('--log-dir', type=str, default='', metavar='PATH')
     parser.add_argument('--seed', type=int, default=1, metavar='S',
                         help='random seed (default: 1)')
     parser.add_argument('--log-interval', type=int, default=100, metavar='N',
                         help='how many batches to wait before logging training status')
+    parser.add_argument('--features', type=int, default=1536, choices=[256, 1536])
     args = parser.parse_args()
     args.log_dir = 'logs/{}/appear_only/'.format(args.L, ) + args.data_path + args.log_dir
     args.data_path = os.path.expanduser('~/Data/DukeMTMC/ground_truth/') + args.data_path
@@ -51,8 +52,8 @@ def main():
     if not os.path.isdir(args.log_dir):
         os.mkdir(args.log_dir)
 
-    trainset = SiameseHyperFeat(HyperFeat(train_data_path))
-    testset = SiameseHyperFeat(HyperFeat(test_data_path), train=True)
+    trainset = SiameseHyperFeat(HyperFeat(train_data_path, args.features))
+    testset = SiameseHyperFeat(HyperFeat(test_data_path, args.features), train=True)
     train_loader = DataLoader(trainset, batch_size=args.batch_size,
                               num_workers=4, pin_memory=True, shuffle=True)
 
@@ -60,7 +61,7 @@ def main():
                              # sampler=HyperScoreSampler(testset, 1024),
                              num_workers=4, pin_memory=True)
 
-    metric_net = nn.DataParallel(MetricNet(num_class=2)).cuda()
+    metric_net = nn.DataParallel(MetricNet(feature_dim=args.features, num_class=2)).cuda()
     if args.resume:
         checkpoint = torch.load(args.log_dir + '/metric_net_{}_{}.pth.tar'.format(args.L, args.window))
         model_dict = checkpoint['state_dict']
