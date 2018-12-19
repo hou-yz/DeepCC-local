@@ -16,38 +16,38 @@ def main():
     parser.add_argument('--epochs', type=int, default=40, metavar='N',
                         help='number of epochs to train (default: 10)')
     parser.add_argument('--step-size', type=int, default=30)
-    parser.add_argument('--lr', type=float, default=0.001, metavar='LR',
-                        help='learning rate (default: 0.001)')
+    parser.add_argument('--lr', type=float, default=0.0001, metavar='LR',
+                        help='learning rate (default: 0.0001)')
     parser.add_argument('--combine-trainval', action='store_true',
                         help="train and val sets together for training, val set alone for validation")
     parser.add_argument('--momentum', type=float, default=0, metavar='M',
-                        help='SGD momentum (default: 0.5)')
+                        help='SGD momentum (default: 0)')
     parser.add_argument('--train', action='store_true')
     parser.add_argument('--use_AM', action='store_true')
     parser.add_argument('--save_result', action='store_true')
     parser.add_argument('--resume', action='store_true')
-    parser.add_argument('--data-path', type=str, default='1fps_train_PCB_40/',
+    parser.add_argument('--data-path', type=str, default='1fps_train_PCB_40',
                         metavar='PATH')
-    parser.add_argument('-L', type=str, default='L2', choices=['L1', 'L2'])
-    # parser.add_argument('--tracklet', type=int, default=20, choices=[20, 40])
-    parser.add_argument('--window', type=str, default='300', choices=['Inf', '75', '150', '300', '600', '1200'])
+    parser.add_argument('--window', type=str, default='75', choices=['Inf', '75', '150', '300', '600', '1200'])
     parser.add_argument('--log-dir', type=str, default='', metavar='PATH')
     parser.add_argument('--seed', type=int, default=1, metavar='S',
                         help='random seed (default: 1)')
     parser.add_argument('--log-interval', type=int, default=100, metavar='N',
                         help='how many batches to wait before logging training status')
-    parser.add_argument('--features', type=int, default=1536, choices=[256, 1536])
+    parser.add_argument('--features', type=int, default=1536, choices=[256, 1024, 1536])
+    parser.add_argument('--fft', action='store_true')
     args = parser.parse_args()
-    args.log_dir = 'logs/{}/appear_only/'.format(args.L, ) + args.data_path + args.log_dir
-    args.data_path = os.path.expanduser('~/Data/DukeMTMC/ground_truth/') + args.data_path
+    args.log_dir = osp.join('logs', args.data_path, args.log_dir)
+    args.data_path = osp.join(os.path.expanduser('~/Data/DukeMTMC/ground_truth'), args.data_path)
+    L = 'L2_fft' if args.fft else 'L2'
     if args.combine_trainval:
-        train_data_path = args.data_path + 'hyperGT_{}_trainval_{}.h5'.format(args.L, args.window)
+        train_data_path = osp.join(args.data_path, 'hyperGT_{}_trainval_{}.h5'.format(L, args.window))
     else:
-        train_data_path = args.data_path + 'hyperGT_{}_train_{}.h5'.format(args.L, args.window)
+        train_data_path = osp.join(args.data_path, 'hyperGT_{}_train_{}.h5'.format(L, args.window))
     if args.save_result:
-        test_data_path = args.data_path + 'hyperGT_{}_train_Inf.h5'.format(args.L)
+        test_data_path = osp.join(args.data_path, 'hyperGT_{}_train_Inf.h5'.format(L))
     else:
-        test_data_path = args.data_path + 'hyperGT_{}_val_Inf.h5'.format(args.L)
+        test_data_path = osp.join(args.data_path, 'hyperGT_{}_val_Inf.h5'.format(L))
     torch.manual_seed(args.seed)
     if not os.path.isdir(args.log_dir):
         os.mkdir(args.log_dir)
@@ -63,7 +63,7 @@ def main():
 
     metric_net = nn.DataParallel(MetricNet(feature_dim=args.features, num_class=2)).cuda()
     if args.resume:
-        checkpoint = torch.load(args.log_dir + '/metric_net_{}_{}.pth.tar'.format(args.L, args.window))
+        checkpoint = torch.load(args.log_dir + '/metric_net_{}_{}.pth.tar'.format(L, args.window))
         model_dict = checkpoint['state_dict']
         metric_net.module.load_state_dict(model_dict)
 
@@ -88,10 +88,11 @@ def main():
                 train_prec_s.append(train_prec)
                 test_loss_s.append(test_loss)
                 test_prec_s.append(test_prec)
-                draw_curve(args, x_epoch, train_loss_s, train_prec_s, test_loss_s, test_prec_s)
+                path = args.log_dir + '/MetricNet_{}_{}.jpg'.format(L, args.window)
+                draw_curve(path, x_epoch, train_loss_s, train_prec_s, test_loss_s, test_prec_s)
                 pass
             torch.save({'state_dict': metric_net.module.state_dict(), }, args.log_dir + '/metric_net_{}_{}.pth.tar'.
-                       format(args.L, args.window))
+                       format(L, args.window))
         else:
             test(args, metric_net, appear_motion_net, test_loader, criterion, )
 
@@ -113,20 +114,22 @@ def main():
                 train_prec_s.append(train_prec)
                 test_loss_s.append(test_loss)
                 test_prec_s.append(test_prec)
-                draw_curve(args, x_epoch, train_loss_s, train_prec_s, test_loss_s, test_prec_s, train_motion=True)
+                path = args.log_dir + '/AppearMotionNet_{}_{}.jpg'.format(L, args.window)
+                draw_curve(path, x_epoch, train_loss_s, train_prec_s, test_loss_s, test_prec_s)
                 pass
             torch.save({'state_dict': appear_motion_net.module.state_dict(), },
-                       args.log_dir + '/appear_motion_net_{}_{}.pth.tar'.format(args.L, args.window))
+                       args.log_dir + '/appear_motion_net_{}_{}.pth.tar'.format(L, args.window))
+        path = args.log_dir + '/model_param_{}_{}.mat'.format(L, args.window)
         if args.use_AM:
-            save_model_as_mat(args, metric_net.module, appear_motion_net.module)
+            save_model_as_mat(path, metric_net.module, appear_motion_net.module)
         else:
-            save_model_as_mat(args, metric_net.module, [])
+            save_model_as_mat(path, metric_net.module, [])
 
-    checkpoint = torch.load(args.log_dir + '/metric_net_{}_{}.pth.tar'.format(args.L, args.window))
+    checkpoint = torch.load(args.log_dir + '/metric_net_{}_{}.pth.tar'.format(L, args.window))
     model_dict = checkpoint['state_dict']
     metric_net.module.load_state_dict(model_dict)
     if args.use_AM:
-        checkpoint = torch.load(args.log_dir + '/appear_motion_net_{}_{}.pth.tar'.format(args.L, args.window))
+        checkpoint = torch.load(args.log_dir + '/appear_motion_net_{}_{}.pth.tar'.format(L, args.window))
         model_dict = checkpoint['state_dict']
         appear_motion_net.module.load_state_dict(model_dict)
     test(args, metric_net, appear_motion_net, test_loader, criterion,

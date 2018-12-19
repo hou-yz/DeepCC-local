@@ -1,6 +1,7 @@
 import torch.nn as nn
 import torch.nn.functional as F
 from sampler import *
+from models import *
 import time
 import h5py
 from torch.nn import init
@@ -12,42 +13,7 @@ matplotlib.use('agg')
 import matplotlib.pyplot as plt
 
 
-class MetricNet(nn.Module):
-    def __init__(self, feature_dim=256, num_class=0):
-        super(MetricNet, self).__init__()
-        self.num_class = num_class
-        self.fc1 = nn.Linear(feature_dim, 128)
-        self.fc2 = nn.Linear(128, 128)
-        self.fc3 = nn.Linear(128, 128)
-        self.out_layer = nn.Linear(128, self.num_class)
-        init.normal_(self.out_layer.weight, std=0.001)
-        init.constant_(self.out_layer.bias, 0)
-
-    def forward(self, x):
-        # feat = x[:, 0:-1]
-        # motion_score = x[:, -1].view(-1, 1)
-        out = self.fc1(x)
-        out = F.relu(out)
-        out = self.fc2(out)
-        out = F.relu(out)
-        out = self.fc3(out)
-        out = F.relu(out)
-        # out = torch.cat((out, motion_score), dim=1)
-        out = self.out_layer(out)
-        return out
-
-
-class AppearMotionNet(nn.Module):
-    def __init__(self):
-        super(AppearMotionNet, self).__init__()
-        self.fc4 = nn.Linear(2, 2)
-
-    def forward(self, x):
-        out = self.fc4(x)
-        return out
-
-
-def save_model_as_mat(args, metric_net, appear_motion_net):
+def save_model_as_mat(path, metric_net, appear_motion_net):
     fc1_w, fc1_b = metric_net.fc1.weight.data.cpu().numpy(), metric_net.fc1.bias.data.cpu().numpy()
     fc2_w, fc2_b = metric_net.fc2.weight.data.cpu().numpy(), metric_net.fc2.bias.data.cpu().numpy()
     fc3_w, fc3_b = metric_net.fc3.weight.data.cpu().numpy(), metric_net.fc3.bias.data.cpu().numpy()
@@ -55,14 +21,14 @@ def save_model_as_mat(args, metric_net, appear_motion_net):
 
     if isinstance(appear_motion_net, AppearMotionNet):
         fc4_w, fc4_b = appear_motion_net.fc4.weight.data.cpu().numpy(), appear_motion_net.fc4.bias.data.cpu().numpy()
-        scipy.io.savemat(args.log_dir + '/model_param_{}_{}.mat'.format(args.L, args.window),
+        scipy.io.savemat(path,
                          mdict={'fc1_w': fc1_w, 'fc1_b': fc1_b,
                                 'fc2_w': fc2_w, 'fc2_b': fc2_b,
                                 'fc3_w': fc3_w, 'fc3_b': fc3_b,
                                 'out_w': out_w, 'out_b': out_b,
                                 'fc4_w': fc4_w, 'fc4_b': fc4_b, })
     else:
-        scipy.io.savemat(args.log_dir + '/model_param_{}_{}.mat'.format(args.L, args.window),
+        scipy.io.savemat(path,
                          mdict={'fc1_w': fc1_w, 'fc1_b': fc1_b,
                                 'fc2_w': fc2_w, 'fc2_b': fc2_b,
                                 'fc3_w': fc3_w, 'fc3_b': fc3_b,
@@ -143,56 +109,6 @@ def test(args, metric_net, appear_motion_net, test_loader, criterion, test_motio
          epoch_max=1):
     metric_net.eval()
     appear_motion_net.eval()
-    # test_loss = 0
-    # correct = 0
-    # miss = 0
-    # lines = torch.zeros([0]).cuda()
-    # with torch.no_grad():
-    #     for batch_idx in range(1, test_loader.dataset.num_spatialGroup + 1):
-    #         for (feat, pid, spaGrpID) in test_loader:
-    #             l = pid.shape[0]
-    #             spaGrpID = int(np.unique(spaGrpID))
-    #             feat1, feat2, target = feat.cuda(), feat.cuda(), pid.cuda()
-    #             # if args.L2_speed == 'mid':
-    #             #     pass
-    #             # else:
-    #             #     # iCam,centerFrame,startFrame,endFrame,startpoint, endpoint,head_velocity,tail_velocity
-    #             #     seq1, seq2 = [0, 2, 6, 7, 10, 11, ], [0, 3, 4, 5, 8, 9, ]
-    #             #     seq1.extend(range(12, 268)), seq2.extend(range(12, 268))
-    #             #     feat1, feat2 = feat1[:, seq1], feat2[:, seq2]
-    #             # data = (addzero(feat1, 4, 2).unsqueeze(0).expand(l, l, 264) -
-    #             #         addzero(feat2, 6, 2).unsqueeze(1).expand(l, l, 264))
-    #             data = (feat1.unsqueeze(0).expand(l, l, 256) - feat2.unsqueeze(1).expand(l, l, 256)).abs()
-    #             # data[:, 0:8] = 0
-    #             # data[:, :, [4, 5]] = -data[:, :, [4, 5]]
-    #             target = (target.unsqueeze(0).expand(l, l) - target.unsqueeze(1).expand(l, l)) == 0
-    #             target[torch.eye(l).cuda().byte()] = 1
-    #             # index = torch.ones(l, l).triu().byte()
-    #             data, target = data.view(-1, 256).float(), target.view(-1).long()
-    #             # data = torch.cat((data[:, 0:8], torch.norm(data[:, 8:], 2, dim=1).view(-1, 1)), dim=1)
-    #
-    #             output = metric_net(data)
-    #             test_loss += criterion(output, target).item()  # sum up batch loss
-    #             _, pred = torch.max(output, 1)  # get the index of the max log-probability
-    #             correct += pred.eq(target).sum().item()
-    #             miss += target.shape[0] - pred.eq(target).sum().item()
-    #             output = F.softmax(output, dim=1)
-    #             line = (output[:, 1] - 0.5) * 2
-    #             lines = torch.cat((lines, line), dim=0)
-    #             pass
-    #
-    # print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.1f}%)\n'.
-    #       format(test_loss, correct, correct + miss, 100. * correct / (correct + miss)))
-    #
-    #
-    # lines = lines.cpu().numpy()
-    # if save_result:
-    #     output_fname = args.data_path + '/pairwise_dis_tmp.h5'
-    #     with h5py.File(output_fname, 'w') as f:
-    #         mat_data = np.vstack(lines)
-    #         f.create_dataset('dis', data=mat_data, dtype=float)
-    #         pass
-
     losses = 0
     correct = 0
     miss = 0
@@ -258,7 +174,7 @@ def test(args, metric_net, appear_motion_net, test_loader, criterion, test_motio
     return losses / (batch_idx + 1), correct / (correct + miss)
 
 
-def draw_curve(args, x_epoch, train_loss, train_prec, test_loss, test_prec, train_motion=False):
+def draw_curve(path, x_epoch, train_loss, train_prec, test_loss, test_prec):
     fig = plt.figure()
     ax0 = fig.add_subplot(121, title="loss")
     ax1 = fig.add_subplot(122, title="prec")
@@ -268,7 +184,4 @@ def draw_curve(args, x_epoch, train_loss, train_prec, test_loss, test_prec, trai
     ax1.plot(x_epoch, test_prec, 'ro-', label='test')
     ax0.legend()
     ax1.legend()
-    if not train_motion:
-        fig.savefig(args.log_dir + '/MetricNet_{}_{}.jpg'.format(args.L, args.window))
-    else:
-        fig.savefig(args.log_dir + '/AppearMotionNet_{}_{}.jpg'.format(args.L, args.window))
+    fig.savefig(path)
