@@ -16,8 +16,8 @@ def main():
     parser.add_argument('--epochs', type=int, default=40, metavar='N',
                         help='number of epochs to train (default: 10)')
     parser.add_argument('--step-size', type=int, default=30)
-    parser.add_argument('--lr', type=float, default=0.0001, metavar='LR',
-                        help='learning rate (default: 0.0001)')
+    parser.add_argument('--lr', type=float, default=0.001, metavar='LR',
+                        help='learning rate (default: 0.001)')
     parser.add_argument('--combine-trainval', action='store_true',
                         help="train and val sets together for training, val set alone for validation")
     parser.add_argument('--momentum', type=float, default=0, metavar='M',
@@ -26,7 +26,7 @@ def main():
     parser.add_argument('--use_AM', action='store_true')
     parser.add_argument('--save_result', action='store_true')
     parser.add_argument('--resume', action='store_true')
-    parser.add_argument('--data-path', type=str, default='1fps_train_PCB_40',
+    parser.add_argument('--data-path', type=str, default='1fps_train_IDE_40',
                         metavar='PATH')
     parser.add_argument('--window', type=str, default='75', choices=['Inf', '75', '150', '300', '600', '1200'])
     parser.add_argument('--log-dir', type=str, default='', metavar='PATH')
@@ -34,7 +34,7 @@ def main():
                         help='random seed (default: 1)')
     parser.add_argument('--log-interval', type=int, default=100, metavar='N',
                         help='how many batches to wait before logging training status')
-    parser.add_argument('--features', type=int, default=1536, choices=[256, 1024, 1536])
+    parser.add_argument('--features', type=int, default=256, choices=[256, 1024, 1536])
     parser.add_argument('--fft', action='store_true')
     args = parser.parse_args()
     args.log_dir = osp.join('logs', args.data_path, args.log_dir)
