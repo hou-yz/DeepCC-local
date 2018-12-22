@@ -20,8 +20,14 @@ for i = 1:length(trajectories)
     alldata = cell2mat(alldata');
     alldata = sortrows(alldata,2);
     [~, uniqueRows] = unique(alldata(:,1));
-    
     alldata = alldata(uniqueRows,:);
+    
+    realdata = {trajectories(i).tracklets(:).realdata};
+    realdata = cell2mat(realdata');
+    realdata = sortrows(realdata,2);
+    [~, uniqueRows] = unique(realdata(:,1));
+    realdata = realdata(uniqueRows,:);
+    
     dataFrames = alldata(:,1);
     
     frames = segmentStart:segmentEnd;
@@ -47,15 +53,16 @@ for i = 1:length(trajectories)
         rows = ismember(newData(:,1), trackletFrames);
         
         tracklet.data = newData(rows,:);
-        tracklet.realdata = [];
         
         tracklet.startFrame = min(tracklet.data(:,1));
         tracklet.endFrame = max(tracklet.data(:,1));
         tracklet.feature = feature;
         if k == 1
             tracklet.features = features;
+            tracklet.realdata = realdata;
         else
             tracklet.features = [];
+            tracklet.realdata = [];
         end
         newTrajectory.startFrame = min(newTrajectory.startFrame, tracklet.startFrame);
         newTrajectory.endFrame = max(newTrajectory.endFrame, tracklet.endFrame);

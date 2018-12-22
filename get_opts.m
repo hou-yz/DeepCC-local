@@ -30,7 +30,8 @@ opts.start_frames = [5543, 3607, 27244, 31182, 1, 22402, 18968, 46766];
 opts.render_threshold = 0.05;
 opts.load_tracklets = 1;
 opts.load_trajectories = 1;
-opts.model_name = 'L2/appear_only/1fps_train_IDE_40/model_param_L2_75.mat';
+opts.model_name = '1fps_train_IDE_40/model_param_L2_75.mat';
+opts.fft = false;
 
 % Tracklets
 tracklets = [];

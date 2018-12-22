@@ -58,15 +58,14 @@ for i = 1 : length(allGroups)
     indices     = find(appearanceGroups == group);
     sameLabels  = pdist2(labels(indices), labels(indices)) == 0;
     [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinity(tracklets(indices), params.beta, params.speed_limit, params.indifference_time);
+    % compute appearance and spacetime scores
     if params.compute_score
-        % compute appearance and spacetime scores
         appearanceAffinity = getAppearanceMatrix(featureVectors(indices),featureVectors(indices), threshold, diff_p,diff_n,params.step);
-        % compute the correlation matrix
-        correlationMatrix = appearanceAffinity + params.alpha*(spacetimeAffinity-1);
     else
-        correlationMatrix = getHyperScore(featureVectors(indices),tracklets(indices),hyper_score_param,0,opts.soft,threshold, diff_p);
-        correlationMatrix = correlationMatrix + params.alpha*(spacetimeAffinity-1);
+        appearanceAffinity = getHyperScore(featureVectors(indices),tracklets(indices),hyper_score_param,0,opts.soft,threshold, diff_p);
     end
+    % compute the correlation matrix
+    correlationMatrix = appearanceAffinity + params.alpha*(spacetimeAffinity-1);
     correlationMatrix = correlationMatrix .* indifferenceMatrix.^params.use_indiff;
     correlationMatrix(impossibilityMatrix == 1) = -inf;
     correlationMatrix(sameLabels) = 1;

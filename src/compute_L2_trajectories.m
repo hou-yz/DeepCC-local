@@ -13,7 +13,11 @@ for iCam = 1:8
 %     [tracklets.interval] = interval{:};
 %     velocity = num2cell(velocity,2);
 %     [tracklets.velocity] = velocity{:};
-    trajectoriesFromTracklets = trackletsToTrajectories(tracklets,1:length(tracklets));
+    if opts.fft
+        tracklets = fft_tracklet_feat(opts, tracklets);
+    end
+
+    trajectoriesFromTracklets = trackletsToTrajectories(opts, tracklets,1:length(tracklets));
     
     opts.current_camera = iCam;
     sequence_interval = opts.sequence_intervals{opts.sequence};

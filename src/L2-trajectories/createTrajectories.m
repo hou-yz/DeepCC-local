@@ -50,7 +50,7 @@ for i = 1 : length(inAssociation)
 end
 
 % merge co-identified tracklets to extended tracklets
-newTrajectories = trackletsToTrajectories(tracklets, labels);
+newTrajectories = trackletsToTrajectories(opts, tracklets, labels);
 smoothTrajectories = recomputeTrajectories(newTrajectories, opts);
 
 for i = 1 : length(smoothTrajectories)
