@@ -5,14 +5,17 @@ opts=get_opts();
 opts.tracklets.window_width = 40;
 
 % opts.visualize = true;
-opts.sequence = 1;
+opts.sequence = 7;
 opts.feature_dir = 'gt_features_fc256_1fps_trainBN_crop';
 % Computes tracklets for all cameras
+
+mkdir(fullfile(opts.dataset_path, 'ground_truth','GCN_L1'))
+mkdir(fullfile(opts.dataset_path, 'ground_truth','GCN_L1',opts.sequence_names{opts.sequence}))
 
 fps=60;
 
 newGTs = cellmat(1,8,0,0,0);
-spatialGroupID_max = zeros(1,8);
+spatialGroupID_max = 0;
 for iCam = 1:8
     
     sequence_window   = opts.sequence_intervals{opts.sequence};
@@ -36,9 +39,6 @@ for iCam = 1:8
     
     % Compute tracklets for every 1-second interval
     
-    node_feats=cellmat(1,8,0,0,0);
-    node_ids=cellmat(1,8,0,0,0);
-    edges=cellmat(1,8,0,0,0);
     
     for window_start_frame   = start_frame : opts.tracklets.window_width : end_frame
         fprintf('%d/%d\n', window_start_frame, end_frame);
@@ -59,17 +59,18 @@ for iCam = 1:8
         
         % Compute tracklets in current window
         % Then add them to the list of all tracklets
-        [edge_weight,spatialGroupID_max(iCam)] = GT_L1_processing(opts, filteredGTs, window_start_frame, window_end_frame,spatialGroupID_max(iCam),0);
+        [edge_weight,spatialGroupID_max] = GT_L1_processing(opts, filteredGTs, window_start_frame, window_end_frame,spatialGroupID_max,0);
 %         edges,feat_in_window
-        node_ids{spatialGroupID_max(iCam)}=gts_in_window(:,2);
-        node_feats{spatialGroupID_max(iCam)}=feat_in_window;
-        edges{spatialGroupID_max(iCam)}=edge_weight;
+        node_ids=gts_in_window(:,2);
+        node_ids_r = repmat(node_ids,1,length(node_ids));
+        node_ids_c = repmat(node_ids',length(node_ids),1);
+        edge_target=node_ids_r==node_ids_c;
+        node_feat=feat_in_window;
+        edge_iou=edge_weight;
+        
+save(fullfile(opts.dataset_path, 'ground_truth','GCN_L1',opts.sequence_names{opts.sequence},sprintf('data_%06d.mat',spatialGroupID_max)),'edge_target','node_feat','edge_iou','-v7.3');
     end
-    save(fullfile(opts.dataset_path, 'ground_truth','GCN_L1',sprintf('node_ids%d.mat',iCam)),'node_ids');
-    save(fullfile(opts.dataset_path, 'ground_truth','GCN_L1',sprintf('node_feats%d.mat',iCam)),'node_feats');
-    save(fullfile(opts.dataset_path, 'ground_truth','GCN_L1',sprintf('edges%d.mat',iCam)),'edges');
 end
-
 % hdf5write(fullfile(opts.dataset_path, 'ground_truth',sprintf('hyperGT_L1_%s.h5',opts.sequence_names{opts.sequence})), '/hyperGT',res');
 
 
