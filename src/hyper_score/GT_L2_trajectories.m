@@ -3,12 +3,11 @@ clear
 
 opts=get_opts();
 
-opts.trajectories.window_width = 75;
+opts.trajectories.window_width = inf;
 L2_speed = 'mid';
-% L2_speed = 'head-tail';
 
 % opts.visualize = true;
-opts.sequence = 7;
+opts.sequence = 8;
 opts.experiment_name = '1fps_train_PCB_40';
 
 newGTs = cellmat(1,8,0,0,0);
@@ -30,7 +29,7 @@ for iCam = 1:8
     all_gts   = trainData(in_time_range_ids,2:7);
     % Initialize
     load(fullfile(opts.experiment_root, opts.experiment_name, 'L1-tracklets', sprintf('tracklets%d_trainval.mat',iCam)));
-    fields={'center','centerWorld','features','realdata','mask','interval','segmentStart','segmentInterval','segmentEnd','ids'};
+    fields={'center','centerWorld','mask','interval','segmentStart','segmentInterval','segmentEnd','ids'};
     tracklets = rmfield(tracklets,fields);
     for i = 1:length(tracklets)
         window_frames = tracklets(i).data(:,1);
@@ -68,7 +67,7 @@ for iCam = 1:8
     end
     
     % Save trajectories
-    save(filename, 'tracklets');
+    save(filename, 'tracklets','-v7.3');
     end
     load(filename)
     pids = [tracklets.id]';
