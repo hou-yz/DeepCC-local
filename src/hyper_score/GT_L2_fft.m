@@ -25,22 +25,7 @@ for iCam = 1:8
     pids = [tracklets.id]';
     all_fft_feats = zeros(length(tracklets),1024);
     freq_energy=0;
-    for i = 1:length(tracklets)
-        tracked_frames = tracklets(i).realdata(:,1);
-        all_frames = tracklets(i).data(:,1);
-        feats = cell2mat(tracklets(i).features);
-        % duplicate indices
-        [missed_frames,insert_pos] = setdiff(all_frames,tracked_frames);
-        for j = 1:length(insert_pos)
-            pos = insert_pos(j);
-            feats = [feats(1:pos-1,:);zeros(1,256);feats(pos:end,:)];
-        end
-        fft_feats = abs(fft(feats,opts.tracklets.window_width,1))/length(tracked_frames);
-        freq_energy = freq_energy+sum(fft_feats,2);
-        fft_feats = reshape(fft_feats(1:4,:),1,1024);
-        all_fft_feats(i,:) = fft_feats;
-    end
-    
+    tracklets = fft_tracklet_feat(opts, tracklets);
     
         [~, ~, startpoint, endpoint, intervals, ~, velocity] = getTrackletFeatures(tracklets);
         centerFrame     = local2global(opts.start_frames(iCam),round(mean(intervals,2)));

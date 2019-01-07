@@ -20,7 +20,7 @@ def main():
                         help='learning rate (default: 0.001)')
     parser.add_argument('--combine-trainval', action='store_true',
                         help="train and val sets together for training, val set alone for validation")
-    parser.add_argument('--momentum', type=float, default=0, metavar='M',
+    parser.add_argument('--momentum', type=float, default=0.5, metavar='M',
                         help='SGD momentum (default: 0)')
     parser.add_argument('--train', action='store_true')
     parser.add_argument('--use_AM', action='store_true')
@@ -77,7 +77,7 @@ def main():
         train_prec_s = []
         test_loss_s = []
         test_prec_s = []
-        optimizer = optim.SGD(metric_net.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=0.005)
+        optimizer = optim.SGD(metric_net.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=5e-4)
         if not args.resume:
             for epoch in range(1, args.epochs + 1):
                 train_loss, train_prec = train(args, metric_net, appear_motion_net, train_loader, optimizer, epoch,
@@ -133,7 +133,7 @@ def main():
         model_dict = checkpoint['state_dict']
         appear_motion_net.module.load_state_dict(model_dict)
     test(args, metric_net, appear_motion_net, test_loader, criterion,
-         test_motion=args.use_AM, save_result=args.save_result, epoch_max=100)
+         test_motion=args.use_AM, save_result=args.save_result, epoch_max=10)
 
 
 if __name__ == '__main__':

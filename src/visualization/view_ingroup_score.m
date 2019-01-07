@@ -1,13 +1,13 @@
 clc
 clear
 opts = get_opts();
-all_data = h5read(fullfile(opts.dataset_path,'ground_truth','1fps_train_IDE_40','hyperGT_L2_train_75.h5'),'/hyperGT');
+all_data = h5read(fullfile(opts.dataset_path,'ground_truth','1fps_train_IDE_40','hyperGT_L2_fft_train_75.h5'),'/hyperGT');
 % iCam, pid, centerFrame, SpaGrpID, pos*2, v*2, 0, 256-dim feat
 considered_line = all_data(2,:)~=-1;
 all_pids = all_data(2,considered_line)';
 spagrp_ids = all_data(4,considered_line)';
 all_feats = all_data(10:end,considered_line)';
-
+%% L2
 unique_spa_id = unique(spagrp_ids);
 pos_dists = [];
 neg_dists = [];
@@ -22,6 +22,11 @@ for i = 1:length(unique_spa_id)
     pos_dists = [pos_dists;double(dist(same_label))];
     neg_dists = [neg_dists;double(dist(different_label))];
 end
+% dist = pdist2(all_feats,all_feats);
+% same_label = triu(pdist2(all_pids,all_pids) == 0,1);
+% different_label = triu(pdist2(all_pids,all_pids) ~= 0);
+% pos_dists = [pos_dists;double(dist(same_label))];
+% neg_dists = [neg_dists;double(dist(different_label))];
     m = [mean(pos_dists),mean(neg_dists)];
     s = [std(pos_dists),std(neg_dists)];
 %     pos_halves = pos_dists-m(1);
@@ -45,8 +50,21 @@ end
     
     hold off
     
-    %%
-all_data = h5read(fullfile(opts.dataset_path,'ground_truth','1fps_train_IDE_40','hyperGT_L2_train_inf.h5'),'/hyperGT');
+    
+    
+    mid = mean(m);
+    diff = mean(neg_dists)-mean(pos_dists);
+    
+    % decide thres
+    thres_uni = mid;
+    diff_p_uni = -m(1)+thres_uni ;
+    diff_n_uni = -thres_uni+m(2);
+    
+disp("thres:  "+num2str(thres_uni,'%.2f '))
+disp("diff_p: "+num2str(diff_p_uni,'%.2f '))
+disp("diff_n: "+num2str(diff_n_uni,'%.2f '))
+    %% L3
+all_data = h5read(fullfile(opts.dataset_path,'ground_truth','1fps_train_IDE_40','hyperGT_L2_fft_train_inf.h5'),'/hyperGT');
 % iCam, pid, centerFrame, SpaGrpID, pos*2, v*2, 0, 256-dim feat
 considered_line = all_data(2,:)~=-1;
 all_pids = all_data(2,considered_line)';
@@ -86,3 +104,16 @@ end
     text(m(2),0.1,stat_str_N)
     
     hold off
+
+    
+    mid = mean(m);
+    diff = mean(neg_dists)-mean(pos_dists);
+    
+    % decide thres
+    thres_uni = mid;
+    diff_p_uni = -m(1)+thres_uni ;
+    diff_n_uni = -thres_uni+m(2);
+    
+disp("thres:  "+num2str(thres_uni,'%.2f '))
+disp("diff_p: "+num2str(diff_p_uni,'%.2f '))
+disp("diff_n: "+num2str(diff_n_uni,'%.2f '))
