@@ -103,7 +103,7 @@ res = [];
 for iCam = 1:8
     newGT = newGTs{iCam};
     newGT(:,4) = newGT(:,4)+sum(spatialGroupID_max(1:iCam-1));
-    if opts.tracklets.window_width == inf
+    if opts.trajectories.window_width == inf
         newGT(:,4) = 0;
     end
     res = [res;newGT];

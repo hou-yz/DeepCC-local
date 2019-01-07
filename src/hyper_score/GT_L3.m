@@ -2,16 +2,42 @@ clc
 clear
 
 opts=get_opts();
-opts.experiment_name = '1fps_og';
-opts.feature_dir = 'det_features_fc256_train_1fps_trainBN_trainval';
-% basis setting for DeepCC
-opts.tracklets.window_width = 40;
-opts.trajectories.window_width = 150;
-opts.trajectories.overlap = 75;
+
 opts.identities.window_width = 6000;
 
+% opts.visualize = true;
+opts.sequence = 8;
+opts.experiment_name = '1fps_train_IDE_40';
 
-opts.sequence = 7;
+newGTs = cellmat(1,8,0,0,0);
+spatialGroupID_max = zeros(1,8);
+% Computes single-camera trajectories from tracklets
+for iCam = 1:8
+    load(filename)
+    pids = [tracklets.id]';
+    feat = reshape([tracklets.feature]',length(tracklets(1).feature),[])';
+    
+    
+    [~, ~, startpoint, endpoint, intervals, ~, velocity] = getTrackletFeatures(tracklets);
+    centerFrame     = local2global(opts.start_frames(iCam),round(mean(intervals,2)));
+    centers         = 0.5 * (endpoint + startpoint);
+    newGTs{iCam} = [ones(size(pids))*iCam,pids,centerFrame,zeros(size(pids,1),1),centers,velocity,zeros(size(pids,1),1),feat];
+    in_time_range_ids = ismember(centerFrame,opts.sequence_intervals{opts.sequence});
+    newGTs{iCam} = newGTs{iCam}(in_time_range_ids,:);
+end
 
-filename = sprintf('%s/%s/L3-identities/L2trajectories.mat',opts.experiment_root, opts.experiment_name);
-load(filename);
+res = [];
+for iCam = 1:8
+    newGT = newGTs{iCam};
+    newGT(:,4) = newGT(:,4)+sum(spatialGroupID_max(1:iCam-1));
+	newGT(:,4) = floor(newGT(:,3)/opts.identities.window_width);
+    if opts.identities.window_width == inf
+        newGT(:,4) = 0;
+    end
+    res = [res;newGT];
+%     hdf5write(fullfile(opts.dataset_path, 'ground_truth',sprintf('hyperGT_%s_%d.h5',opts.sequence_names{opts.sequence},iCam)), '/hyperGT',newGTs{iCam}');
+end
+
+
+% res(:,4) = 0;
+hdf5write(fullfile(opts.dataset_path, 'ground_truth',opts.experiment_name,sprintf('hyperGT_L3_%s_%d.h5',opts.sequence_names{opts.sequence},opts.identities.window_width)), '/hyperGT',res');
