@@ -28,19 +28,27 @@ class HyperFeat(Dataset):
         self.num_spatialGroup = len(all_groupIDs)
         self.min_groupID = min(all_groupIDs)
         self.index_by_SGid_pid_dic = defaultdict(dict)
+        self.index_by_SGid_pid_icam_dic = defaultdict(dict)
         self.pid_by_SGid_dic = defaultdict(list)
-        self.index_by_icam_pid_dic = defaultdict(dict)
+        self.index_by_SGid_dic = defaultdict(list)
         for index in self.indexs:
             [icam, pid, spaGrpID] = self.data[index, [0, 1, 3]]
             icam, pid, spaGrpID = int(icam), int(pid), int(spaGrpID)
+
             if spaGrpID not in self.index_by_SGid_pid_dic:
                 self.index_by_SGid_pid_dic[spaGrpID] = defaultdict(list)
             self.index_by_SGid_pid_dic[spaGrpID][pid].append(index)
+
+            if spaGrpID not in self.index_by_SGid_pid_icam_dic:
+                self.index_by_SGid_pid_icam_dic[spaGrpID] = defaultdict(dict)
+            if pid not in self.index_by_SGid_pid_icam_dic[spaGrpID]:
+                self.index_by_SGid_pid_icam_dic[spaGrpID][pid] = defaultdict(list)
+            self.index_by_SGid_pid_icam_dic[spaGrpID][pid][icam].append(index)
+
             if pid not in self.pid_by_SGid_dic[spaGrpID]:
                 self.pid_by_SGid_dic[spaGrpID].append(pid)
-            if icam not in self.index_by_icam_pid_dic:
-                self.index_by_icam_pid_dic[icam] = defaultdict(list)
-            self.index_by_icam_pid_dic[icam][pid].append(index)
+
+            self.index_by_SGid_dic[spaGrpID].append(index)
         pass
 
     def __getitem__(self, index):
@@ -56,51 +64,69 @@ class HyperFeat(Dataset):
 
 
 class SiameseHyperFeat(Dataset):
-    def __init__(self, h_dataset, train=True):
+    def __init__(self, h_dataset, train=True, L3=False):
         self.h_dataset = h_dataset
         self.train = train
         self.num_spatialGroup = h_dataset.num_spatialGroup
+        self.L3 = L3
 
     def __len__(self):
         return len(self.h_dataset)
 
     def __getitem__(self, index):
         feat1, motion1, pid1, spaGrpID1 = self.h_dataset.__getitem__(index)
-        if self.train:
-            # 1:1 ratio for pos/neg
-            target = np.random.randint(0, 2)
-        else:
-            rand = np.random.rand()
-            target = rand < 1 / len(self.h_dataset.pid_by_SGid_dic[spaGrpID1])
+        cam1 = int(motion1[0])
+        # if self.train:
+        #     # 1:1 ratio for pos/neg
+        #     target = np.random.randint(0, 2)
+        # else:
+        #     rand = np.random.rand()
+        #     target = rand < 1 / len(self.h_dataset.pid_by_SGid_dic[spaGrpID1])
+        target = np.random.randint(0, 2)
         if pid1 == -1:
             target = 0
+
+        if self.L3:
+            if len(self.h_dataset.index_by_SGid_pid_icam_dic[spaGrpID1][pid1]) > 1:
+                target = np.random.rand() < 0.75
+
         # 1 for same
         if target == 1:
-            # index_pool = self.h_dataset.index_by_icam_pid_dic[motion1[0]][pid1]  #
+            # if self.L3:
+            #     cam_pool = list(self.h_dataset.index_by_SGid_pid_icam_dic[spaGrpID1][pid1].keys())
+            #     cam_pool.remove(cam1)
+            #     cam2 = np.random.choice(cam_pool)
+            #     index_pool = self.h_dataset.index_by_SGid_pid_icam_dic[spaGrpID1][pid1][cam2]
+            #     pass
+            # else:
             index_pool = self.h_dataset.index_by_SGid_pid_dic[spaGrpID1][pid1]
             if len(index_pool) > 1:
                 siamese_index = index
-                while siamese_index == index:
-                    siamese_index = np.random.choice(index_pool)
+                _, motion2, pid2, _ = self.h_dataset.__getitem__(siamese_index)
+                cam2 = int(motion2[0])
+                if self.L3 and len(self.h_dataset.index_by_SGid_pid_icam_dic[spaGrpID1][pid1]) > 1:
+                    while siamese_index == index or (self.L3 and (cam1 == cam2)):
+                        siamese_index = np.random.choice(index_pool)
+                        _, motion2, pid2, _ = self.h_dataset.__getitem__(siamese_index)
+                        cam2 = int(motion2[0])
+                else:
+                    while siamese_index == index:
+                        siamese_index = np.random.choice(index_pool)
             else:
                 siamese_index = np.random.choice(index_pool)
         # 0 for different
         else:
             spatialGroupID = spaGrpID1
-            pid_pool = self.h_dataset.pid_by_SGid_dic[spatialGroupID]
-            while len(pid_pool) <= 1:
-                spatialGroupID += 1
-                pid_pool = self.h_dataset.pid_by_SGid_dic[spatialGroupID]
-            siamese_pid = pid1
-            while siamese_pid == pid1:
-                siamese_pid = np.random.choice(pid_pool)
-            index_pool = self.h_dataset.index_by_SGid_pid_dic[spatialGroupID][siamese_pid]
-            if len(index_pool) > 1:
-                siamese_index = index
-                while siamese_index == index:
+            index_pool = self.h_dataset.index_by_SGid_dic[spaGrpID1]
+            siamese_index = np.random.choice(index_pool)
+            _, motion2, pid2, _ = self.h_dataset.__getitem__(siamese_index)
+            cam2 = int(motion2[0])
+            if len(self.h_dataset.pid_by_SGid_dic[spatialGroupID]) > 1:
+                while pid2 == pid1 or (not self.train and cam1 == cam2):
                     siamese_index = np.random.choice(index_pool)
-            else:
-                siamese_index = np.random.choice(index_pool)
+                    _, motion2, pid2, _ = self.h_dataset.__getitem__(siamese_index)
+                    cam2 = int(motion2[0])
+
         feat2, motion2, pid2, spaGrpID2 = self.h_dataset.__getitem__(siamese_index)
         if target != (pid1 == pid2):
             target = (pid1 == pid2)

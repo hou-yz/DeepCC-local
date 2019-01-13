@@ -19,15 +19,15 @@ for i = 1:length(uniqueLabels)
 %         trajectory.feature = tracklets(ind).feature;
         trajectory.features = [trajectory.features;tracklets(ind).features];
     end
-%     trajectory.feature = mean(cell2mat(trajectory.features));
+    trajectory.feature = mean(cell2mat(trajectory.features));
 
-    real_frame_length = 0;
-    trajectory.feature=zeros(size(trajectory.tracklets(1).feature));
-    for k = 1:length(trajectory.tracklets)
-        trajectory.feature = trajectory.feature+trajectory.tracklets(k).feature.*length(trajectory.tracklets(k).realdata);
-        real_frame_length = real_frame_length + length(trajectory.tracklets(k).realdata);
-    end
-    trajectory.feature = trajectory.feature/real_frame_length;
+%     real_frame_length = 0;
+%     trajectory.feature=zeros(size(trajectory.tracklets(1).feature));
+%     for k = 1:length(trajectory.tracklets)
+%         trajectory.feature = trajectory.feature+trajectory.tracklets(k).feature.*length(trajectory.tracklets(k).realdata);
+%         real_frame_length = real_frame_length + length(trajectory.tracklets(k).realdata);
+%     end
+%     trajectory.feature = trajectory.feature/real_frame_length;
     
     trajectories = [trajectories; trajectory];
 end

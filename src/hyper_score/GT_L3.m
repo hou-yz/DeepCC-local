@@ -13,6 +13,11 @@ newGTs = cellmat(1,8,0,0,0);
 spatialGroupID_max = zeros(1,8);
 % Computes single-camera trajectories from tracklets
 for iCam = 1:8
+    sequence_window   = opts.sequence_intervals{1};
+    start_frame       = global2local(opts.start_frames(iCam), sequence_window(1));
+    end_frame         = global2local(opts.start_frames(iCam), sequence_window(end));
+    
+    filename = sprintf('%s/ground_truth/%s/tracklets%d_trainval.mat',opts.dataset_path,opts.experiment_name,iCam);
     load(filename)
     pids = [tracklets.id]';
     feat = reshape([tracklets.feature]',length(tracklets(1).feature),[])';

@@ -166,7 +166,7 @@ def test(args, metric_net, appear_motion_net, test_loader, criterion, test_motio
                         epoch, (batch_idx + 1), losses / (batch_idx + 1), 100. * correct / (correct + miss), t_batch))
     lines = lines.cpu().numpy()
     if save_result:
-        output_fname = args.data_path + '/target_data.h5'
+        output_fname = args.data_path + '/results_{}_{}_train_Inf.h5'.format(args.L, args.window)
         with h5py.File(output_fname, 'w') as f:
             mat_data = np.vstack(lines)
             f.create_dataset('emb', data=mat_data, dtype=float)

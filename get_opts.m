@@ -32,6 +32,7 @@ opts.load_tracklets = 1;
 opts.load_trajectories = 1;
 opts.model_name = '1fps_train_IDE_40/model_param_L2_75.mat';
 opts.fft = false;
+opts.soft = 0.1;
 
 % Tracklets
 tracklets = [];
@@ -85,7 +86,6 @@ identities.compute_score = true;
 identities.consecutive_icam_matrix = [0,1,1,1,1,1,0,1;1,0,1,1,1,1,0,0;1,1,0,1,1,0,0,0;1,1,1,0,1,0,0,0;1,1,1,1,0,1,1,0;1,1,0,0,1,0,1,1;0,0,0,0,1,1,0,1;1,0,0,0,0,1,1,0];%same_track
 identities.reintro_time_matrix = ones(1,8)*inf;
 
-opts.soft = 0.1;
 opts.tracklets = tracklets;
 opts.trajectories = trajectories;
 opts.identities = identities;
