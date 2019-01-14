@@ -13,15 +13,14 @@ def main():
     parser = argparse.ArgumentParser(description='Hyper Score')
     parser.add_argument('--batch-size', type=int, default=64, metavar='N',
                         help='input batch size for training (default: 64)')
-    parser.add_argument('--epochs', type=int, default=150, metavar='N',
-                        help='number of epochs to train (default: 10)')
-    parser.add_argument('--step-size', type=int, default=100)
-    parser.add_argument('--lr', type=float, default=0.0001, metavar='LR',
-                        help='learning rate (default: 0.001)')
+    parser.add_argument('--epochs', type=int, default=40, metavar='N')
+    parser.add_argument('--step-size', type=int, default=30)
+    parser.add_argument('--lr', type=float, default=1e-3, metavar='LR')
+    # 40epoch, lr=1e-3; 150epoch, lr=1e-4
     parser.add_argument('--combine-trainval', action='store_true',
                         help="train and val sets together for training, val set alone for validation")
     parser.add_argument('--momentum', type=float, default=0.5, metavar='M', help='SGD momentum (default: 0)')
-    parser.add_argument('--weight-decay', type=float, default=1e-2)
+    parser.add_argument('--weight-decay', type=float, default=1e-4)
     parser.add_argument('--train', action='store_true')
     parser.add_argument('--use_AM', action='store_true')
     parser.add_argument('--save_result', action='store_true')
@@ -46,8 +45,8 @@ def main():
         args.features = 1024
     if 'PCB' in args.data_path:
         args.features = 1536
-    # if args.L != 'L2':
-    #     args.weight_decay *= 10
+    if args.L != 'L2':
+        args.weight_decay = 5e-3
     if args.combine_trainval:
         train_data_path = osp.join(args.data_path, 'hyperGT_{}_trainval_{}.h5'.format(args.L, args.window))
     else:

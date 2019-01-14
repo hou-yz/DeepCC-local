@@ -86,9 +86,9 @@ class SiameseHyperFeat(Dataset):
         if pid1 == -1:
             target = 0
 
-        if self.L3:
-            if len(self.h_dataset.index_by_SGid_pid_icam_dic[spaGrpID1][pid1]) > 1:
-                target = np.random.rand() < 0.75
+        # if self.L3:
+        #     if len(self.h_dataset.index_by_SGid_pid_icam_dic[spaGrpID1][pid1]) > 1:
+        #         target = np.random.rand() < 0.75
 
         # 1 for same
         if target == 1:
@@ -116,13 +116,12 @@ class SiameseHyperFeat(Dataset):
                 siamese_index = np.random.choice(index_pool)
         # 0 for different
         else:
-            spatialGroupID = spaGrpID1
             index_pool = self.h_dataset.index_by_SGid_dic[spaGrpID1]
             siamese_index = np.random.choice(index_pool)
             _, motion2, pid2, _ = self.h_dataset.__getitem__(siamese_index)
             cam2 = int(motion2[0])
-            if len(self.h_dataset.pid_by_SGid_dic[spatialGroupID]) > 1:
-                while pid2 == pid1 or (not self.train and cam1 == cam2):
+            if len(self.h_dataset.pid_by_SGid_dic[spaGrpID1]) > 1:
+                while pid2 == pid1:  # or (not self.train and cam1 == cam2)
                     siamese_index = np.random.choice(index_pool)
                     _, motion2, pid2, _ = self.h_dataset.__getitem__(siamese_index)
                     cam2 = int(motion2[0])

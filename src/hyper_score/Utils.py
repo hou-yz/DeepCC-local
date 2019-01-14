@@ -131,7 +131,7 @@ def test(args, metric_net, appear_motion_net, test_loader, criterion, test_motio
                 loss = criterion(output, target)
                 losses += loss.item()
                 output = F.softmax(0.1 * output, dim=1)
-                line = torch.cat((output[:, 1].view(-1, 1),
+                line = torch.cat(((output[:, 1]-output[:, 0]).view(-1, 1),
                                   motion_score.view(-1, 1).cuda().float(),
                                   target.view(-1, 1).float()), dim=1)
                 lines = torch.cat((lines, line), dim=0)

@@ -62,7 +62,7 @@ output = softmax(soft*output')';
 % b = [-1.0099;3.0465;-0.0486;-1.5418;-1.0273;0.0155];
 % output = X*b;
 % else
-output = (output(:,2)-threshold)/norm;
+output = (output(:,2)-output(:,1)-threshold)/norm;
 % end
 
 end
