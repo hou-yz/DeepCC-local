@@ -29,7 +29,7 @@ def main():
                         metavar='PATH')
     parser.add_argument('-L', type=str, default='L2', choices=['L2', 'L3'])
     parser.add_argument('--window', type=str, default='75',
-                        choices=['Inf', '75', '150', '300', '600', '1200', '6000', '12000'])
+                        choices=['Inf', '75', '150', '300', '600', '1200', '1500', '3000', '6000', '12000', '24000'])
     parser.add_argument('--log-dir', type=str, default='', metavar='PATH')
     parser.add_argument('--seed', type=int, default=1, metavar='S',
                         help='random seed (default: 1)')
