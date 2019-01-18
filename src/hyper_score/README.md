@@ -24,9 +24,10 @@ Cross-Camera Metric Learning (M3) with settings:
 - `weight_decay=5e-2`.
 
 
-The `IDF-1` results on `val` are as follows. 
+The `IDF-1` results are as follows. 
 
-|                       | SCT (%) | MCT (%) |
-| ---                   | :---: | :---: |
-| (L2-norm)/M2/M2       | 87.74 | 83.61 |
-| (L2-norm)/M2/M3       | 87.71 | 84.01 |
+|                       | `val` |       | `easy` |      | `hard` |      |
+| ---                   | :---: | :---: | :---: | :---: | :---: | :---: |
+|                       | SCT (%) | MCT (%) | SCT (%) | MCT (%) | SCT (%) | MCT (%) |
+| (L2-norm)/M2/M2       | 87.74 | 83.61 | 92.8 | 88.7 | 86.0 | 80.9 |
+| (L2-norm)/M2/M3       | 87.71 | 84.01 | 92.9 | 88.8 | 85.8 | 80.3 |
