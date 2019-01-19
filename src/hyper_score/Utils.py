@@ -13,26 +13,16 @@ matplotlib.use('agg')
 import matplotlib.pyplot as plt
 
 
-def save_model_as_mat(path, metric_net, appear_motion_net):
+def save_model_as_mat(path, metric_net):
     fc1_w, fc1_b = metric_net.fc1.weight.data.cpu().numpy(), metric_net.fc1.bias.data.cpu().numpy()
     fc2_w, fc2_b = metric_net.fc2.weight.data.cpu().numpy(), metric_net.fc2.bias.data.cpu().numpy()
     fc3_w, fc3_b = metric_net.fc3.weight.data.cpu().numpy(), metric_net.fc3.bias.data.cpu().numpy()
     out_w, out_b = metric_net.out_layer.weight.data.cpu().numpy(), metric_net.out_layer.bias.data.cpu().numpy()
 
-    if isinstance(appear_motion_net, AppearMotionNet):
-        fc4_w, fc4_b = appear_motion_net.fc4.weight.data.cpu().numpy(), appear_motion_net.fc4.bias.data.cpu().numpy()
-        scipy.io.savemat(path,
-                         mdict={'fc1_w': fc1_w, 'fc1_b': fc1_b,
-                                'fc2_w': fc2_w, 'fc2_b': fc2_b,
-                                'fc3_w': fc3_w, 'fc3_b': fc3_b,
-                                'out_w': out_w, 'out_b': out_b,
-                                'fc4_w': fc4_w, 'fc4_b': fc4_b, })
-    else:
-        scipy.io.savemat(path,
-                         mdict={'fc1_w': fc1_w, 'fc1_b': fc1_b,
-                                'fc2_w': fc2_w, 'fc2_b': fc2_b,
-                                'fc3_w': fc3_w, 'fc3_b': fc3_b,
-                                'out_w': out_w, 'out_b': out_b, })
+    scipy.io.savemat(path, mdict={'fc1_w': fc1_w, 'fc1_b': fc1_b,
+                                  'fc2_w': fc2_w, 'fc2_b': fc2_b,
+                                  'fc3_w': fc3_w, 'fc3_b': fc3_b,
+                                  'out_w': out_w, 'out_b': out_b, })
 
 
 def addzero(x, insert_pos, num_zero):
@@ -41,7 +31,7 @@ def addzero(x, insert_pos, num_zero):
     return torch.cat((x1, z.type_as(x1), x2), dim=1)
 
 
-def train(args, metric_net, appear_motion_net, train_loader, optimizer, epoch, criterion, train_motion=False):
+def train(args, metric_net, train_loader, optimizer, epoch, criterion):
     # Schedule learning rate
     lr = args.lr * (0.1 ** (epoch // args.step_size))
     for g in optimizer.param_groups:
@@ -53,62 +43,32 @@ def train(args, metric_net, appear_motion_net, train_loader, optimizer, epoch, c
     metric_net.train()
     t0 = time.time()
     for batch_idx, (feat1, feat2, motion_score, target) in enumerate(train_loader):
-        if not train_motion:
-            l = target.shape[0]
-            # data = torch.cat(((feat2.cuda() - feat1.cuda()).abs().float(), motion_score.cuda().float().view(-1, 1)), dim=1)
-            data = (feat2.cuda() - feat1.cuda()).abs().float()
-            target = target.cuda().long()
+        l = target.shape[0]
+        # data = torch.cat(((feat2.cuda() - feat1.cuda()).abs().float(), motion_score.cuda().float().view(-1, 1)), dim=1)
+        data = (feat2.cuda() - feat1.cuda()).abs().float()
+        target = target.cuda().long()
 
-            output = metric_net(data)
-            pred = torch.argmax(output, 1)
-            correct += pred.eq(target).sum().item()
-            miss += l - pred.eq(target).sum().item()
-            loss = criterion(output, target)
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-            losses += loss.item()
-            if (batch_idx + 1) % args.log_interval == 0:
-                t1 = time.time()
-                t_batch = t1 - t0
-                t0 = time.time()
-                print('Train Epoch: {}, Batch:{}, \tLoss: {:.6f}, Prec: {:.1f}%, Time: {:.3f}'.format(
-                    epoch, (batch_idx + 1), losses / (batch_idx + 1), 100. * correct / (correct + miss), t_batch))
-        else:
-            metric_net.eval()
-            l = target.shape[0]
-            # data = torch.cat(((feat2.cuda() - feat1.cuda()).abs().float(), motion_score.cuda().float().view(-1, 1)), dim=1)
-            data = (feat2.cuda() - feat1.cuda()).abs().float()
-            target = target.cuda().long()
-            output = metric_net(data)
-            output = (output[:, 1] - 0.5) * 2
-            data = torch.cat((output.view(-1, 1), motion_score.cuda().float().view(-1, 1)), dim=1)
-
-            # train appear_motion_net
-            appear_motion_net.train()
-            output = appear_motion_net(data)
-            pred = torch.argmax(output, 1)
-            correct += pred.eq(target).sum().item()
-            miss += l - pred.eq(target).sum().item()
-            loss = criterion(output, target)
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-            losses += loss.item()
-            if (batch_idx + 1) % args.log_interval == 0:
-                t1 = time.time()
-                t_batch = t1 - t0
-                t0 = time.time()
-                print('Train Epoch: {}, Batch:{}, \tLoss: {:.6f}, Prec: {:.1f}%, Time: {:.3f}'.format(
-                    epoch, (batch_idx + 1), losses / (batch_idx + 1), 100. * correct / (correct + miss), t_batch))
+        output = metric_net(data)
+        pred = torch.argmax(output, 1)
+        correct += pred.eq(target).sum().item()
+        miss += l - pred.eq(target).sum().item()
+        loss = criterion(output, target)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        losses += loss.item()
+        if (batch_idx + 1) % args.log_interval == 0:
+            t1 = time.time()
+            t_batch = t1 - t0
+            t0 = time.time()
+            print('Train Epoch: {}, Batch:{}, \tLoss: {:.6f}, Prec: {:.1f}%, Time: {:.3f}'.format(
+                epoch, (batch_idx + 1), losses / (batch_idx + 1), 100. * correct / (correct + miss), t_batch))
 
     return losses / (batch_idx + 1), correct / (correct + miss)
 
 
-def test(args, metric_net, appear_motion_net, test_loader, criterion, test_motion=False, save_result=False,
-         epoch_max=1):
+def test(args, metric_net, test_loader, criterion, save_result=False, epoch_max=1):
     metric_net.eval()
-    appear_motion_net.eval()
     losses = 0
     correct = 0
     miss = 0
@@ -118,52 +78,30 @@ def test(args, metric_net, appear_motion_net, test_loader, criterion, test_motio
         epoch_max = 1
     for epoch in range(epoch_max):
         for batch_idx, (feat1, feat2, motion_score, target) in enumerate(test_loader):
-            if not test_motion:
-                l = target.shape[0]
-                # data = torch.cat(((feat2.cuda() - feat1.cuda()).abs().float(), motion_score.cuda().float().view(-1, 1)), dim=1)
-                data = (feat2.cuda() - feat1.cuda()).abs().float()
-                target = target.cuda().long()
-                with torch.no_grad():
-                    output = metric_net(data)
-                pred = torch.argmax(output, 1)
-                correct += pred.eq(target).sum().item()
-                miss += l - pred.eq(target).sum().item()
-                loss = criterion(output, target)
-                losses += loss.item()
-                output = F.softmax(0.1 * output, dim=1)
-                line = torch.cat(((output[:, 1]-output[:, 0]).view(-1, 1),
-                                  motion_score.view(-1, 1).cuda().float(),
-                                  target.view(-1, 1).float()), dim=1)
-                lines = torch.cat((lines, line), dim=0)
-                if (batch_idx + 1) % args.log_interval == 0:
-                    t1 = time.time()
-                    t_batch = t1 - t0
-                    t0 = time.time()
-                    print('Test on val, epoch:{}, Batch:{}, \tLoss: {:.6f}, Prec: {:.1f}%, Time: {:.3f}'.format(
-                        epoch, (batch_idx + 1), losses / (batch_idx + 1), 100. * correct / (correct + miss), t_batch))
-            else:
-                metric_net.eval()
-                l = target.shape[0]
-                # data = torch.cat(((feat2.cuda() - feat1.cuda()).abs().float(), motion_score.cuda().float().view(-1, 1)), dim=1)
-                data = (feat2.cuda() - feat1.cuda()).abs().float()
-                target = target.cuda().long()
-                output = metric_net(data)
-                output = (output[:, 1] - 0.5) * 2
-                data = torch.cat((output.view(-1, 1), motion_score.cuda().float().view(-1, 1)), dim=1)
 
-                # test appear_motion_net
-                output = appear_motion_net(data)
-                pred = torch.argmax(output, 1)
-                correct += pred.eq(target).sum().item()
-                miss += l - pred.eq(target).sum().item()
-                loss = criterion(output, target)
-                losses += loss.item()
-                if (batch_idx + 1) % args.log_interval == 0:
-                    t1 = time.time()
-                    t_batch = t1 - t0
-                    t0 = time.time()
-                    print('Test on val, epoch:{}, Batch:{}, \tLoss: {:.6f}, Prec: {:.1f}%, Time: {:.3f}'.format(
-                        epoch, (batch_idx + 1), losses / (batch_idx + 1), 100. * correct / (correct + miss), t_batch))
+            l = target.shape[0]
+            # data = torch.cat(((feat2.cuda() - feat1.cuda()).abs().float(), motion_score.cuda().float().view(-1, 1)), dim=1)
+            data = (feat2.cuda() - feat1.cuda()).abs().float()
+            target = target.cuda().long()
+            with torch.no_grad():
+                output = metric_net(data)
+            pred = torch.argmax(output, 1)
+            correct += pred.eq(target).sum().item()
+            miss += l - pred.eq(target).sum().item()
+            loss = criterion(output, target)
+            losses += loss.item()
+            output = F.softmax(0.1 * output, dim=1)
+            line = torch.cat(((output[:, 1] - output[:, 0]).view(-1, 1),
+                              motion_score.view(-1, 1).cuda().float(),
+                              target.view(-1, 1).float()), dim=1)
+            lines = torch.cat((lines, line), dim=0)
+            if (batch_idx + 1) % args.log_interval == 0:
+                t1 = time.time()
+                t_batch = t1 - t0
+                t0 = time.time()
+                print('Test on val, epoch:{}, Batch:{}, \tLoss: {:.6f}, Prec: {:.1f}%, Time: {:.3f}'.format(
+                    epoch, (batch_idx + 1), losses / (batch_idx + 1), 100. * correct / (correct + miss), t_batch))
+
     lines = lines.cpu().numpy()
     if save_result:
         output_fname = args.data_path + '/results_{}_{}_train_Inf.h5'.format(args.L, args.window)

@@ -1,13 +1,7 @@
 from __future__ import print_function
-import torch.utils.data as data
-from PIL import Image
-import os
-import os.path as osp
-import errno
 import numpy as np
-import torch
-import codecs
 import h5py
+import time
 from collections import defaultdict
 from torch.utils.data import Dataset
 
@@ -86,29 +80,24 @@ class SiameseHyperFeat(Dataset):
         if pid1 == -1:
             target = 0
 
+        t0 = time.time()
+
         # if self.L3:
         #     if len(self.h_dataset.index_by_SGid_pid_icam_dic[spaGrpID1][pid1]) > 1:
         #         target = np.random.rand() < 0.75
 
         # 1 for same
         if target == 1:
-            # if self.L3:
-            #     cam_pool = list(self.h_dataset.index_by_SGid_pid_icam_dic[spaGrpID1][pid1].keys())
-            #     cam_pool.remove(cam1)
-            #     cam2 = np.random.choice(cam_pool)
-            #     index_pool = self.h_dataset.index_by_SGid_pid_icam_dic[spaGrpID1][pid1][cam2]
-            #     pass
-            # else:
             index_pool = self.h_dataset.index_by_SGid_pid_dic[spaGrpID1][pid1]
+            cam_pool = list(self.h_dataset.index_by_SGid_pid_icam_dic[spaGrpID1][pid1].keys())
             if len(index_pool) > 1:
                 siamese_index = index
-                _, motion2, pid2, _ = self.h_dataset.__getitem__(siamese_index)
-                cam2 = int(motion2[0])
-                if self.L3 and len(self.h_dataset.index_by_SGid_pid_icam_dic[spaGrpID1][pid1]) > 1:
-                    while siamese_index == index or (self.L3 and (cam1 == cam2)):
-                        siamese_index = np.random.choice(index_pool)
-                        _, motion2, pid2, _ = self.h_dataset.__getitem__(siamese_index)
-                        cam2 = int(motion2[0])
+                cam2 = cam1
+                if self.L3 and len(cam_pool) > 1:
+                    while cam2 == cam1:
+                        cam2 = np.random.choice(cam_pool)
+                    index_pool = self.h_dataset.index_by_SGid_pid_icam_dic[spaGrpID1][pid1][cam2]
+                    siamese_index = np.random.choice(index_pool)
                 else:
                     while siamese_index == index:
                         siamese_index = np.random.choice(index_pool)
@@ -116,16 +105,20 @@ class SiameseHyperFeat(Dataset):
                 siamese_index = np.random.choice(index_pool)
         # 0 for different
         else:
-            index_pool = self.h_dataset.index_by_SGid_dic[spaGrpID1]
-            siamese_index = np.random.choice(index_pool)
-            _, motion2, pid2, _ = self.h_dataset.__getitem__(siamese_index)
-            cam2 = int(motion2[0])
-            if len(self.h_dataset.pid_by_SGid_dic[spaGrpID1]) > 1:
+            # index_pool = self.h_dataset.index_by_SGid_dic[spaGrpID1]
+            pid_pool = self.h_dataset.pid_by_SGid_dic[spaGrpID1]
+            # siamese_index = np.random.choice(index_pool)
+            # _, motion2, pid2, _ = self.h_dataset.__getitem__(siamese_index)
+            # cam2 = int(motion2[0])
+            pid2 = pid1
+            if len(pid_pool) > 1:
                 while pid2 == pid1:  # or (not self.train and cam1 == cam2)
-                    siamese_index = np.random.choice(index_pool)
-                    _, motion2, pid2, _ = self.h_dataset.__getitem__(siamese_index)
-                    cam2 = int(motion2[0])
+                    pid2 = np.random.choice(pid_pool)
+            index_pool = self.h_dataset.index_by_SGid_pid_dic[spaGrpID1][pid2]
+            siamese_index = np.random.choice(index_pool)
 
+        t1 = time.time()
+        t_batch = t1 - t0
         feat2, motion2, pid2, spaGrpID2 = self.h_dataset.__getitem__(siamese_index)
         if target != (pid1 == pid2):
             target = (pid1 == pid2)
@@ -134,13 +127,5 @@ class SiameseHyperFeat(Dataset):
         #     return feat1, feat2, target
         # else:
         #     return feat2, feat1, target
-        if motion1[0] != motion2[0]:
-            motion_score = 0
-        else:
-            frame_dif = motion2[1] - motion1[1]
-            pos_dif = motion2[[2, 3]] - motion1[[2, 3]]
-            forward_err = motion1[[4, 5]] * frame_dif - pos_dif
-            backward_err = motion2[[4, 5]] * frame_dif - pos_dif
-            error = min(np.linalg.norm(forward_err), np.linalg.norm(backward_err))
-            motion_score = error / 2203  # norm for [1920,1080]
+        motion_score = 0
         return feat2, feat1, motion_score, target

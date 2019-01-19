@@ -12,31 +12,6 @@ numTracklets = length(tracklets);
 input = repmat(reshape(features,1,numFeatures,[]),numFeatures,1,1) - repmat(reshape(features,numFeatures,1,[]),1,numFeatures,1);
 input = abs(reshape(input,numFeatures*numFeatures,[]));
 
-
-% if numTracklets == numFeatures && alpha 
-% [~, ~, startpoint, endpoint, intervals, ~, velocity] = getTrackletFeatures(tracklets);
-% centerFrame     = round(mean(intervals,2));
-% centers         = 0.5 * (endpoint + startpoint);
-% frameDifference = pdist2(centerFrame, centerFrame, @(frame1, frame2) frame1 - frame2);
-% % centersDistanceX = pdist2(centers(:,1),centers(:,1));
-% % centersDistanceY = pdist2(centers(:,2),centers(:,2));
-% velocityX       = repmat(velocity(:, 1), 1, numTracklets);
-% velocityY       = repmat(velocity(:, 2), 1, numTracklets);
-% startX          = repmat(centers(:, 1), 1, numTracklets);
-% startY          = repmat(centers(:, 2), 1, numTracklets);
-% endX            = repmat(centers(:, 1), 1, numTracklets);
-% endY            = repmat(centers(:, 2), 1, numTracklets);
-% errorXForward   = endX + velocityX .* frameDifference - startX';
-% errorYForward   = endY + velocityY .* frameDifference - startY';
-% errorXBackward  = startX' + velocityX' .* -frameDifference - endX;
-% errorYBackward  = startY' + velocityY' .* -frameDifference - endY;
-% errorForward    = sqrt(errorXForward.^2 + errorYForward.^2);
-% errorBackward   = sqrt(errorXBackward.^2 + errorYBackward.^2);
-% errorMatrix     = min(errorForward, errorBackward)/2203;%L2 norm of [1920,1080]
-% input = [input,reshape(errorMatrix,numFeatures*numFeatures,[])];
-% end
-
-
 correlationMatrix = hyper_score_net_regress(input,hyper_score_param,alpha,soft,threshold, norm);
 correlationMatrix = reshape(correlationMatrix,numFeatures,numFeatures);
 

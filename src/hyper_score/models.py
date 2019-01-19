@@ -34,13 +34,3 @@ class MetricNet(nn.Module):
         # out = torch.cat((out, motion_score), dim=1)
         out = self.out_layer(out)
         return out
-
-
-class AppearMotionNet(nn.Module):
-    def __init__(self):
-        super(AppearMotionNet, self).__init__()
-        self.fc4 = nn.Linear(2, 2)
-
-    def forward(self, x):
-        out = self.fc4(x)
-        return out
