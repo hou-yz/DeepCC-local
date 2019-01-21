@@ -15,9 +15,10 @@ def main():
     parser = argparse.ArgumentParser(description='Hyper Score')
     parser.add_argument('--batch-size', type=int, default=64, metavar='N',
                         help='input batch size for training (default: 64)')
-    parser.add_argument('--epochs', type=int, default=150, metavar='N')
-    parser.add_argument('--step-size', type=int, default=100)
-    parser.add_argument('--lr', type=float, default=2e-4, metavar='LR')
+    parser.add_argument('-j', '--num-workers', type=int, default=4)
+    parser.add_argument('--epochs', type=int, default=40, metavar='N')
+    parser.add_argument('--step-size', type=int, default=30)
+    parser.add_argument('--lr', type=float, default=1e-3, metavar='LR')
     # 40epoch, lr=1e-3; 150epoch, lr=2e-4
     parser.add_argument('--combine-trainval', action='store_true',
                         help="train and val sets together for training, val set alone for validation")
@@ -38,15 +39,22 @@ def main():
                         help='how many batches to wait before logging training status')
     parser.add_argument('--features', type=int, default=256, choices=[256, 1024, 1536])
     parser.add_argument('--fft', action='store_true')
+    parser.add_argument('--motion', action='store_true')
     args = parser.parse_args()
     args.log_dir = osp.join('logs', args.data_path, args.log_dir)
     args.data_path = osp.join(os.path.expanduser('~/Data/DukeMTMC/ground_truth'), args.data_path)
     if args.fft:
         args.L += '_fft'
         args.features = 1024
-    if 'PCB' in args.data_path:
+    elif 'PCB' in args.data_path:
         args.features = 1536
-    if args.L != 'L2':
+    elif args.motion:
+        args.L = 'motion'
+        args.window = 'Inf'
+        # args.lr = 1e-4
+        # args.epochs = 150
+        # args.step_size = 100
+    if args.L != 'L2' and not args.motion:
         args.weight_decay = 5e-2
     if args.combine_trainval:
         train_data_path = osp.join(args.data_path, 'hyperGT_{}_trainval_{}.h5'.format(args.L, args.window))
@@ -61,15 +69,16 @@ def main():
     if not os.path.isdir(args.log_dir):
         os.mkdir(args.log_dir)
 
-    trainset = SiameseHyperFeat(HyperFeat(train_data_path, args.features), train=True, L3='L3' in args.L)
-    testset = SiameseHyperFeat(HyperFeat(test_data_path, args.features), train=False, L3='L3' in args.L)
+    trainset = SiameseHyperFeat(HyperFeat(train_data_path, args.features),
+                                train=True, L3='L3' in args.L, motion=args.motion)
+    testset = SiameseHyperFeat(HyperFeat(test_data_path, args.features),
+                               train=False, L3='L3' in args.L, motion=args.motion)
     train_loader = DataLoader(trainset, batch_size=args.batch_size,
-                              num_workers=4, pin_memory=True, shuffle=True)
-
+                              num_workers=args.num_workers, pin_memory=True, shuffle=True)
     test_loader = DataLoader(testset, batch_size=args.batch_size,
-                             num_workers=4, pin_memory=True)
+                             num_workers=args.num_workers, pin_memory=True)
 
-    metric_net = nn.DataParallel(MetricNet(feature_dim=args.features, num_class=2)).cuda()
+    metric_net = nn.DataParallel(MetricNet(feature_dim=args.features if not args.motion else 9, num_class=2)).cuda()
     if args.resume:
         checkpoint = torch.load(args.log_dir + '/metric_net_{}_{}.pth.tar'.format(args.L, args.window))
         model_dict = checkpoint['state_dict']
@@ -89,8 +98,8 @@ def main():
         if not args.resume:
             for epoch in range(1, args.epochs + 1):
                 train_loss, train_prec = train(args, metric_net, train_loader, optimizer, epoch,
-                                               criterion)
-                test_loss, test_prec = test(args, metric_net, test_loader, criterion)
+                                               criterion, args.motion)
+                test_loss, test_prec = test(args, metric_net, test_loader, criterion, False, 1, args.motion)
                 x_epoch.append(epoch)
                 train_loss_s.append(train_loss)
                 train_prec_s.append(train_prec)
@@ -102,7 +111,7 @@ def main():
             torch.save({'state_dict': metric_net.module.state_dict(), }, args.log_dir + '/metric_net_{}_{}.pth.tar'.
                        format(args.L, args.window))
         else:
-            test(args, metric_net, test_loader, criterion, )
+            test(args, metric_net, test_loader, criterion, False, 1, args.motion)
 
         path = args.log_dir + '/model_param_{}_{}.mat'.format(args.L, args.window)
         save_model_as_mat(path, metric_net.module)
@@ -110,7 +119,7 @@ def main():
     checkpoint = torch.load(args.log_dir + '/metric_net_{}_{}.pth.tar'.format(args.L, args.window))
     model_dict = checkpoint['state_dict']
     metric_net.module.load_state_dict(model_dict)
-    test(args, metric_net, test_loader, criterion, save_result=args.save_result, epoch_max=10)
+    test(args, metric_net, test_loader, criterion, save_result=args.save_result, epoch_max=10, motion=args.motion)
 
 
 if __name__ == '__main__':

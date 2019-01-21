@@ -31,7 +31,7 @@ def addzero(x, insert_pos, num_zero):
     return torch.cat((x1, z.type_as(x1), x2), dim=1)
 
 
-def train(args, metric_net, train_loader, optimizer, epoch, criterion):
+def train(args, metric_net, train_loader, optimizer, epoch, criterion, motion=False):
     # Schedule learning rate
     lr = args.lr * (0.1 ** (epoch // args.step_size))
     for g in optimizer.param_groups:
@@ -42,16 +42,17 @@ def train(args, metric_net, train_loader, optimizer, epoch, criterion):
     miss = 0
     metric_net.train()
     t0 = time.time()
-    for batch_idx, (feat1, feat2, motion_score, target) in enumerate(train_loader):
-        l = target.shape[0]
-        # data = torch.cat(((feat2.cuda() - feat1.cuda()).abs().float(), motion_score.cuda().float().view(-1, 1)), dim=1)
-        data = (feat2.cuda() - feat1.cuda()).abs().float()
+    for batch_idx, (feat1, feat2, target) in enumerate(train_loader):
+        if motion:
+            data = (feat2.cuda() - feat1.cuda()).float()
+        else:
+            data = (feat2.cuda() - feat1.cuda()).abs().float()
         target = target.cuda().long()
 
         output = metric_net(data)
         pred = torch.argmax(output, 1)
         correct += pred.eq(target).sum().item()
-        miss += l - pred.eq(target).sum().item()
+        miss += target.shape[0] - pred.eq(target).sum().item()
         loss = criterion(output, target)
         optimizer.zero_grad()
         loss.backward()
@@ -67,7 +68,7 @@ def train(args, metric_net, train_loader, optimizer, epoch, criterion):
     return losses / (batch_idx + 1), correct / (correct + miss)
 
 
-def test(args, metric_net, test_loader, criterion, save_result=False, epoch_max=1):
+def test(args, metric_net, test_loader, criterion, save_result=False, epoch_max=1, motion=False):
     metric_net.eval()
     losses = 0
     correct = 0
@@ -77,22 +78,21 @@ def test(args, metric_net, test_loader, criterion, save_result=False, epoch_max=
     if not save_result:
         epoch_max = 1
     for epoch in range(epoch_max):
-        for batch_idx, (feat1, feat2, motion_score, target) in enumerate(test_loader):
-
-            l = target.shape[0]
-            # data = torch.cat(((feat2.cuda() - feat1.cuda()).abs().float(), motion_score.cuda().float().view(-1, 1)), dim=1)
-            data = (feat2.cuda() - feat1.cuda()).abs().float()
+        for batch_idx, (feat1, feat2, target) in enumerate(test_loader):
+            if motion:
+                data = (feat2.cuda() - feat1.cuda()).float()
+            else:
+                data = (feat2.cuda() - feat1.cuda()).abs().float()
             target = target.cuda().long()
             with torch.no_grad():
                 output = metric_net(data)
             pred = torch.argmax(output, 1)
             correct += pred.eq(target).sum().item()
-            miss += l - pred.eq(target).sum().item()
+            miss += target.shape[0] - pred.eq(target).sum().item()
             loss = criterion(output, target)
             losses += loss.item()
             output = F.softmax(0.1 * output, dim=1)
             line = torch.cat(((output[:, 1] - output[:, 0]).view(-1, 1),
-                              motion_score.view(-1, 1).cuda().float(),
                               target.view(-1, 1).float()), dim=1)
             lines = torch.cat((lines, line), dim=0)
             if (batch_idx + 1) % args.log_interval == 0:

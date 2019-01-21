@@ -9,7 +9,7 @@ class MetricNet(nn.Module):
         super(MetricNet, self).__init__()
         self.num_class = num_class
 
-        layer_dim = feature_dim
+        layer_dim = feature_dim if feature_dim > 16 else 32
 
         self.fc1 = nn.Linear(feature_dim, layer_dim)
         self.fc2 = nn.Linear(layer_dim, layer_dim)

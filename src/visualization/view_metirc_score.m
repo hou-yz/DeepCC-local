@@ -9,8 +9,7 @@ filename = 'L3_12000';
 % filename = 'L2_75';
 all_data = h5read(fullfile(opts.dataset_path,'ground_truth','1fps_train_IDE_40',sprintf('results_%s_train_Inf.h5',filename)),'/emb');
 appear_score = all_data(1,:)';
-motion_score = all_data(2,:)';
-target = all_data(3,:)';
+target = all_data(2,:)';
 
     same_label = target==1;
     different_label = target==0;

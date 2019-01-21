@@ -58,11 +58,12 @@ class HyperFeat(Dataset):
 
 
 class SiameseHyperFeat(Dataset):
-    def __init__(self, h_dataset, train=True, L3=False):
+    def __init__(self, h_dataset, train=True, L3=False, motion=False):
         self.h_dataset = h_dataset
         self.train = train
         self.num_spatialGroup = h_dataset.num_spatialGroup
         self.L3 = L3
+        self.motion = motion
 
     def __len__(self):
         return len(self.h_dataset)
@@ -82,7 +83,7 @@ class SiameseHyperFeat(Dataset):
 
         t0 = time.time()
 
-        # if self.L3:
+        # if self.L3 and not self.motion:
         #     if len(self.h_dataset.index_by_SGid_pid_icam_dic[spaGrpID1][pid1]) > 1:
         #         target = np.random.rand() < 0.75
 
@@ -105,14 +106,10 @@ class SiameseHyperFeat(Dataset):
                 siamese_index = np.random.choice(index_pool)
         # 0 for different
         else:
-            # index_pool = self.h_dataset.index_by_SGid_dic[spaGrpID1]
             pid_pool = self.h_dataset.pid_by_SGid_dic[spaGrpID1]
-            # siamese_index = np.random.choice(index_pool)
-            # _, motion2, pid2, _ = self.h_dataset.__getitem__(siamese_index)
-            # cam2 = int(motion2[0])
             pid2 = pid1
             if len(pid_pool) > 1:
-                while pid2 == pid1:  # or (not self.train and cam1 == cam2)
+                while pid2 == pid1:
                     pid2 = np.random.choice(pid_pool)
             index_pool = self.h_dataset.index_by_SGid_pid_dic[spaGrpID1][pid2]
             siamese_index = np.random.choice(index_pool)
@@ -123,9 +120,13 @@ class SiameseHyperFeat(Dataset):
         if target != (pid1 == pid2):
             target = (pid1 == pid2)
             pass
-        # if feat1[1] < feat2[1]:
-        #     return feat1, feat2, target
-        # else:
-        #     return feat2, feat1, target
-        motion_score = 0
-        return feat2, feat1, motion_score, target
+        if self.motion:
+            # iCam, centerFrame, pos*2, v*2\
+            if motion1[0] > motion2[0]:
+                motion1, motion2 = motion2, motion1
+            feat1, feat2 = np.insert(motion1[1:], [3, 3, 5, 5], [0, 0, 0, 0]), \
+                           np.insert(motion2[1:], [1, 1, 3, 3], list(motion2[2:]))
+
+            feat1 = np.insert(-feat1[1:], 0, feat1[0])
+
+        return feat1, feat2, target
