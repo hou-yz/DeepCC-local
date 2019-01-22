@@ -129,4 +129,8 @@ class SiameseHyperFeat(Dataset):
 
             feat1 = np.insert(-feat1[1:], 0, feat1[0])
 
-        return feat1, feat2, target
+            data = (feat2 - feat1)
+        else:
+            data = (feat2 - feat1).abs()
+
+        return data, target

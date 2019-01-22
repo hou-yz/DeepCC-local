@@ -42,11 +42,8 @@ def train(args, metric_net, train_loader, optimizer, epoch, criterion, motion=Fa
     miss = 0
     metric_net.train()
     t0 = time.time()
-    for batch_idx, (feat1, feat2, target) in enumerate(train_loader):
-        if motion:
-            data = (feat2.cuda() - feat1.cuda()).float()
-        else:
-            data = (feat2.cuda() - feat1.cuda()).abs().float()
+    for batch_idx, (data, target) in enumerate(train_loader):
+        data = data.cuda().float()
         target = target.cuda().long()
 
         output = metric_net(data)
@@ -78,11 +75,8 @@ def test(args, metric_net, test_loader, criterion, save_result=False, epoch_max=
     if not save_result:
         epoch_max = 1
     for epoch in range(epoch_max):
-        for batch_idx, (feat1, feat2, target) in enumerate(test_loader):
-            if motion:
-                data = (feat2.cuda() - feat1.cuda()).float()
-            else:
-                data = (feat2.cuda() - feat1.cuda()).abs().float()
+        for batch_idx, (data, target) in enumerate(test_loader):
+            data = data.cuda().float()
             target = target.cuda().long()
             with torch.no_grad():
                 output = metric_net(data)

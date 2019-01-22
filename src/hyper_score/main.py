@@ -63,7 +63,7 @@ def main():
     if args.save_result:
         test_data_path = osp.join(args.data_path, 'hyperGT_{}_train_Inf.h5'.format(args.L))
     else:
-        test_data_path = osp.join(args.data_path, 'hyperGT_L3_val_12000.h5')
+        test_data_path = osp.join(args.data_path, 'hyperGT_{}_val_Inf.h5'.format(args.L))
         # osp.join(args.data_path, 'hyperGT_{}_val_Inf.h5'.format(args.L))
     torch.manual_seed(args.seed)
     if not os.path.isdir(args.log_dir):

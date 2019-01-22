@@ -25,10 +25,10 @@ for iCam = 1:8
     
     [~, ~, startpoint, endpoint, intervals, ~, ~] = getTrackletFeatures(tracklets);
     [startpoint, ~, ~] = image2world( startpoint, iCam );
-    [endpoint, imagePoints, worldPoints] = image2world( endpoint, iCam );
-    velocity = (endpoint-startpoint)./(intervals(:,2)-intervals(:,1))*1000;
-    intervals     = local2global(opts.start_frames(iCam),intervals);
-    centerFrame     = mean(intervals,2);
+    [endpoint, ~, ~]   = image2world( endpoint, iCam );
+    velocity        = (endpoint-startpoint)./(intervals(:,2)-intervals(:,1));
+    intervals       = local2global(opts.start_frames(iCam),intervals);
+    centerFrame     = round(mean(intervals,2));
     centers         = 0.5 * (endpoint + startpoint);
     newGTs{iCam} = [ones(size(pids))*iCam,pids,centerFrame,zeros(size(pids,1),1),centers,velocity,zeros(size(pids,1),1),feat];
     in_time_range_ids = ismember(centerFrame,opts.sequence_intervals{opts.sequence});
