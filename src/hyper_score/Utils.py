@@ -117,3 +117,4 @@ def draw_curve(path, x_epoch, train_loss, train_prec, test_loss, test_prec):
     ax0.legend()
     ax1.legend()
     fig.savefig(path)
+    plt.close(fig)

@@ -16,13 +16,13 @@ def main():
     parser.add_argument('--batch-size', type=int, default=64, metavar='N',
                         help='input batch size for training (default: 64)')
     parser.add_argument('-j', '--num-workers', type=int, default=4)
-    parser.add_argument('--epochs', type=int, default=40, metavar='N')
-    parser.add_argument('--step-size', type=int, default=30)
-    parser.add_argument('--lr', type=float, default=1e-3, metavar='LR')
-    # 40epoch, lr=1e-3; 150epoch, lr=2e-4
+    parser.add_argument('--epochs', type=int, default=60, metavar='N')
+    parser.add_argument('--step-size', type=int, default=40)
+    parser.add_argument('--lr', type=float, default=5e-4, metavar='LR')
+    # 60epoch, lr=5e-4; 150epoch, lr=2e-4
     parser.add_argument('--combine-trainval', action='store_true',
                         help="train and val sets together for training, val set alone for validation")
-    parser.add_argument('--momentum', type=float, default=0.9, metavar='M', help='SGD momentum (default: 0)')
+    parser.add_argument('--momentum', type=float, default=0.9, metavar='M', help='SGD momentum (default: 0.9)')
     parser.add_argument('--weight-decay', type=float, default=5e-4)
     parser.add_argument('--train', action='store_true')
     parser.add_argument('--save_result', action='store_true')
@@ -50,12 +50,11 @@ def main():
         args.features = 1536
     elif args.motion:
         args.L = 'motion'
-        args.window = 'Inf'
-        # args.lr = 1e-4
-        # args.epochs = 150
-        # args.step_size = 100
+        # args.window = '150'
+        args.weight_decay = 1e-3
+        args.lr = 5e-5
     if args.L != 'L2' and not args.motion:
-        args.weight_decay = 5e-2
+        args.weight_decay = 1e-3
     if args.combine_trainval:
         train_data_path = osp.join(args.data_path, 'hyperGT_{}_trainval_{}.h5'.format(args.L, args.window))
     else:
@@ -63,8 +62,8 @@ def main():
     if args.save_result:
         test_data_path = osp.join(args.data_path, 'hyperGT_{}_train_Inf.h5'.format(args.L))
     else:
-        test_data_path = osp.join(args.data_path, 'hyperGT_{}_val_Inf.h5'.format(args.L))
-        # osp.join(args.data_path, 'hyperGT_{}_val_Inf.h5'.format(args.L))
+        test_data_path = osp.join(args.data_path, 'hyperGT_{}_val_Inf.h5'.format(args.L)) if not args.motion \
+            else osp.join(args.data_path, 'hyperGT_{}_val_{}.h5'.format(args.L, args.window))
     torch.manual_seed(args.seed)
     if not os.path.isdir(args.log_dir):
         os.mkdir(args.log_dir)
@@ -78,7 +77,7 @@ def main():
     test_loader = DataLoader(testset, batch_size=args.batch_size,
                              num_workers=args.num_workers, pin_memory=True)
 
-    metric_net = nn.DataParallel(MetricNet(feature_dim=args.features if not args.motion else 9, num_class=2)).cuda()
+    metric_net = nn.DataParallel(MetricNet(feature_dim=args.features if not args.motion else 8, num_class=2)).cuda()
     if args.resume:
         checkpoint = torch.load(args.log_dir + '/metric_net_{}_{}.pth.tar'.format(args.L, args.window))
         model_dict = checkpoint['state_dict']

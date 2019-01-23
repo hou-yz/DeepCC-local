@@ -21,6 +21,8 @@ class HyperFeat(Dataset):
         all_groupIDs = np.int_(np.unique(self.data[:, 3]))
         self.num_spatialGroup = len(all_groupIDs)
         self.min_groupID = min(all_groupIDs)
+        self.pid_dic = defaultdict()
+        self.index_by_pid_dic = defaultdict(list)
         self.index_by_SGid_pid_dic = defaultdict(dict)
         self.index_by_SGid_pid_icam_dic = defaultdict(dict)
         self.pid_by_SGid_dic = defaultdict(list)
@@ -28,6 +30,9 @@ class HyperFeat(Dataset):
         for index in self.indexs:
             [icam, pid, spaGrpID] = self.data[index, [0, 1, 3]]
             icam, pid, spaGrpID = int(icam), int(pid), int(spaGrpID)
+
+            if index not in self.index_by_pid_dic[pid]:
+                self.index_by_pid_dic[pid].append(index)
 
             if spaGrpID not in self.index_by_SGid_pid_dic:
                 self.index_by_SGid_pid_dic[spaGrpID] = defaultdict(list)
@@ -91,10 +96,10 @@ class SiameseHyperFeat(Dataset):
         if target == 1:
             index_pool = self.h_dataset.index_by_SGid_pid_dic[spaGrpID1][pid1]
             cam_pool = list(self.h_dataset.index_by_SGid_pid_icam_dic[spaGrpID1][pid1].keys())
+            siamese_index = index
             if len(index_pool) > 1:
-                siamese_index = index
                 cam2 = cam1
-                if self.L3 and len(cam_pool) > 1:
+                if (self.L3 or self.motion) and len(cam_pool) > 1:
                     while cam2 == cam1:
                         cam2 = np.random.choice(cam_pool)
                     index_pool = self.h_dataset.index_by_SGid_pid_icam_dic[spaGrpID1][pid1][cam2]
@@ -102,16 +107,21 @@ class SiameseHyperFeat(Dataset):
                 else:
                     while siamese_index == index:
                         siamese_index = np.random.choice(index_pool)
-            else:
-                siamese_index = np.random.choice(index_pool)
         # 0 for different
         else:
-            pid_pool = self.h_dataset.pid_by_SGid_dic[spaGrpID1]
+            if not self.motion:
+                pid_pool = list(self.h_dataset.index_by_SGid_pid_dic[spaGrpID1].keys())
+            else:
+                pid_pool = list(self.h_dataset.index_by_pid_dic.keys())
             pid2 = pid1
             if len(pid_pool) > 1:
                 while pid2 == pid1:
                     pid2 = np.random.choice(pid_pool)
-            index_pool = self.h_dataset.index_by_SGid_pid_dic[spaGrpID1][pid2]
+            if not self.motion:
+                index_pool = self.h_dataset.index_by_SGid_pid_dic[spaGrpID1][pid2]
+            else:
+                index_pool = self.h_dataset.index_by_pid_dic[pid2]
+
             siamese_index = np.random.choice(index_pool)
 
         t1 = time.time()
@@ -122,15 +132,14 @@ class SiameseHyperFeat(Dataset):
             pass
         if self.motion:
             # iCam, centerFrame, pos*2, v*2\
-            if motion1[0] > motion2[0]:
+            if motion1[1] > motion2[1]:
                 motion1, motion2 = motion2, motion1
             feat1, feat2 = np.insert(motion1[1:], [3, 3, 5, 5], [0, 0, 0, 0]), \
-                           np.insert(motion2[1:], [1, 1, 3, 3], list(motion2[2:]))
-
+                           np.insert(motion2[1:], [1, 1, 3, 3], [0, 0, 0, 0])
             feat1 = np.insert(-feat1[1:], 0, feat1[0])
-
             data = (feat2 - feat1)
+            data = np.concatenate((data[1:5], data[5:] * data[0]))
         else:
-            data = (feat2 - feat1).abs()
+            data = abs(feat2 - feat1)
 
         return data, target
