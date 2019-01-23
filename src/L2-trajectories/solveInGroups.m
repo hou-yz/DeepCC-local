@@ -62,7 +62,7 @@ for i = 1 : length(allGroups)
     if params.compute_score
         appearanceAffinity = getAppearanceMatrix(featureVectors(indices),featureVectors(indices), threshold, diff_p,diff_n,params.step);
     else
-        appearanceAffinity = getHyperScore(featureVectors(indices),tracklets(indices),hyper_score_param,0,opts.soft,threshold, diff_p);
+        appearanceAffinity = getHyperScore(featureVectors(indices),tracklets(indices),hyper_score_param,opts.soft,threshold, diff_p,0);
     end
     % compute the correlation matrix
     correlationMatrix = appearanceAffinity + params.alpha*(spacetimeAffinity-1);

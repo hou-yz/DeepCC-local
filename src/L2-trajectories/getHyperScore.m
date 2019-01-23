@@ -1,4 +1,4 @@
-function correlationMatrix = getHyperScore(features,tracklets,hyper_score_param,alpha,soft,threshold, norm)
+function correlationMatrix = getHyperScore(features,tracklets,hyper_score_param,soft,threshold, norm, motion)
 tic;
 if iscell(features)
     numFeatures = length(features);
@@ -6,38 +6,43 @@ if iscell(features)
 else
     numFeatures = size(features,1);
 end
-numTracklets = length(tracklets);
 
+if ~motion
+    input = repmat(reshape(features,1,numFeatures,[]),numFeatures,1,1) - repmat(reshape(features,numFeatures,1,[]),1,numFeatures,1);
+    input = abs(reshape(input,numFeatures*numFeatures,[]));
+else
+    [~, ~, startpoint, endpoint, intervals, ~, ~] = getTrackletFeatures(tracklets);
+    [startpoint, ~, ~] = image2world( startpoint, iCam );
+    [endpoint, ~, ~]   = image2world( endpoint, iCam );
+    velocity        = (endpoint-startpoint)./(intervals(:,2)-intervals(:,1));
+    intervals       = local2global(opts.start_frames(iCam),intervals);
+    centerFrame     = round(mean(intervals,2));
+    centers         = 0.5 * (endpoint + startpoint);
 
-input = repmat(reshape(features,1,numFeatures,[]),numFeatures,1,1) - repmat(reshape(features,numFeatures,1,[]),1,numFeatures,1);
-input = abs(reshape(input,numFeatures*numFeatures,[]));
+    feat1 = [centerFrame,centers,centers,velocity.velocity];
+    feat2 = -1*[-centerFrame,centers,centers,velocity.velocity];
+    input = repmat(reshape(feat1,1,numFeatures,[]),numFeatures,1,1) - repmat(reshape(feat2,numFeatures,1,[]),1,numFeatures,1);
+    input = input.*(1-2*int(input[:,1]>0));
+    input[:,6:9] = input[:,6:9].*input[:,1];
+    input[:,1] = [];
 
-correlationMatrix = hyper_score_net_regress(input,hyper_score_param,alpha,soft,threshold, norm);
+    input = reshape(input,numFeatures*numFeatures,[]);
+end
+
+correlationMatrix = hyper_score_net(input,hyper_score_param,soft,threshold, norm);
 correlationMatrix = reshape(correlationMatrix,numFeatures,numFeatures);
 
 t1=toc;
 fprintf('time elapsed: %d',t1)
 end
 
-function output = hyper_score_net_regress(input,hyper_score_param,alpha,soft,threshold, norm)
+function output = hyper_score_net(input,hyper_score_param,soft,threshold, norm)
 feat = input;
-% feat = feat.^2;
-% if alpha
-%     motion_score = input(:,257);
-% end
-% output=0;
 output = max(feat*double(hyper_score_param.fc1_w')+double(hyper_score_param.fc1_b),0);
 output = max(output*double(hyper_score_param.fc2_w')+double(hyper_score_param.fc2_b),0);
 output = max(output*double(hyper_score_param.fc3_w')+double(hyper_score_param.fc3_b),0);
 output = output*double(hyper_score_param.out_w')+double(hyper_score_param.out_b);
 output = softmax(soft*output')';
-% if alpha
-% appear_score = output(:,2);
-% X = [ones(size(appear_score)),appear_score,motion_score,appear_score.*motion_score,appear_score.^2,motion_score.^2];
-% b = [-1.0099;3.0465;-0.0486;-1.5418;-1.0273;0.0155];
-% output = X*b;
-% else
 output = (output(:,2)-output(:,1)-threshold)/norm;
-% end
 
 end
