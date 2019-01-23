@@ -6,6 +6,6 @@ opts.sequence=5;
 
 % fps at 1/30/60
 fps = 1;
-parfor iCam = 1:8
+for iCam = 1:8
     gen_gt_function(opts,iCam,fps);
 end

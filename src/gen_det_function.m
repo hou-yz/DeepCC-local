@@ -1,14 +1,11 @@
 function gen_det_function(opts,iCam)
 detection_type='OpenPose';
 
-seq_name          = opts.sequence_names{opts.sequence};
-sequence_window   = opts.sequence_intervals{opts.sequence};
-start_frame       = global2local(opts.start_frames(iCam), sequence_window(1));
-end_frame         = global2local(opts.start_frames(iCam), sequence_window(end));
+sequence_window   = global2local(opts.start_frames(iCam),opts.sequence_intervals{opts.sequence});
 
 % Load OpenPose detections for current camera
 load(fullfile(opts.dataset_path, 'detections',detection_type, sprintf('camera%d.mat',iCam)));
-in_time_range_ids = detections(:,2)>=start_frame & detections(:,2)<=end_frame;
+in_time_range_ids = ismember(detections(:,2),sequence_window);
 detections   = detections(in_time_range_ids,:);
 
 poses = detections;
@@ -21,21 +18,15 @@ for k = 1:size(poses,1)
     detections(k,:) = [iCam, poses(k,2), newbb];
 end
 
-video_name = fullfile(opts.dataset_path, 'videos', sprintf('camera%d.mp4', iCam));
-videoObject = VideoReader(video_name);
-videoObject.CurrentTime = (start_frame-1) / videoObject.FrameRate;
-
-folder_dir = fullfile(opts.dataset_path, 'ALL_det_bbox', sprintf('det_bbox_%s_%s',detection_type,seq_name));
+folder_dir = fullfile(opts.dataset_path, 'ALL_det_bbox', sprintf('det_bbox_%s_%s',detection_type,opts.sequence_names{opts.sequence}));
 if exist(folder_dir,'dir') == 0
     mkdir(folder_dir);
 end
 
-for frame = start_frame : end_frame 
-    t_init=tic;
-    
-    image = readFrame(videoObject);
-    t_readframe=toc(t_init);
-    
+for i = 1:length(sequence_window)
+    frame = sequence_window(i);
+    image = opts.reader.getFrame(iCam,frame);
+
     det_ids = find(detections(:,2) == frame);
     if isempty(det_ids)
         continue;
@@ -50,16 +41,6 @@ for frame = start_frame : end_frame
         end
         imwrite(det_image,fullfile(folder_dir,sprintf('c%d_f%06d_%04d.jpg',iCam,frame,i)))
     end
-    
-    t_write=toc(t_init);
-%     identities  = gt_in_frame(:, 2);
-%     positions   = [gt_in_frame(:, 4),  gt_in_frame(:, 5), gt_in_frame(:, 6), gt_in_frame(:, 7)];
-%     pic = insertObjectAnnotation(image,'rectangle', ...
-%             positions, identities,'TextBoxOpacity', 0.8, 'FontSize', 13, 'Color', 255*[1,0,0] );
-%     imshow(pic); 
-%     drawnow
 end
-
-
 
 end
