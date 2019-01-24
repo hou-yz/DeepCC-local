@@ -1,4 +1,4 @@
-function correlationMatrix = getHyperScore(features,tracklets,hyper_score_param,soft,threshold, norm, motion)
+function correlationMatrix = getHyperScore(features,hyper_score_param,soft,threshold, norm, motion)
 tic;
 if iscell(features)
     numFeatures = length(features);
@@ -11,20 +11,12 @@ if ~motion
     input = repmat(reshape(features,1,numFeatures,[]),numFeatures,1,1) - repmat(reshape(features,numFeatures,1,[]),1,numFeatures,1);
     input = abs(reshape(input,numFeatures*numFeatures,[]));
 else
-    [~, ~, startpoint, endpoint, intervals, ~, ~] = getTrackletFeatures(tracklets);
-    [startpoint, ~, ~] = image2world( startpoint, iCam );
-    [endpoint, ~, ~]   = image2world( endpoint, iCam );
-    velocity        = (endpoint-startpoint)./(intervals(:,2)-intervals(:,1));
-    intervals       = local2global(opts.start_frames(iCam),intervals);
-    centerFrame     = round(mean(intervals,2));
-    centers         = 0.5 * (endpoint + startpoint);
-
-    feat1 = [centerFrame,centers,centers,velocity.velocity];
-    feat2 = -1*[-centerFrame,centers,centers,velocity.velocity];
+    feat1 = features;
+    feat2 = [features(:,1),-features(:,2:end)];
     input = repmat(reshape(feat1,1,numFeatures,[]),numFeatures,1,1) - repmat(reshape(feat2,numFeatures,1,[]),1,numFeatures,1);
-    input = input.*(1-2*int(input[:,1]>0));
-    input[:,6:9] = input[:,6:9].*input[:,1];
-    input[:,1] = [];
+    input = input.*(1-2*int(input(:,:,1)>0));
+    input(:,6:9) = input(:,6:9).*input(:,1);
+    input(:,1) = [];
 
     input = reshape(input,numFeatures*numFeatures,[]);
 end
