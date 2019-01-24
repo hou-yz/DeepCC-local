@@ -18,8 +18,8 @@ def main():
     parser.add_argument('-j', '--num-workers', type=int, default=4)
     parser.add_argument('--epochs', type=int, default=60, metavar='N')
     parser.add_argument('--step-size', type=int, default=40)
-    parser.add_argument('--lr', type=float, default=5e-4, metavar='LR')
-    # 60epoch, lr=5e-4; 150epoch, lr=2e-4
+    parser.add_argument('--lr', type=float, default=1e-3, metavar='LR')
+    # 60epoch, lr=1e-3; 150epoch, lr=2e-4
     parser.add_argument('--combine-trainval', action='store_true',
                         help="train and val sets together for training, val set alone for validation")
     parser.add_argument('--momentum', type=float, default=0.9, metavar='M', help='SGD momentum (default: 0.9)')
@@ -51,10 +51,10 @@ def main():
     elif args.motion:
         args.L = 'motion'
         # args.window = '150'
-        args.weight_decay = 1e-3
+        args.weight_decay = 2e-3
         args.lr = 5e-5
     if args.L != 'L2' and not args.motion:
-        args.weight_decay = 1e-3
+        args.weight_decay = 5e-2
     if args.combine_trainval:
         train_data_path = osp.join(args.data_path, 'hyperGT_{}_trainval_{}.h5'.format(args.L, args.window))
     else:
@@ -62,8 +62,10 @@ def main():
     if args.save_result:
         test_data_path = osp.join(args.data_path, 'hyperGT_{}_train_Inf.h5'.format(args.L))
     else:
-        test_data_path = osp.join(args.data_path, 'hyperGT_{}_val_Inf.h5'.format(args.L)) if not args.motion \
-            else osp.join(args.data_path, 'hyperGT_{}_val_{}.h5'.format(args.L, args.window))
+        if not args.motion:
+            test_data_path = osp.join(args.data_path, 'hyperGT_{}_val_12000.h5'.format(args.L))
+        else:
+            test_data_path = osp.join(args.data_path, 'hyperGT_{}_val_{}.h5'.format(args.L, args.window))
     torch.manual_seed(args.seed)
     if not os.path.isdir(args.log_dir):
         os.mkdir(args.log_dir)
