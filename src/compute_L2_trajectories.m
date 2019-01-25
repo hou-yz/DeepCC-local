@@ -1,18 +1,12 @@
 function compute_L2_trajectories(opts)
 % Computes single-camera trajectories from tracklets
 
-hyper_score_param = load(fullfile('src','hyper_score/logs',opts.model_name));
+appear_model_param = load(fullfile('src','hyper_score/logs',opts.appear_model_name));
+motion_model_param = load(fullfile('src','hyper_score/logs',opts.motion_model_name));
 for iCam = 1:8
 
     % Initialize
     load(fullfile(opts.experiment_root, opts.experiment_name, 'L1-tracklets', sprintf('tracklets%d_%s.mat',iCam,opts.sequence_names{opts.sequence})));
-%     [~, ~, startpoint, endpoint, intervals, ~, velocity] = getTrackletFeatures(tracklets);
-%     centers = num2cell(0.5*(endpoint+startpoint),2);
-%     [tracklets.centers] = centers{:};
-%     interval = num2cell(intervals,2);
-%     [tracklets.interval] = interval{:};
-%     velocity = num2cell(velocity,2);
-%     [tracklets.velocity] = velocity{:};
     if opts.fft
         tracklets = fft_tracklet_feat(opts, tracklets);
     end
@@ -31,7 +25,7 @@ for iCam = 1:8
         clc; fprintf('Cam: %d - Window %d...%d\n', iCam, startFrame, endFrame);
 
         % Compute trajectories in current time window
-        trajectories = createTrajectories(opts, trajectories, startFrame, endFrame, iCam,hyper_score_param);
+        trajectories = createTrajectories(opts, trajectories, startFrame, endFrame, iCam,appear_model_param,motion_model_param);
 
         % Update loop range
         startFrame = endFrame   - opts.trajectories.overlap;

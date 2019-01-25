@@ -1,4 +1,4 @@
-function feat = getMotionFeat(tracklets, iCam)
+function feat = getMotionFeat(tracklets, iCam, opts)
 
     [~, ~, startpoint, endpoint, intervals, ~, ~] = getTrackletFeatures(tracklets);
     [startpoint, ~, ~] = image2world( startpoint, iCam );

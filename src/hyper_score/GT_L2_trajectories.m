@@ -3,12 +3,12 @@ clear
 
 opts=get_opts();
 
-opts.trajectories.window_width = inf;
+opts.trajectories.window_width = 150;
 L2_speed = 'mid';
 
 % opts.visualize = true;
 opts.sequence = 8;
-opts.experiment_name = '1fps_train_PCB_40';
+opts.experiment_name = '1fps_train_IDE_40';
 
 newGTs = cellmat(1,8,0,0,0);
 spatialGroupID_max = zeros(1,8);

@@ -30,7 +30,8 @@ opts.start_frames = [5543, 3607, 27244, 31182, 1, 22402, 18968, 46766];
 opts.render_threshold = 0.05;
 opts.load_tracklets = 1;
 opts.load_trajectories = 1;
-opts.model_name = '1fps_train_IDE_40/model_param_L2_75.mat';
+opts.appear_model_name = '1fps_train_IDE_40/model_param_L2_75.mat';
+opts.motion_model_name = '1fps_train_IDE_40/model_param_L2_motion_150.mat';
 opts.fft = false;
 opts.soft = 0.1;
 

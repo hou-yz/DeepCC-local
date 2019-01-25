@@ -3,7 +3,8 @@ clear
 
 opts=get_opts();
 
-opts.identities.window_width = inf;
+opts.tracklets.window_width = 40;
+opts.trajectories.window_width = 150;
 
 % opts.visualize = true;
 opts.sequence = 8;
@@ -23,35 +24,33 @@ for iCam = 1:8
     feat = reshape([tracklets.feature]',length(tracklets(1).feature),[])';
     
     
-    [~, ~, startpoint, endpoint, intervals, ~, velocity] = getTrackletFeatures(tracklets);
-    centerFrame     = local2global(opts.start_frames(iCam),round(mean(intervals,2)));
+    [~, ~, startpoint, endpoint, intervals, ~, ~] = getTrackletFeatures(tracklets);
+    [startpoint, ~, ~] = image2world( startpoint, iCam );
+    [endpoint, ~, ~]   = image2world( endpoint, iCam );
+    intervals       = local2global(opts.start_frames(iCam),intervals);
+    velocity        = (endpoint-startpoint)./(intervals(:,2)-intervals(:,1));
+    centerFrame     = round(mean(intervals,2));
     centers         = 0.5 * (endpoint + startpoint);
     newGTs{iCam} = [ones(size(pids))*iCam,pids,centerFrame,zeros(size(pids,1),1),centers,velocity,zeros(size(pids,1),1),feat];
     in_time_range_ids = ismember(centerFrame,opts.sequence_intervals{opts.sequence});
     newGTs{iCam} = newGTs{iCam}(in_time_range_ids,:);
 
-%     in_range_pids = unique(newGTs{iCam}(:,2));
-%     for i = 1:length(in_range_pids)
-%         pid = in_range_pids(i);
-%         same_pid_lines = find(newGTs{iCam}(:,2)==pid);
-%         new_feat = zeros(length(same_pid_lines),256);
-%         centerFrames = newGTs{iCam}(same_pid_lines,3);
-%         for j = 1:length(same_pid_lines)
-%             targetFrame = centerFrames(j);
-%             nearFrame_lines = same_pid_lines(abs(centerFrames-targetFrame)<150);
-%             new_feat(j,:) = mean(newGTs{iCam}(nearFrame_lines,10:end),1);
-%         end
-%         newGTs{iCam}(same_pid_lines,10:end) = new_feat;
-%     end
-
+    for i=1:ceil(length(sequence_window)/opts.trajectories.window_width)
+        % Display loop state
+        window = (sequence_window(1)+(i-1)*opts.trajectories.window_width): (sequence_window(1)+i*opts.trajectories.window_width-1);
+        clc; fprintf('Cam: %d - Window %d...%d\n', iCam, window(1),window(end));
+        indexs = ismember(newGTs{iCam}(:,3),window);
+        spatialGroupID = 1+spatialGroupID_max(iCam);
+        spatialGroupID_max(iCam) = spatialGroupID;
+        newGTs{iCam}(indexs,4)=spatialGroupID;
+    end
 end
 
 res = [];
 for iCam = 1:8
     newGT = newGTs{iCam};
     newGT(:,4) = newGT(:,4)+sum(spatialGroupID_max(1:iCam-1));
-	newGT(:,4) = floor(newGT(:,3)/opts.identities.window_width);
-    if opts.identities.window_width == inf
+    if opts.trajectories.window_width == inf
         newGT(:,4) = 0;
     end
     res = [res;newGT];
@@ -60,4 +59,4 @@ end
 
 
 % res(:,4) = 0;
-hdf5write(fullfile(opts.dataset_path, 'ground_truth',opts.experiment_name,sprintf('hyperGT_L3_%s_%d.h5',opts.sequence_names{opts.sequence},opts.identities.window_width)), '/hyperGT',res');
+hdf5write(fullfile(opts.dataset_path, 'ground_truth',opts.experiment_name,sprintf('hyperGT_L2_motion_%s_%d.h5',opts.sequence_names{opts.sequence},opts.trajectories.window_width)), '/hyperGT',res');
