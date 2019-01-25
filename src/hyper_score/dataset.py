@@ -109,18 +109,12 @@ class SiameseHyperFeat(Dataset):
                         siamese_index = np.random.choice(index_pool)
         # 0 for different
         else:
-            if not self.motion:
-                pid_pool = list(self.h_dataset.index_by_SGid_pid_dic[spaGrpID1].keys())
-            else:
-                pid_pool = list(self.h_dataset.index_by_pid_dic.keys())
+            pid_pool = list(self.h_dataset.index_by_SGid_pid_dic[spaGrpID1].keys())
             pid2 = pid1
             if len(pid_pool) > 1:
                 while pid2 == pid1:
                     pid2 = np.random.choice(pid_pool)
-            if not self.motion:
-                index_pool = self.h_dataset.index_by_SGid_pid_dic[spaGrpID1][pid2]
-            else:
-                index_pool = self.h_dataset.index_by_pid_dic[pid2]
+            index_pool = self.h_dataset.index_by_SGid_pid_dic[spaGrpID1][pid2]
 
             siamese_index = np.random.choice(index_pool)
 

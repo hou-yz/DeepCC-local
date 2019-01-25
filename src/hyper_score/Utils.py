@@ -31,7 +31,7 @@ def addzero(x, insert_pos, num_zero):
     return torch.cat((x1, z.type_as(x1), x2), dim=1)
 
 
-def train(args, metric_net, train_loader, optimizer, epoch, criterion, motion=False):
+def train(args, metric_net, train_loader, optimizer, epoch, criterion):
     # Schedule learning rate
     lr = args.lr * (0.1 ** (epoch // args.step_size))
     for g in optimizer.param_groups:
@@ -65,7 +65,7 @@ def train(args, metric_net, train_loader, optimizer, epoch, criterion, motion=Fa
     return losses / (batch_idx + 1), correct / (correct + miss)
 
 
-def test(args, metric_net, test_loader, criterion, save_result=False, epoch_max=1, motion=False):
+def test(args, metric_net, test_loader, criterion, save_result=False, epoch_max=1):
     metric_net.eval()
     losses = 0
     correct = 0
