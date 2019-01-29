@@ -45,21 +45,21 @@ opts.sequence = 8;
 
 % Tracklets
 opts.optimization = 'KL';
-compute_L1_tracklets(opts);
 
 % Single-camera trajectories
 opts.optimization = 'BIPCC';
 opts.trajectories.appearance_groups = 1;
-compute_L2_trajectories(opts);
-opts.eval_dir = 'L2-trajectories';
-evaluate(opts);
 
 % Multi-camera identities
 opts.identities.optimal_filter = true;
 opts.identities.consecutive_icam_matrix = ones(8);
 opts.identities.reintro_time_matrix = ones(1,8)*inf;
-
 opts.identities.appearance_groups = 0;
-compute_L3_identities(opts);
-opts.eval_dir = 'L3-identities';
-evaluate(opts);
+
+DukeSCTs = zeros(10,3);
+DukeMCTs = zeros(10,3);
+for i = 1:10
+    [DukeSCTs(i,:), DukeMCTs(i,:)] = test_tracker(opts,1,1,1);
+end
+DukeSCT = mean(DukeSCTs)
+DukeMCT = mean(DukeMCTs)
