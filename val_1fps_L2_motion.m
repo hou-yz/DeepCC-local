@@ -44,7 +44,8 @@ opts.optimization = 'KL';
 
 % Single-camera trajectories
 %opts.trajectories.use_indiff = false;
-% opts.trajectories.compute_score = false;
+% opts.trajectories.og_appear_score = false;
+% opts.trajectories.og_motion_score = false;
 opts.trajectories.appearance_groups = 1;
 compute_L2_trajectories(opts);
 opts.eval_dir = 'L2-trajectories';
@@ -56,7 +57,7 @@ evaluate(opts);
 % % Multi-camera identities
 % %opts.optimization = 'BIPCC';
 % opts.identities.optimal_filter = false;
-% opts.identities.compute_score = false;
+% opts.identities.og_appear_score = false;
 % opts.identities.consecutive_icam_matrix = ones(8);
 % opts.identities.reintro_time_matrix = ones(1,8)*inf;
 % 

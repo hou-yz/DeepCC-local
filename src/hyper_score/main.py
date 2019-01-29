@@ -51,6 +51,8 @@ def main():
     elif args.motion:
         args.L += '_motion'
         # args.window = '150'
+        args.epochs = 60
+        args.step_size = 40
         args.weight_decay = 2e-3
         args.lr = 1e-4
     if args.L != 'L2' and not args.motion:

@@ -54,7 +54,7 @@ for spatialGroupID = 1 : max(spatialGroupIDs)
     spatialGroupDetectionFrames     = detectionFrames(elements,:);
     spatialGroupEstimatedVelocity   = estimatedVelocity(elements,:);
     
-    if params.compute_score
+    if params.og_appear_score
         % Create an appearance affinity matrix and a motion affinity matrix
         appearanceCorrelation = getAppearanceSubMatrix(spatialGroupObservations, allFeatures, threshold,diff_p,diff_n,params.step);
     else

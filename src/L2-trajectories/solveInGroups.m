@@ -57,18 +57,21 @@ for i = 1 : length(allGroups)
     group       = allGroups(i);
     indices     = find(appearanceGroups == group);
     sameLabels  = pdist2(labels(indices), labels(indices)) == 0;
-    [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinity(tracklets(indices), params.beta, params.speed_limit, params.indifference_time);
-    spacetimeAffinity = spacetimeAffinity-1;
-    % compute appearance and spacetime scores
-    motionFeat = getMotionFeat(tracklets(indices), iCam, opts);
-    spacetimeAffinity = getHyperScore(motionFeat,motion_model_param,opts.soft,threshold, diff_p,1);
+    [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinity(tracklets(indices), params.beta, params.speed_limit, params.indifference_time, iCam);
     
-%     if params.compute_score
-%         appearanceAffinity = getAppearanceMatrix(featureVectors(indices),featureVectors(indices), threshold, diff_p,diff_n,params.step);
-%     else
-%         appearanceAffinity = getHyperScore(featureVectors(indices),appear_model_param,opts.soft,threshold, diff_p,0);
-%     end
-    appearanceAffinity = 0;
+    % compute appearance and spacetime scores
+    if params.og_motion_score
+        spacetimeAffinity = spacetimeAffinity-1;
+    else
+        motionFeat = getMotionFeat(tracklets(indices), iCam, opts);
+        spacetimeAffinity = getHyperScore(motionFeat,motion_model_param,opts.soft,threshold, diff_p,1);
+    end
+
+    if params.og_appear_score
+        appearanceAffinity = getAppearanceMatrix(featureVectors(indices),featureVectors(indices), threshold, diff_p,diff_n,params.step);
+    else
+        appearanceAffinity = getHyperScore(featureVectors(indices),appear_model_param,opts.soft,threshold, diff_p,0);
+    end
     
     % compute the correlation matrix
     correlationMatrix = appearanceAffinity + params.alpha*spacetimeAffinity;
