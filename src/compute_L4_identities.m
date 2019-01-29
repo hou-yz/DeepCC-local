@@ -1,6 +1,7 @@
 function compute_L4_identities(opts)
 % Computes multi-camera trajectories from L3 one hop ids
-hyper_score_param = load(fullfile('src','hyper_score/logs',opts.model_name));
+appear_model_param = load(fullfile('src','hyper_score/logs',opts.appear_model_name));
+motion_model_param = load(fullfile('src','hyper_score/logs',opts.motion_model_name));
 
 % load L3 one-hop ids
 load(fullfile(opts.experiment_root, opts.experiment_name, 'L3-identities', sprintf('identities_%s.mat',opts.sequence_names{opts.sequence})));
@@ -17,7 +18,7 @@ endFrame = global_interval(1) + opts.identities.window_width - 1;
 while startFrame <= global_interval(end)
     clc; fprintf('Window %d...%d\n', startFrame, endFrame);
     
-    identities = linkIdentities(opts, identities, startFrame, endFrame,hyper_score_param);
+    identities = linkIdentities(opts, identities, startFrame, endFrame,appear_model_param,motion_model_param);
     
     % advance sliding temporal window
     startFrame = endFrame   - opts.identities.window_width/2;

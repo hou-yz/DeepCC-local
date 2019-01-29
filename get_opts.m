@@ -30,7 +30,8 @@ opts.start_frames = [5543, 3607, 27244, 31182, 1, 22402, 18968, 46766];
 opts.render_threshold = 0.05;
 opts.load_tracklets = 1;
 opts.load_trajectories = 1;
-opts.model_name = '1fps_train_IDE_40/model_param_L2_75.mat';
+opts.appear_model_name = '1fps_train_IDE_40/model_param_L2_75.mat';
+opts.motion_model_name = '1fps_train_IDE_40/model_param_L2_motion_150.mat';
 opts.fft = false;
 opts.soft = 0.1;
 
@@ -47,7 +48,8 @@ tracklets.threshold = 8;
 tracklets.diff_p = 0;
 tracklets.diff_n = 0;
 tracklets.step = false;
-tracklets.compute_score = true;
+tracklets.og_appear_score = true;
+tracklets.og_motion_score = true;
 
 
 % Trajectories
@@ -63,7 +65,8 @@ trajectories.threshold = 8;
 trajectories.diff_p = 0;
 trajectories.diff_n = 0;
 trajectories.step = false;
-trajectories.compute_score = true;
+trajectories.og_appear_score = true;
+trajectories.og_motion_score = true;
 trajectories.use_indiff = true;
 
 % Identities
@@ -81,7 +84,8 @@ identities.diff_n = 0;
 identities.optimal_filter = true;
 identities.step = false;
 identities.extract_images = true;
-identities.compute_score = true;
+identities.og_appear_score = true;
+identities.og_motion_score = true;
 
 identities.consecutive_icam_matrix = [0,1,1,1,1,1,0,1;1,0,1,1,1,1,0,0;1,1,0,1,1,0,0,0;1,1,1,0,1,0,0,0;1,1,1,1,0,1,1,0;1,1,0,0,1,0,1,1;0,0,0,0,1,1,0,1;1,0,0,0,0,1,1,0];%same_track
 identities.reintro_time_matrix = ones(1,8)*inf;

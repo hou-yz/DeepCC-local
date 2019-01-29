@@ -1,4 +1,4 @@
-function result = solveInGroupsIdentities(opts, trajectories, labels,hyper_score_param)
+function result = solveInGroupsIdentities(opts, trajectories, labels,appear_model_param,motion_model_param)
 
 global identitySolverTime;
 
@@ -49,10 +49,10 @@ for i = 1 : length(allGroups)
     sameLabels  = pdist2(labels(indices), labels(indices)) == 0;
     
     % compute appearance and spacetime scores
-    if params.compute_score
+    if params.og_appear_score
         appearanceCorrelation = getAppearanceMatrix(featureVectors(indices),featureVectors(indices), params.threshold,params.diff_p,params.diff_n,params.step);
     else
-        appearanceCorrelation = getHyperScore(featureVectors(indices),hyper_score_param,opts.soft, params.threshold,params.diff_p,0);
+        appearanceCorrelation = getHyperScore(featureVectors(indices),appear_model_param,opts.soft, params.threshold,params.diff_p,0);
     end
     [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinityID(trajectories(indices),opts.identities.consecutive_icam_matrix,opts.identities.reintro_time_matrix,opts.identities.optimal_filter);
     correlationMatrix = 1 * appearanceCorrelation + params.alpha*(spacetimeAffinity).*(1-indifferenceMatrix);

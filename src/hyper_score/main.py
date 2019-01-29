@@ -16,10 +16,10 @@ def main():
     parser.add_argument('--batch-size', type=int, default=64, metavar='N',
                         help='input batch size for training (default: 64)')
     parser.add_argument('-j', '--num-workers', type=int, default=4)
-    parser.add_argument('--epochs', type=int, default=60, metavar='N')
-    parser.add_argument('--step-size', type=int, default=40)
+    parser.add_argument('--epochs', type=int, default=40, metavar='N')
+    parser.add_argument('--step-size', type=int, default=30)
     parser.add_argument('--lr', type=float, default=1e-3, metavar='LR')
-    # 60epoch, lr=1e-3; 150epoch, lr=2e-4
+    # 40epoch, lr=1e-3; 150epoch, lr=2e-4
     parser.add_argument('--combine-trainval', action='store_true',
                         help="train and val sets together for training, val set alone for validation")
     parser.add_argument('--momentum', type=float, default=0.9, metavar='M', help='SGD momentum (default: 0.9)')
@@ -49,10 +49,12 @@ def main():
     elif 'PCB' in args.data_path:
         args.features = 1536
     elif args.motion:
-        args.L = 'motion'
+        args.L += '_motion'
         # args.window = '150'
+        args.epochs = 60
+        args.step_size = 40
         args.weight_decay = 2e-3
-        args.lr = 5e-5
+        args.lr = 1e-4
     if args.L != 'L2' and not args.motion:
         args.weight_decay = 5e-2
     if args.combine_trainval:
@@ -96,31 +98,27 @@ def main():
         test_prec_s = []
         optimizer = optim.SGD(metric_net.parameters(), lr=args.lr, momentum=args.momentum,
                               weight_decay=args.weight_decay)
-        if not args.resume:
-            for epoch in range(1, args.epochs + 1):
-                train_loss, train_prec = train(args, metric_net, train_loader, optimizer, epoch,
-                                               criterion, args.motion)
-                test_loss, test_prec = test(args, metric_net, test_loader, criterion, False, 1, args.motion)
-                x_epoch.append(epoch)
-                train_loss_s.append(train_loss)
-                train_prec_s.append(train_prec)
-                test_loss_s.append(test_loss)
-                test_prec_s.append(test_prec)
-                path = args.log_dir + '/MetricNet_{}_{}.jpg'.format(args.L, args.window)
-                draw_curve(path, x_epoch, train_loss_s, train_prec_s, test_loss_s, test_prec_s)
-                pass
-            torch.save({'state_dict': metric_net.module.state_dict(), }, args.log_dir + '/metric_net_{}_{}.pth.tar'.
-                       format(args.L, args.window))
-        else:
-            test(args, metric_net, test_loader, criterion, False, 1, args.motion)
+        for epoch in range(1, args.epochs + 1):
+            train_loss, train_prec = train(args, metric_net, train_loader, optimizer, epoch, criterion)
+            test_loss, test_prec = test(args, metric_net, test_loader, criterion, False, 1)
+            x_epoch.append(epoch)
+            train_loss_s.append(train_loss)
+            train_prec_s.append(train_prec)
+            test_loss_s.append(test_loss)
+            test_prec_s.append(test_prec)
+            path = args.log_dir + '/MetricNet_{}_{}.jpg'.format(args.L, args.window)
+            draw_curve(path, x_epoch, train_loss_s, train_prec_s, test_loss_s, test_prec_s)
+            pass
+        torch.save({'state_dict': metric_net.module.state_dict(), }, args.log_dir + '/metric_net_{}_{}.pth.tar'.
+                   format(args.L, args.window))
 
-        path = args.log_dir + '/model_param_{}_{}.mat'.format(args.L, args.window)
+        path = osp.join(args.log_dir, 'model_param_{}_{}.mat'.format(args.L, args.window))
         save_model_as_mat(path, metric_net.module)
 
     checkpoint = torch.load(args.log_dir + '/metric_net_{}_{}.pth.tar'.format(args.L, args.window))
     model_dict = checkpoint['state_dict']
     metric_net.module.load_state_dict(model_dict)
-    test(args, metric_net, test_loader, criterion, save_result=args.save_result, epoch_max=10, motion=args.motion)
+    test(args, metric_net, test_loader, criterion, save_result=args.save_result, epoch_max=10)
 
 
 if __name__ == '__main__':

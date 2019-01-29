@@ -1,4 +1,4 @@
-function feat = getMotionFeat(tracklets, iCam)
+function feat = getMotionFeat(tracklets, iCam, opts)
 
     [~, ~, startpoint, endpoint, intervals, ~, ~] = getTrackletFeatures(tracklets);
     [startpoint, ~, ~] = image2world( startpoint, iCam );
@@ -8,6 +8,6 @@ function feat = getMotionFeat(tracklets, iCam)
     centerFrame     = round(mean(intervals,2));
     centers         = 0.5 * (endpoint + startpoint);
 
-    feat = [centerFrame,centers,centers,velocity,velocity];
+    feat = [centerFrame,centers,velocity];
     
 end

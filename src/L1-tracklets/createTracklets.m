@@ -1,4 +1,4 @@
-function  tracklets = createTracklets(opts, originalDetections, allFeatures, startFrame, endFrame, tracklets,hyper_score_param)
+function  tracklets = createTracklets(opts, originalDetections, allFeatures, startFrame, endFrame, tracklets,appear_model_param,motoin_model_param)
 % CREATETRACKLETS This function creates short tracks composed of several detections.
 %   In the first stage our method groups detections into space-time groups.
 %   In the second stage a Binary Integer Program is solved for every space-time
@@ -54,12 +54,12 @@ for spatialGroupID = 1 : max(spatialGroupIDs)
     spatialGroupDetectionFrames     = detectionFrames(elements,:);
     spatialGroupEstimatedVelocity   = estimatedVelocity(elements,:);
     
-    if params.compute_score
+    if params.og_appear_score
         % Create an appearance affinity matrix and a motion affinity matrix
         appearanceCorrelation = getAppearanceSubMatrix(spatialGroupObservations, allFeatures, threshold,diff_p,diff_n,params.step);
     else
         features = cell2mat(allFeatures.appearance(spatialGroupObservations));
-        appearanceCorrelation = getHyperScore(features,hyper_score_param,opts.soft, threshold,diff_p,0);
+        appearanceCorrelation = getHyperScore(features,appear_model_param,opts.soft, threshold,diff_p,0);
     end
     [motionCorrelation, impMatrix]  = motionAffinity(spatialGroupDetectionCenters,spatialGroupDetectionFrames,spatialGroupEstimatedVelocity,params.speed_limit, params.beta);
     

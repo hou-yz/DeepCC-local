@@ -3,10 +3,10 @@ clear
 
 opts=get_opts();
 
-opts.identities.window_width = inf;
+opts.identities.window_width = 12000;
 
 % opts.visualize = true;
-opts.sequence = 7;
+opts.sequence = 8;
 opts.experiment_name = '1fps_train_IDE_40';
 
 newGTs = cellmat(1,8,0,0,0);
@@ -26,8 +26,8 @@ for iCam = 1:8
     [~, ~, startpoint, endpoint, intervals, ~, ~] = getTrackletFeatures(tracklets);
     [startpoint, ~, ~] = image2world( startpoint, iCam );
     [endpoint, ~, ~]   = image2world( endpoint, iCam );
-    velocity        = (endpoint-startpoint)./(intervals(:,2)-intervals(:,1));
     intervals       = local2global(opts.start_frames(iCam),intervals);
+    velocity        = (endpoint-startpoint)./(intervals(:,2)-intervals(:,1));
     centerFrame     = round(mean(intervals,2));
     centers         = 0.5 * (endpoint + startpoint);
     newGTs{iCam} = [ones(size(pids))*iCam,pids,centerFrame,zeros(size(pids,1),1),centers,velocity,zeros(size(pids,1),1),feat];
@@ -49,4 +49,4 @@ end
 
 
 % res(:,4) = 0;
-hdf5write(fullfile(opts.dataset_path, 'ground_truth',opts.experiment_name,sprintf('hyperGT_motion_%s_%d.h5',opts.sequence_names{opts.sequence},opts.identities.window_width)), '/hyperGT',res');
+hdf5write(fullfile(opts.dataset_path, 'ground_truth',opts.experiment_name,sprintf('hyperGT_L3_motion_%s_%d.h5',opts.sequence_names{opts.sequence},opts.identities.window_width)), '/hyperGT',res');

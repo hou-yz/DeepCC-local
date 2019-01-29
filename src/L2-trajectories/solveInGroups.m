@@ -1,4 +1,4 @@
-function result = solveInGroups(opts, tracklets, labels, iCam,hyper_score_param)
+function result = solveInGroups(opts, tracklets, labels, iCam,appear_model_param,motion_model_param)
 
 global trajectorySolverTime;
 
@@ -57,15 +57,24 @@ for i = 1 : length(allGroups)
     group       = allGroups(i);
     indices     = find(appearanceGroups == group);
     sameLabels  = pdist2(labels(indices), labels(indices)) == 0;
-    [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinity(tracklets(indices), params.beta, params.speed_limit, params.indifference_time);
+    [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinity(tracklets(indices), params.beta, params.speed_limit, params.indifference_time, iCam);
+    
     % compute appearance and spacetime scores
-    if params.compute_score
+    if params.og_motion_score
+        spacetimeAffinity = spacetimeAffinity-1;
+    else
+        motionFeat = getMotionFeat(tracklets(indices), iCam, opts);
+        spacetimeAffinity = getHyperScore(motionFeat,motion_model_param,opts.soft,threshold, diff_p,1);
+    end
+
+    if params.og_appear_score
         appearanceAffinity = getAppearanceMatrix(featureVectors(indices),featureVectors(indices), threshold, diff_p,diff_n,params.step);
     else
-        appearanceAffinity = getHyperScore(featureVectors(indices),hyper_score_param,opts.soft,threshold, diff_p,0);
+        appearanceAffinity = getHyperScore(featureVectors(indices),appear_model_param,opts.soft,threshold, diff_p,0);
     end
+    
     % compute the correlation matrix
-    correlationMatrix = appearanceAffinity + params.alpha*(spacetimeAffinity-1);
+    correlationMatrix = appearanceAffinity + params.alpha*spacetimeAffinity;
     correlationMatrix = correlationMatrix .* indifferenceMatrix.^params.use_indiff;
     correlationMatrix(impossibilityMatrix == 1) = -inf;
     correlationMatrix(sameLabels) = 1;
