@@ -13,5 +13,5 @@ function [DukeSCT, DukeMCT] = test_tracker(opts,compute_L1,compute_L2,compute_L3
         [allMets, metsBenchmark, metsMultiCam] = evaluate(opts);
     end
     DukeSCT = metsBenchmark(1:3);
-    DukeMCT = DukeMCT;
+    DukeMCT = metsMultiCam;
 end

@@ -96,5 +96,7 @@ for i = 1:length(pids)
     end
 end
 
+fpath = fullfile(opts.dataset_path, 'ground_truth',sprintf('GT_L3_motion_%s.mat',opts.sequence_names{opts.sequence}));
+save(fpath, 'output');
 
 
