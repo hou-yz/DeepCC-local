@@ -4,7 +4,7 @@ function [thres_uni,diff_p_uni,diff_n_uni]=view_distance_distribution(opts,type)
 % opts.net.experiment_root = 'experiments/fc256_6fps_epoch45';
 %% Compute features
 
-% pid, cam, frame, 256-dim feat
+% cam, pid, frame, 256-dim feat
 features = [];
 for iCam = 1:8
     tmp_features = h5read(fullfile(opts.net.experiment_root, sprintf('features%d.h5',iCam)),'/emb');
@@ -15,8 +15,8 @@ for iCam = 1:8
     features = [features;tmp_features(in_time_range_ids,:)];
 end
 % pooling
-pooling = 2;
-labels = features(1:pooling:length(features),1);
+pooling = 4;
+labels = features(1:pooling:length(features),2);
 features = single(features(1:pooling:length(features),4:end));
 dist = pdist2(features,features);
 %% Visualize distance distribution

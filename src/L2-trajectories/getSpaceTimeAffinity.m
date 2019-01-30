@@ -4,12 +4,12 @@ numTracklets = length(tracklets);
 
 [~, ~, startpoint, endpoint, intervals, ~, velocity] = getTrackletFeatures(tracklets);
 centers         = 0.5 * (endpoint + startpoint);
-
-    [startpoint, ~, ~] = image2world( startpoint, iCam );
-    [endpoint, ~, ~]   = image2world( endpoint, iCam );
-    velocity        = (endpoint-startpoint)./(intervals(:,2)-intervals(:,1));
-    centers         = 0.5 * (endpoint + startpoint);
-
+%% use world pos
+%     [startpoint, ~, ~] = image2world( startpoint, iCam );
+%     [endpoint, ~, ~]   = image2world( endpoint, iCam );
+%     velocity        = (endpoint-startpoint)./(intervals(:,2)-intervals(:,1));
+%     centers         = 0.5 * (endpoint + startpoint);
+%%
 % centers = reshape([tracklets.centers]',2,[])';
 % intervals = reshape([tracklets.interval]',2,[])';
 % velocity = reshape([tracklets.velocity]',2,[])';

@@ -1,3 +1,6 @@
+clear
+clc
+
 %% Options
 opts = get_opts();
 opts.experiment_name = '1fps_og';
@@ -52,9 +55,10 @@ opts.identities.consecutive_icam_matrix = ones(8);
 opts.identities.reintro_time_matrix = ones(1,8)*inf;
 opts.identities.appearance_groups = 0;
 
-
+DukeSCTs = [];
+DukeMCTs = [];
 for i = 1:1
     [DukeSCTs(i,:), DukeMCTs(i,:)] = test_tracker(opts,1,1,1);
 end
-DukeSCT = mean(DukeSCTs)
-DukeMCT = mean(DukeMCTs)
+DukeSCT = mean(DukeSCTs,1)
+DukeMCT = mean(DukeMCTs,1)
