@@ -1,10 +1,11 @@
 clc
 clear
 opts = get_opts();
-all_data = h5read(fullfile(opts.dataset_path,'ground_truth','1fps_train_IDE_40','hyperGT_L2_fft_train_75.h5'),'/hyperGT');
+all_data = h5read(fullfile(opts.dataset_path,'ground_truth','1fps_train_IDE_40','hyperGT_L3_train_12000.h5'),'/hyperGT');
 % iCam, pid, centerFrame, SpaGrpID, pos*2, v*2, 0, 256-dim feat
 considered_line = all_data(2,:)~=-1;
 all_pids = all_data(2,considered_line)';
+all_cams = all_data(1,considered_line)';
 spagrp_ids = all_data(4,considered_line)';
 all_feats = all_data(10:end,considered_line)';
 %% L2
@@ -14,10 +15,11 @@ neg_dists = [];
 for i = 1:length(unique_spa_id)
     current_spa_id = unique_spa_id(i);
     pids = all_pids(spagrp_ids==current_spa_id);
+    cams = all_cams(spagrp_ids==current_spa_id);
     feats = all_feats(spagrp_ids==current_spa_id,:);
     dist = pdist2(feats,feats);
     
-    same_label = triu(pdist2(pids,pids) == 0,1);
+    same_label = logical(triu(pdist2(pids,pids) == 0,1) .* (pdist2(cams,cams) ~= 0));
     different_label = triu(pdist2(pids,pids) ~= 0);
     pos_dists = [pos_dists;double(dist(same_label))];
     neg_dists = [neg_dists;double(dist(different_label))];
@@ -64,7 +66,7 @@ disp("thres:  "+num2str(thres_uni,'%.2f '))
 disp("diff_p: "+num2str(diff_p_uni,'%.2f '))
 disp("diff_n: "+num2str(diff_n_uni,'%.2f '))
     %% L3
-all_data = h5read(fullfile(opts.dataset_path,'ground_truth','1fps_train_IDE_40','hyperGT_L2_fft_train_inf.h5'),'/hyperGT');
+all_data = h5read(fullfile(opts.dataset_path,'ground_truth','1fps_train_IDE_40','hyperGT_L3_train_inf.h5'),'/hyperGT');
 % iCam, pid, centerFrame, SpaGrpID, pos*2, v*2, 0, 256-dim feat
 considered_line = all_data(2,:)~=-1;
 all_pids = all_data(2,considered_line)';
