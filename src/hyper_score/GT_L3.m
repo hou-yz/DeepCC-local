@@ -50,7 +50,7 @@ res = [];
 for iCam = 1:8
     newGT = newGTs{iCam};
     newGT(:,4) = newGT(:,4)+sum(spatialGroupID_max(1:iCam-1));
-	newGT(:,4) = floor(newGT(:,3)/opts.identities.window_width);
+	newGT(:,4) = round(newGT(:,3)/opts.identities.window_width);
     if opts.identities.window_width == inf
         newGT(:,4) = 0;
     end

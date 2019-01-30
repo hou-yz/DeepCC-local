@@ -12,10 +12,10 @@ for iCam = 1:8
     end_frame         = global2local(opts.start_frames(opts.current_camera), sequence_window(end));
     
     % Load OpenPose detections for current camera
-    load(fullfile(opts.dataset_path, 'detections','OpenPose', sprintf('camera%d.mat',iCam)));
+    detections = load(fullfile(opts.dataset_path, 'detections','OpenPose', sprintf('camera%d.mat',iCam)));
+    detections = detections.detections;
     
     % Load features for all detections
-    % features   = h5read(sprintf('%s/%s/L0-features/features%d.h5',opts.experiment_root,opts.experiment_name,iCam),'/emb');
     if isempty(opts.feature_dir)
         features   = h5read(sprintf('%s/L0-features/features%d.h5',opts.dataset_path,iCam),'/emb');
     else
@@ -69,7 +69,7 @@ for iCam = 1:8
         opts.experiment_name, ...
         iCam, ...
         opts.sequence_names{opts.sequence}), ...
-        'tracklets', '-v7.3');
+        'tracklets');
     
     % Clean up
     clear all_dets appearance detections features frames

@@ -3,12 +3,15 @@ clc
 
 opts=get_opts();
 opts.sequence = 7;
+opts.feature_dir = 'gt_features_fc256_train_1fps_trainBN';
 
 trainData = load(fullfile(opts.dataset_path, 'ground_truth','trainval.mat'));
 trainData = trainData.trainData;
+features=[];
 for iCam = 1:8
-    line_id = trainData(:,1)==iCam;
+    line_id = find(trainData(:,1)==iCam);
     trainData(line_id==1,3) = local2global(opts.start_frames(iCam), trainData(line_id==1,3));
+    features   = [features;h5read(sprintf('%s/L0-features/%s/features%d.h5',opts.dataset_path,opts.feature_dir,iCam),'/emb')'];
 end
 trainData = trainData(ismember(trainData(:,3),opts.sequence_intervals{opts.sequence}),:);
 
