@@ -65,7 +65,7 @@ def main():
         test_data_path = osp.join(args.data_path, 'hyperGT_{}_train_Inf.h5'.format(args.L))
     else:
         if not args.motion:
-            test_data_path = osp.join(args.data_path, 'hyperGT_{}_val_12000.h5'.format(args.L))
+            test_data_path = osp.join(args.data_path, 'hyperGT_{}_val_Inf.h5'.format(args.L))
         else:
             test_data_path = osp.join(args.data_path, 'hyperGT_{}_val_{}.h5'.format(args.L, args.window))
     torch.manual_seed(args.seed)
