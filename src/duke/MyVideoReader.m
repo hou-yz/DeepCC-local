@@ -35,7 +35,9 @@ classdef MyVideoReader < handle
             if iFrame ~= obj.PrevFrame + 1
                 obj.Video.CurrentTime = iFrame / obj.Video.FrameRate;
             end
-            assert(abs(obj.Video.CurrentTime*obj.Video.FrameRate - iFrame)<2)
+            if abs(obj.Video.CurrentTime*obj.Video.FrameRate - iFrame) >= 2
+                obj.Video.CurrentTime = iFrame / obj.Video.FrameRate;
+            end
             img = readFrame(obj.Video);
             
             % Keep track of last read
