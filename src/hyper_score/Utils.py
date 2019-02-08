@@ -62,7 +62,7 @@ def train(args, metric_net, train_loader, optimizer, epoch, criterion):
             print('Train Epoch: {}, Batch:{}, \tLoss: {:.6f}, Prec: {:.1f}%, Time: {:.3f}'.format(
                 epoch, (batch_idx + 1), losses / (batch_idx + 1), 100. * correct / (correct + miss), t_batch))
 
-    return losses / (batch_idx + 1), correct / (correct + miss)
+    return losses / len(train_loader), correct / (correct + miss)
 
 
 def test(args, metric_net, test_loader, criterion, save_result=False, epoch_max=1):
@@ -103,7 +103,7 @@ def test(args, metric_net, test_loader, criterion, save_result=False, epoch_max=
             mat_data = np.vstack(lines)
             f.create_dataset('emb', data=mat_data, dtype=float)
             pass
-    return losses / (batch_idx + 1), correct / (correct + miss)
+    return losses / len(test_loader), correct / (correct + miss)
 
 
 def draw_curve(path, x_epoch, train_loss, train_prec, test_loss, test_prec):
