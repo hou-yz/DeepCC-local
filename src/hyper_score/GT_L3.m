@@ -6,7 +6,7 @@ opts=get_opts();
 opts.identities.window_width = inf;
 
 % opts.visualize = true;
-opts.sequence = 8;
+opts.sequence = 1;
 opts.experiment_name = '1fps_train_IDE_40';
 
 newGTs = cellmat(1,8,0,0,0);
@@ -60,4 +60,4 @@ end
 
 
 % res(:,4) = 0;
-hdf5write(fullfile(opts.dataset_path, 'ground_truth',opts.experiment_name,sprintf('hyperGT_L3_%s_%d.h5',opts.sequence_names{opts.sequence},opts.identities.window_width)), '/hyperGT',res');
+hdf5write(fullfile(opts.dataset_path, 'ground_truth',opts.experiment_name,'hyperGT_L3.h5'), '/hyperGT',res');

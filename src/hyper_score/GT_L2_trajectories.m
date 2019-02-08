@@ -3,11 +3,11 @@ clear
 
 opts=get_opts();
 
-opts.trajectories.window_width = 150;
+opts.trajectories.window_width = inf;
 L2_speed = 'mid';
 
 % opts.visualize = true;
-opts.sequence = 8;
+opts.sequence = 1;
 opts.experiment_name = '1fps_train_IDE_40';
 
 newGTs = cellmat(1,8,0,0,0);
@@ -73,21 +73,13 @@ for iCam = 1:8
     pids = [tracklets.id]';
     feat = reshape([tracklets.feature]',length(tracklets(1).feature),[])';
     
-    if strcmp(L2_speed,'mid')
         [~, ~, startpoint, endpoint, intervals, ~, velocity] = getTrackletFeatures(tracklets);
         centerFrame     = local2global(opts.start_frames(iCam),round(mean(intervals,2)));
         centers         = 0.5 * (endpoint + startpoint);
         newGTs{iCam} = [ones(size(pids))*iCam,pids,centerFrame,zeros(size(pids,1),1),centers,velocity,zeros(size(pids,1),1),feat];
         in_time_range_ids = ismember(centerFrame,opts.sequence_intervals{opts.sequence});
         newGTs{iCam} = newGTs{iCam}(in_time_range_ids,:);
-    else
-%         [~, ~, startpoint, endpoint, intervals, ~,  head_velocity,tail_velocity] = getHeadTailSpeed(tracklets);
-%         startFrame = intervals(:,1);
-%         endFrame = intervals(:,2);
-%         centerFrame     = round(mean(intervals,2));
-%         newGTs{iCam} = [ones(size(pids))*iCam,pids,centerFrame,zeros(size(pids,1),1),startFrame,endFrame,startpoint, endpoint,head_velocity,tail_velocity,zeros(size(pids,1),1),feat];
-%         
-    end
+    
     for i=1:ceil(length(sequence_window)/opts.trajectories.window_width)
         % Display loop state
         window = (sequence_window(1)+(i-1)*opts.trajectories.window_width): (sequence_window(1)+i*opts.trajectories.window_width-1);
@@ -112,4 +104,4 @@ end
 
 
 % res(:,4) = 0;
-hdf5write(fullfile(opts.dataset_path, 'ground_truth',opts.experiment_name,sprintf('hyperGT_L2_%s_%d.h5',opts.sequence_names{opts.sequence},opts.trajectories.window_width)), '/hyperGT',res');
+hdf5write(fullfile(opts.dataset_path, 'ground_truth',opts.experiment_name,'hyperGT_L2.h5'), '/hyperGT',res');

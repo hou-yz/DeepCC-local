@@ -75,12 +75,12 @@ def main():
     if not os.path.isdir(args.log_dir):
         os.mkdir(args.log_dir)
 
-    trainset = SiamesebboxFeat(
-        bboxFeat('/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_basis_train_1fps/features.h5',
-                 trainval='trainval' if args.combine_trainval else 'train', L=args.L, window=args.window))
-    testset = SiamesebboxFeat(
-        bboxFeat('/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_basis_train_1fps/features.h5',
-                 trainval='val', L=args.L, window='Inf'))
+    trainset = SiameseHyperFeat(
+        HyperFeat('/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_basis_train_1fps/features.h5', motion_dim=3,
+                  trainval='trainval' if args.combine_trainval else 'train', L=args.L, window=args.window))
+    testset = SiameseHyperFeat(
+        HyperFeat('/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_basis_train_1fps/features.h5', motion_dim=3,
+                  trainval='val', L=args.L, window='Inf'))
 
     # trainset = SiameseHyperFeat(HyperFeat(train_data_path, args.features),
     #                             train=True, L3='L3' in args.L, motion=args.motion)

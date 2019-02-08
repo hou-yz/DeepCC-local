@@ -5,7 +5,7 @@ import os.path as osp
 import torch
 import torch.optim as optim
 from torch.utils.data import DataLoader
-from dataset import *
+from dataset_new import *
 
 from Utils import *
 
@@ -50,32 +50,24 @@ def main():
         args.features = 1536
     elif args.motion:
         args.L += '_motion'
-        # args.window = '150'
         args.epochs = 60
         args.step_size = 40
         args.weight_decay = 2e-3
         args.lr = 1e-4
     if args.L != 'L2' and not args.motion:
         args.weight_decay = 5e-2
-    if args.combine_trainval:
-        train_data_path = osp.join(args.data_path, 'hyperGT_{}_trainval_{}.h5'.format(args.L, args.window))
-    else:
-        train_data_path = osp.join(args.data_path, 'hyperGT_{}_train_{}.h5'.format(args.L, args.window))
-    if args.save_result:
-        test_data_path = osp.join(args.data_path, 'hyperGT_{}_train_Inf.h5'.format(args.L))
-    else:
-        if not args.motion:
-            test_data_path = osp.join(args.data_path, 'hyperGT_{}_val_Inf.h5'.format(args.L))
-        else:
-            test_data_path = osp.join(args.data_path, 'hyperGT_{}_val_{}.h5'.format(args.L, args.window))
+    train_data_path = osp.join(args.data_path, 'hyperGT_{}.h5'.format(args.L))
+    test_data_path = osp.join(args.data_path, 'hyperGT_{}.h5'.format(args.L))
+
     torch.manual_seed(args.seed)
     if not os.path.isdir(args.log_dir):
         os.mkdir(args.log_dir)
 
-    trainset = SiameseHyperFeat(HyperFeat(train_data_path, args.features),
-                                train=True, L3='L3' in args.L, motion=args.motion)
-    testset = SiameseHyperFeat(HyperFeat(test_data_path, args.features),
-                               train=False, L3='L3' in args.L, motion=args.motion)
+    trainset = SiameseHyperFeat(HyperFeat(train_data_path, args.features,
+                                          trainval='trainval' if args.combine_trainval else 'train', L=args.L,
+                                          window=args.window), motion=args.motion)
+    testset = SiameseHyperFeat(HyperFeat(test_data_path, args.features,
+                                         trainval='val', L=args.L, window=args.window), motion=args.motion)
     train_loader = DataLoader(trainset, batch_size=args.batch_size,
                               num_workers=args.num_workers, pin_memory=True, shuffle=True)
     test_loader = DataLoader(testset, batch_size=args.batch_size,
