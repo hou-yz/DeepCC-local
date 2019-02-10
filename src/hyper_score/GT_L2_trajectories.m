@@ -104,4 +104,4 @@ end
 
 
 % res(:,4) = 0;
-hdf5write(fullfile(opts.dataset_path, 'ground_truth',opts.experiment_name,'hyperGT_L2.h5'), '/hyperGT',res');
+hdf5write(fullfile(opts.dataset_path, 'ground_truth',opts.experiment_name,'hyperGT.h5'), '/hyperGT',res');

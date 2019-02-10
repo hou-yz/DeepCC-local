@@ -14,12 +14,12 @@ from Utils import *
 def main():
     # Training settings
     parser = argparse.ArgumentParser(description='Hyper Score')
-    parser.add_argument('--batch-size', type=int, default=256, metavar='N',
+    parser.add_argument('--batch-size', type=int, default=64, metavar='N',
                         help='input batch size for training (default: 64)')
     parser.add_argument('-j', '--num-workers', type=int, default=4)
     parser.add_argument('--epochs', type=int, default=40, metavar='N')
     parser.add_argument('--step-size', type=int, default=30)
-    parser.add_argument('--lr', type=float, default=2e-5, metavar='LR')
+    parser.add_argument('--lr', type=float, default=1e-4, metavar='LR')
     # 40epoch, lr=1e-3; 150epoch, lr=2e-4
     parser.add_argument('--combine-trainval', action='store_true',
                         help="train and val sets together for training, val set alone for validation")
@@ -57,7 +57,8 @@ def main():
         args.weight_decay = 2e-3
         args.lr = 1e-4
     if args.L != 'L2' and not args.motion:
-        args.weight_decay = 5e-2
+        args.weight_decay = 1e-3
+        pass
     # dataset path
     if args.combine_trainval:
         train_data_path = osp.join(args.data_path, 'hyperGT_{}_trainval_{}.h5'.format(args.L, args.window))
@@ -76,11 +77,12 @@ def main():
         os.mkdir(args.log_dir)
 
     trainset = SiameseHyperFeat(
-        HyperFeat('/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_basis_train_1fps/features.h5', motion_dim=3,
+        HyperFeat('/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_basis_train_1fps/tracklet_features.h5', motion_dim=3,
                   trainval='trainval' if args.combine_trainval else 'train', L=args.L, window=args.window))
     testset = SiameseHyperFeat(
-        HyperFeat('/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_basis_train_1fps/features.h5', motion_dim=3,
+        HyperFeat('/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_basis_train_1fps/tracklet_features.h5', motion_dim=3,
                   trainval='val', L=args.L, window='Inf'))
+
 
     # trainset = SiameseHyperFeat(HyperFeat(train_data_path, args.features),
     #                             train=True, L3='L3' in args.L, motion=args.motion)

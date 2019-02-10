@@ -6,7 +6,6 @@ import torch
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from dataset_new import *
-
 from Utils import *
 
 
@@ -56,8 +55,9 @@ def main():
         args.lr = 1e-4
     if args.L != 'L2' and not args.motion:
         args.weight_decay = 5e-2
-    train_data_path = osp.join(args.data_path, 'hyperGT_{}.h5'.format(args.L))
-    test_data_path = osp.join(args.data_path, 'hyperGT_{}.h5'.format(args.L))
+    # dataset path
+    train_data_path = osp.join(args.data_path, 'hyperGT.h5')
+    test_data_path = osp.join(args.data_path, 'hyperGT.h5')
 
     torch.manual_seed(args.seed)
     if not os.path.isdir(args.log_dir):
@@ -66,8 +66,12 @@ def main():
     trainset = SiameseHyperFeat(HyperFeat(train_data_path, args.features,
                                           trainval='trainval' if args.combine_trainval else 'train', L=args.L,
                                           window=args.window), motion=args.motion)
-    testset = SiameseHyperFeat(HyperFeat(test_data_path, args.features,
-                                         trainval='val', L=args.L, window=args.window), motion=args.motion)
+    if args.save_result:
+        testset = SiameseHyperFeat(HyperFeat(test_data_path, args.features,
+                                             trainval='train', L=args.L, window='Inf'), motion=args.motion)
+    else:
+        testset = SiameseHyperFeat(HyperFeat(test_data_path, args.features,
+                                             trainval='val', L=args.L, window='Inf'), motion=args.motion)
     train_loader = DataLoader(trainset, batch_size=args.batch_size,
                               num_workers=args.num_workers, pin_memory=True, shuffle=True)
     test_loader = DataLoader(testset, batch_size=args.batch_size,

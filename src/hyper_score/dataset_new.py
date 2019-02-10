@@ -10,7 +10,10 @@ class HyperFeat(Dataset):
     def __init__(self, root, feature_dim=256, motion_dim=9, trainval='train', L='L2', window='75'):
         self.root = root
         h5file = h5py.File(self.root, 'r')
-        self.data = np.array(h5file['hyperGT'])
+        if motion_dim == 9:
+            self.data = np.array(h5file['hyperGT'])
+        else:
+            self.data = np.array(h5file['emb'])
         self.data = self.data[self.data[:, 1] != -1, :]  # rm -1 terms
         self.L = L
         if window != 'Inf':
@@ -92,9 +95,11 @@ class SiameseHyperFeat(Dataset):
 
         # 1 for same
         if target == 1:
-            cam_pool = list(self.h_dataset.index_by_SGid_pid_icam_dic[spaGrpID1][pid1].keys())
             siamese_index = index
-            cam2 = np.random.choice(cam_pool)
+            cam2 = cam1
+            if 'L3' in self.h_dataset.L:
+                cam_pool = list(self.h_dataset.index_by_SGid_pid_icam_dic[spaGrpID1][pid1].keys())
+                cam2 = np.random.choice(cam_pool)
             index_pool = self.h_dataset.index_by_SGid_pid_icam_dic[spaGrpID1][pid1][cam2]
 
             if len(index_pool) > 1:
@@ -102,8 +107,10 @@ class SiameseHyperFeat(Dataset):
                     siamese_index = np.random.choice(index_pool)
         # 0 for different
         else:
-            cam_pool = list(self.h_dataset.index_by_SGid_icam_pid_dic[spaGrpID1].keys())
-            cam2 = np.random.choice(cam_pool)
+            cam2 = cam1
+            if 'L3' in self.h_dataset.L:
+                cam_pool = list(self.h_dataset.index_by_SGid_pid_icam_dic[spaGrpID1][pid1].keys())
+                cam2 = np.random.choice(cam_pool)
             pid_pool = list(self.h_dataset.index_by_SGid_icam_pid_dic[spaGrpID1][cam2].keys())
             pid2 = np.random.choice(pid_pool)
             if len(pid_pool) > 1 and cam2 == cam1:
