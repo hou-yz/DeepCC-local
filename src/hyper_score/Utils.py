@@ -66,37 +66,34 @@ def train(args, metric_net, train_loader, optimizer, epoch, criterion):
     return losses / len(train_loader), correct / (correct + miss)
 
 
-def test(args, metric_net, test_loader, criterion, save_result=False, epoch_max=1):
+def test(args, metric_net, test_loader, criterion, save_result=False, epoch=1):
     metric_net.eval()
     losses = 0
     correct = 0
     miss = 0
     lines = torch.zeros([0]).cuda()
     t0 = time.time()
-    if not save_result:
-        epoch_max = 1
-    for epoch in range(epoch_max):
-        for batch_idx, (data, target) in enumerate(test_loader):
-            data = data.cuda().float()
-            target = target.cuda().long()
-            with torch.no_grad():
-                output = metric_net(data)
-            pred = torch.argmax(output, 1)
-            correct += pred.eq(target).sum().item()
-            miss += target.shape[0] - pred.eq(target).sum().item()
-            loss = criterion(output, target)
-            losses += loss.item()
-            output = F.softmax(0.1 * output, dim=1)
-            line = torch.cat(((output[:, 1] - output[:, 0]).view(-1, 1),
-                              target.view(-1, 1).float()), dim=1)
-            lines = torch.cat((lines, line), dim=0)
-            if batch_idx + 1 == len(test_loader):
-                t1 = time.time()
-                t_batch = t1 - t0
-                t0 = time.time()
-                print('Test on val, epoch:{}, Batch:{}, \tLoss: {:.6f}, Prec: {:.1f}%, Time: {:.3f}'.format(
-                    epoch, (batch_idx + 1), losses / (batch_idx + 1), 100. * correct / (correct + miss),
-                                            t_batch / args.log_interval))
+    for batch_idx, (data, target) in enumerate(test_loader):
+        data = data.cuda().float()
+        target = target.cuda().long()
+        with torch.no_grad():
+            output = metric_net(data)
+        pred = torch.argmax(output, 1)
+        correct += pred.eq(target).sum().item()
+        miss += target.shape[0] - pred.eq(target).sum().item()
+        loss = criterion(output, target)
+        losses += loss.item()
+        output = F.softmax(0.1 * output, dim=1)
+        line = torch.cat(((output[:, 1] - output[:, 0]).view(-1, 1),
+                          target.view(-1, 1).float()), dim=1)
+        lines = torch.cat((lines, line), dim=0)
+        if batch_idx + 1 == len(test_loader):
+            t1 = time.time()
+            t_batch = t1 - t0
+            t0 = time.time()
+            print('Test on val, epoch:{}, Batch:{}, \tLoss: {:.6f}, Prec: {:.1f}%, Time: {:.3f}'.format(
+                epoch, (batch_idx + 1), losses / (batch_idx + 1), 100. * correct / (correct + miss),
+                                        t_batch / args.log_interval))
 
     lines = lines.cpu().numpy()
     if save_result:

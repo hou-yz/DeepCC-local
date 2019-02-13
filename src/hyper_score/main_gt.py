@@ -135,7 +135,7 @@ def main():
     checkpoint = torch.load(args.log_dir + '/metric_net_{}_{}.pth.tar'.format(args.L, args.window))
     model_dict = checkpoint['state_dict']
     metric_net.module.load_state_dict(model_dict)
-    test(args, metric_net, test_loader, criterion, save_result=args.save_result, epoch_max=10)
+    test(args, metric_net, test_loader, criterion, save_result=args.save_result)
 
 
 if __name__ == '__main__':

@@ -2,7 +2,7 @@ clear
 clc
 
 opts=get_opts();
-opts.feature_dir = 'gt_features_ide_basis_train_1fps';
+opts.feature_dir = 'gt_features_pcb_basis_fc64_train_1fps';
 opts.tracklets.window_width = 40;
 
 features=[];
@@ -16,7 +16,7 @@ for iCam = 1:8
         same_pid_lines = tmp(tmp(:,2)==pid,:);
         tracklet_grp = floor(same_pid_lines(:,3)/opts.tracklets.window_width);
         unique_grp = unique(tracklet_grp);
-        pooled_lines = zeros(length(unique_grp),259);
+        pooled_lines = zeros(length(unique_grp),384+3);
         for j = 1:length(unique_grp)
             target_grp = unique_grp(j);
             pooled_lines(j,:) = mean(same_pid_lines(tracklet_grp==target_grp,:),1);
