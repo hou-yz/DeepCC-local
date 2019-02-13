@@ -60,7 +60,8 @@ def train(args, metric_net, train_loader, optimizer, epoch, criterion):
             t_batch = t1 - t0
             t0 = time.time()
             print('Train Epoch: {}, Batch:{}, \tLoss: {:.6f}, Prec: {:.1f}%, Time: {:.3f}'.format(
-                epoch, (batch_idx + 1), losses / (batch_idx + 1), 100. * correct / (correct + miss), t_batch))
+                epoch, (batch_idx + 1), losses / (batch_idx + 1), 100. * correct / (correct + miss),
+                                        t_batch / args.log_interval))
 
     return losses / len(train_loader), correct / (correct + miss)
 
@@ -89,12 +90,13 @@ def test(args, metric_net, test_loader, criterion, save_result=False, epoch_max=
             line = torch.cat(((output[:, 1] - output[:, 0]).view(-1, 1),
                               target.view(-1, 1).float()), dim=1)
             lines = torch.cat((lines, line), dim=0)
-            if (batch_idx + 1) % args.log_interval == 0:
+            if batch_idx + 1 == len(test_loader):
                 t1 = time.time()
                 t_batch = t1 - t0
                 t0 = time.time()
                 print('Test on val, epoch:{}, Batch:{}, \tLoss: {:.6f}, Prec: {:.1f}%, Time: {:.3f}'.format(
-                    epoch, (batch_idx + 1), losses / (batch_idx + 1), 100. * correct / (correct + miss), t_batch))
+                    epoch, (batch_idx + 1), losses / (batch_idx + 1), 100. * correct / (correct + miss),
+                                            t_batch / args.log_interval))
 
     lines = lines.cpu().numpy()
     if save_result:

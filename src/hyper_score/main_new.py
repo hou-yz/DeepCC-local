@@ -5,9 +5,7 @@ import os.path as osp
 import torch
 import torch.optim as optim
 from torch.utils.data import DataLoader
-from dataset import *
 from dataset_new import *
-
 from Utils import *
 
 
@@ -24,7 +22,7 @@ def main():
     parser.add_argument('--combine-trainval', action='store_true',
                         help="train and val sets together for training, val set alone for validation")
     parser.add_argument('--momentum', type=float, default=0.9, metavar='M', help='SGD momentum (default: 0.9)')
-    parser.add_argument('--weight-decay', type=float, default=5e-4)
+    parser.add_argument('--weight-decay', type=float, default=1e-3)
     parser.add_argument('--train', action='store_true')
     parser.add_argument('--save_result', action='store_true')
     parser.add_argument('--resume', action='store_true')
@@ -32,18 +30,17 @@ def main():
                         metavar='PATH')
     parser.add_argument('-L', type=str, default='L2', choices=['L2', 'L3'])
     parser.add_argument('--window', type=str, default='75',
-                        choices=['Inf', '75', '150', '300', '600', '1200', '1500', '3000', '6000', '12000', '24000'])
+                        choices=['Inf', '75', '150', '300', '600', '1200', '2400', '4800', '9600', '19200'])
     parser.add_argument('--log-dir', type=str, default='GT', metavar='PATH')
     parser.add_argument('--seed', type=int, default=1, metavar='S',
                         help='random seed (default: 1)')
-    parser.add_argument('--log-interval', type=int, default=100, metavar='N',
+    parser.add_argument('--log-interval', type=int, default=2000, metavar='N',
                         help='how many batches to wait before logging training status')
     parser.add_argument('--features', type=int, default=256, choices=[256, 1024, 1536])
     parser.add_argument('--fft', action='store_true')
+    parser.add_argument('--triplet', action='store_true')
     parser.add_argument('--motion', action='store_true')
     args = parser.parse_args()
-    args.log_dir = osp.join('logs', args.data_path, args.log_dir)
-    args.data_path = osp.join(os.path.expanduser('~/Data/DukeMTMC/ground_truth'), args.data_path)
     if args.fft:
         args.L += '_fft'
         args.features = 1024
@@ -57,37 +54,45 @@ def main():
         args.weight_decay = 2e-3
         args.lr = 1e-4
     if args.L != 'L2' and not args.motion:
-        args.weight_decay = 1e-3
+        args.weight_decay = 1e-2
         pass
+
+    train_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_basis_train_1fps/tracklet_features.h5'
+    test_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_basis_train_1fps/tracklet_features.h5'
+    if args.triplet:
+        args.lr = 5e-5
+        args.weight_decay = 1e-3
+        args.data_path = '1fps_train_IDE_triplet_40'
+        train_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_triplet_basis_train_1fps/tracklet_features.h5'
+        test_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_triplet_basis_train_1fps/tracklet_features.h5'
+        if 'L3' in args.L:
+            args.weight_decay = 1e-3
+            pass
+
+    args.log_dir = osp.join('logs', args.data_path, args.log_dir)
+    args.data_path = osp.join(os.path.expanduser('~/Data/DukeMTMC/ground_truth'), args.data_path)
     # dataset path
-    if args.combine_trainval:
-        train_data_path = osp.join(args.data_path, 'hyperGT_{}_trainval_{}.h5'.format(args.L, args.window))
-    else:
-        train_data_path = osp.join(args.data_path, 'hyperGT_{}_train_{}.h5'.format(args.L, args.window))
-    if args.save_result:
-        test_data_path = osp.join(args.data_path, 'hyperGT_{}_train_Inf.h5'.format(args.L))
-    else:
-        if not args.motion:
-            test_data_path = osp.join(args.data_path, 'hyperGT_{}_val_Inf.h5'.format(args.L))
-        else:
-            test_data_path = osp.join(args.data_path, 'hyperGT_{}_val_{}.h5'.format(args.L, args.window))
+    # if args.combine_trainval:
+    #     train_data_path = osp.join(args.data_path, 'hyperGT_{}_trainval_{}.h5'.format(args.L, args.window))
+    # else:
+    #     train_data_path = osp.join(args.data_path, 'hyperGT_{}_train_{}.h5'.format(args.L, args.window))
+    # if args.save_result:
+    #     test_data_path = osp.join(args.data_path, 'hyperGT_{}_train_Inf.h5'.format(args.L))
+    # else:
+    #     if not args.motion:
+    #         test_data_path = osp.join(args.data_path, 'hyperGT_{}_val_Inf.h5'.format(args.L))
+    #     else:
+    #         test_data_path = osp.join(args.data_path, 'hyperGT_{}_val_{}.h5'.format(args.L, args.window))
 
     torch.manual_seed(args.seed)
     if not os.path.isdir(args.log_dir):
         os.mkdir(args.log_dir)
 
-    trainset = SiameseHyperFeat(
-        HyperFeat('/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_basis_train_1fps/tracklet_features.h5', motion_dim=3,
-                  trainval='trainval' if args.combine_trainval else 'train', L=args.L, window=args.window))
-    testset = SiameseHyperFeat(
-        HyperFeat('/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_basis_train_1fps/tracklet_features.h5', motion_dim=3,
-                  trainval='val', L=args.L, window='Inf'))
+    trainset = SiameseHyperFeat(HyperFeat(train_data_path, trainval='trainval' if args.combine_trainval else 'train',
+                                          motion_dim=3, L=args.L, window=args.window))
+    testset = SiameseHyperFeat(HyperFeat(test_data_path,
+                                         motion_dim=3, trainval='val', L=args.L, window='Inf'))
 
-
-    # trainset = SiameseHyperFeat(HyperFeat(train_data_path, args.features),
-    #                             train=True, L3='L3' in args.L, motion=args.motion)
-    # testset = SiameseHyperFeat(HyperFeat(test_data_path, args.features),
-    #                            train=False, L3='L3' in args.L, motion=args.motion)
     train_loader = DataLoader(trainset, batch_size=args.batch_size,
                               num_workers=args.num_workers, pin_memory=True, shuffle=True)
     test_loader = DataLoader(testset, batch_size=args.batch_size,
