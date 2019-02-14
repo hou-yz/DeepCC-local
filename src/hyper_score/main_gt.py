@@ -22,7 +22,7 @@ def main():
     parser.add_argument('--combine-trainval', action='store_true',
                         help="train and val sets together for training, val set alone for validation")
     parser.add_argument('--momentum', type=float, default=0.9, metavar='M', help='SGD momentum (default: 0.9)')
-    parser.add_argument('--weight-decay', type=float, default=1e-3)
+    parser.add_argument('--weight-decay', type=float, default=5e-4)
     parser.add_argument('--train', action='store_true')
     parser.add_argument('--save_result', action='store_true')
     parser.add_argument('--resume', action='store_true')
@@ -34,43 +34,30 @@ def main():
     parser.add_argument('--log-dir', type=str, default='GT', metavar='PATH')
     parser.add_argument('--seed', type=int, default=1, metavar='S',
                         help='random seed (default: 1)')
-    parser.add_argument('--log-interval', type=int, default=2000, metavar='N',
+    parser.add_argument('--log-interval', type=int, default=300, metavar='N',
                         help='how many batches to wait before logging training status')
     parser.add_argument('--features', type=int, default=256, choices=[256, 1024, 1536])
     parser.add_argument('--fft', action='store_true')
+    parser.add_argument('--pcb', action='store_true')
     parser.add_argument('--triplet', action='store_true')
     parser.add_argument('--motion', action='store_true')
     args = parser.parse_args()
-    if args.fft:
-        args.L += '_fft'
-        args.features = 1024
-    elif 'PCB' in args.data_path:
-        args.features = 1536
-    elif args.motion:
-        args.L += '_motion'
-        # args.window = '150'
-        args.epochs = 60
-        args.step_size = 40
-        args.weight_decay = 2e-3
-        args.lr = 1e-4
-    if args.L != 'L2' and not args.motion:
-        args.weight_decay = 1e-2
+    if 'L3' in args.L:
+        args.weight_decay = 1e-3
         pass
 
-    train_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_basis_train_1fps/tracklet_features.h5'
-    test_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_basis_train_1fps/tracklet_features.h5'
     if args.triplet:
-        args.lr = 5e-5
-        args.weight_decay = 1e-3
         args.data_path = '1fps_train_IDE_triplet_40'
         train_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_triplet_basis_train_1fps/tracklet_features.h5'
         test_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_triplet_basis_train_1fps/tracklet_features.h5'
-        if 'L3' in args.L:
-            args.weight_decay = 1e-3
-            pass
+    elif args.pcb:
+        args.data_path = '1fps_train_PCB_40'
+        train_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_pcb_basis_fc64_train_1fps/tracklet_features.h5'
+        test_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_pcb_basis_fc64_train_1fps/tracklet_features.h5'
+    else:
+        train_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_basis_train_1fps/tracklet_features.h5'
+        test_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_basis_train_1fps/tracklet_features.h5'
 
-    args.log_dir = osp.join('logs', args.data_path, args.log_dir)
-    args.data_path = osp.join(os.path.expanduser('~/Data/DukeMTMC/ground_truth'), args.data_path)
     # dataset path
     # if args.combine_trainval:
     #     train_data_path = osp.join(args.data_path, 'hyperGT_{}_trainval_{}.h5'.format(args.L, args.window))
@@ -117,7 +104,7 @@ def main():
                               weight_decay=args.weight_decay)
         for epoch in range(1, args.epochs + 1):
             train_loss, train_prec = train(args, metric_net, train_loader, optimizer, epoch, criterion)
-            test_loss, test_prec = test(args, metric_net, test_loader, criterion, False, 1)
+            test_loss, test_prec = test(args, metric_net, test_loader, criterion, False, epoch)
             x_epoch.append(epoch)
             train_loss_s.append(train_loss)
             train_prec_s.append(train_prec)
