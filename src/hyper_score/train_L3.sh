@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
  
 task(){
-	CUDA_VISIBLE_DEVICES=0 python main_gt.py --train --window "$1" -L L3;
+	CUDA_VISIBLE_DEVICES=1 python main_gt.py --train --window "$1" -L L3 --pcb;
 }
 
 

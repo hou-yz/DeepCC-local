@@ -3,7 +3,7 @@ clear
 %% Options
 opts = get_opts();
 opts.sequence = 7;
-opts.net.experiment_root = 'experiments/ide_basis_train_1fps_gpu75'; % 'experiments/ide_basis_train_1fps';%
+opts.net.experiment_root = 'experiments/pcb_basis_fc64_train_1fps'; % 'experiments/ide_basis_train_1fps';%
 unified_model=~( contains(opts.net.experiment_root,'_icam') || contains(opts.net.experiment_root,'_base_on_uni'));
 type='mid' %'1x'%
 
