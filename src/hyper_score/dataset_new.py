@@ -7,7 +7,7 @@ from torch.utils.data import Dataset
 
 
 class HyperFeat(Dataset):
-    def __init__(self, root, feature_dim=256, motion_dim=9, trainval='train', L='L2', window='75'):
+    def __init__(self, root, feature_dim=256, motion_dim=9, trainval='train', L='L2', window='75', mot=False):
         self.root = root
         h5file = h5py.File(self.root, 'r')
         if motion_dim == 9:
@@ -23,15 +23,26 @@ class HyperFeat(Dataset):
         # iCam, pid, centerFrame, SpaGrpID, pos*2, v*2, 0, 256-dim feat
         self.feat_col = list(range(motion_dim, feature_dim + motion_dim))
         self.motion_col = [0, 2, 4, 5, 6, 7]
-        # train frame: [47720:187540]; val frame: [187541:227540]
-        if trainval == 'train':
-            self.frame_range = [47720, 187540]
-        elif trainval == 'val':
-            self.frame_range = [187541, 227540]
+        if mot:
+            self.frame_range = [-np.inf, np.inf]
+            if trainval == 'train':
+                self.cam_range = [4, 10]
+            elif trainval == 'val':
+                self.cam_range = [2, 5, 9, 11, 13]
+            else:
+                self.cam_range = [2, 4, 5, 9, 10, 11, 13]
         else:
-            self.frame_range = [47720, 227540]
+            self.cam_range = list(range(1, 9))
+            # train frame: [47720:187540]; val frame: [187541:227540]
+            if trainval == 'train':
+                self.frame_range = [47720, 187540]
+            elif trainval == 'val':
+                self.frame_range = [187541, 227540]
+            else:
+                self.frame_range = [47720, 227540]
         self.data = self.data[np.nonzero((self.data[:, 2] >= self.frame_range[0])
-                                         & (self.data[:, 2] <= self.frame_range[1]))[0], :]
+                                         & (self.data[:, 2] <= self.frame_range[1])
+                                         & np.isin(self.data[:, 0], self.cam_range))[0], :]
         self.GT_data = self.data[:, [0, 1, 2]]
         self.GT_data[:, 2] = (self.GT_data[:, 2] / self.window).astype(int)
 

@@ -10,7 +10,7 @@ class MetricNet(nn.Module):
         super(MetricNet, self).__init__()
         self.num_class = num_class
 
-        if feature_dim == 384:
+        if feature_dim == 384 or feature_dim == 512:
             layer_dim = 128
         elif feature_dim <= 16:
             layer_dim = 4

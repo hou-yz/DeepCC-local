@@ -40,6 +40,7 @@ def main():
     parser.add_argument('--type', type=str, default='gt', choices=['gt', 'det'])
     parser.add_argument('--fft', action='store_true')
     parser.add_argument('--pcb', action='store_true')
+    parser.add_argument('--mot', action='store_true')
     parser.add_argument('--triplet', action='store_true')
     parser.add_argument('--motion', action='store_true')
     args = parser.parse_args()
@@ -47,41 +48,53 @@ def main():
         args.weight_decay = 1e-3
         pass
 
-    if args.triplet:
-        args.data_path = '1fps_train_IDE_triplet_40'
-        train_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_triplet_basis_train_1fps/tracklet_features.h5'
-        test_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_triplet_basis_train_1fps/tracklet_features.h5'
-    elif args.pcb:
-        args.weight_decay = 5e-3
-        # args.lr = 5e-5
-        args.features = 384
-        args.data_path = '1fps_train_PCB_40'
-        train_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_pcb_basis_fc64_train_1fps/tracklet_features.h5'
-        test_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_pcb_basis_fc64_train_1fps/tracklet_features.h5'
-        # args.weight_decay = 1e-3
-        if 'L3' in args.L:
-            args.weight_decay = 5e-3
-            pass
+    if args.mot:
+        args.lr = 1e-3
+        args.data_path = 'MOT'
+        args.log_dir = ''
+        args.features = 512
+        train_data_path = '/home/houyz/Data/MOT16/gt_feat/all_seq_feat.h5'
+        test_data_path = '/home/houyz/Data/MOT16/gt_feat/all_seq_feat.h5'
     else:
-        train_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_basis_train_1fps/tracklet_features.h5'
-        test_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_basis_train_1fps/tracklet_features.h5'
+
+        if args.triplet:
+            args.data_path = '1fps_train_IDE_triplet_40'
+            train_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_triplet_basis_train_1fps/tracklet_features.h5'
+            test_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_triplet_basis_train_1fps/tracklet_features.h5'
+        elif args.pcb:
+            args.weight_decay = 5e-3
+            # args.lr = 5e-5
+            args.features = 384
+            args.data_path = '1fps_train_PCB_40'
+            train_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_pcb_basis_fc64_train_1fps/tracklet_features.h5'
+            test_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_pcb_basis_fc64_train_1fps/tracklet_features.h5'
+            # args.weight_decay = 1e-3
+            if 'L3' in args.L:
+                args.weight_decay = 1e-2
+                pass
+        else:
+            train_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_basis_train_1fps/tracklet_features.h5'
+            test_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_basis_train_1fps/tracklet_features.h5'
 
     # dataset path
+    args.log_dir = osp.join('logs', args.data_path, args.log_dir)
     args.data_path = osp.join(os.path.expanduser('~/Data/DukeMTMC/ground_truth'), args.data_path)
-    if args.type == 'det':
-        train_data_path = osp.join(args.data_path, 'hyperGT.h5')
-        test_data_path = osp.join(args.data_path, 'hyperGT.h5')
-        motion_dim = 9
-        args.log_dir = ''
-        args.lr = 5e-4
-        args.weight_decay = 5e-4
-        if 'L3' in args.L:
-            args.weight_decay = 5e-2
-            pass
+    if not args.mot:
+        if args.type == 'det':
+            train_data_path = osp.join(args.data_path, 'hyperGT.h5')
+            test_data_path = osp.join(args.data_path, 'hyperGT.h5')
+            motion_dim = 9
+            args.log_dir = osp.join(args.log_dir, '..')
+            args.lr = 5e-4
+            args.weight_decay = 5e-4
+            if 'L3' in args.L:
+                args.weight_decay = 5e-2
+                pass
+        else:
+            motion_dim = 3
     else:
         motion_dim = 3
 
-    args.log_dir = osp.join('logs', args.data_path, args.log_dir)
     # dataset path
     # if args.combine_trainval:
     #     train_data_path = osp.join(args.data_path, 'hyperGT_{}_trainval_{}.h5'.format(args.L, args.window))
@@ -101,9 +114,9 @@ def main():
 
     trainset = SiameseHyperFeat(HyperFeat(train_data_path, trainval='trainval' if args.combine_trainval else 'train',
                                           feature_dim=args.features, motion_dim=motion_dim, L=args.L,
-                                          window=args.window))
+                                          window=args.window, mot=args.mot))
     testset = SiameseHyperFeat(HyperFeat(test_data_path, feature_dim=args.features,
-                                         motion_dim=motion_dim, trainval='val', L=args.L, window='Inf'))
+                                         motion_dim=motion_dim, trainval='val', L=args.L, window='Inf', mot=args.mot))
 
     train_loader = DataLoader(trainset, batch_size=args.batch_size,
                               num_workers=args.num_workers, pin_memory=True, shuffle=True)
@@ -135,23 +148,18 @@ def main():
             train_prec_s.append(train_prec)
             test_loss_s.append(test_loss)
             test_prec_s.append(test_prec)
-            if test_prec == max(test_prec_s):
-                # torch save
-                torch.save({'state_dict': metric_net.module.state_dict(), }, args.log_dir + '/metric_net_{}_{}.pth.tar'.
-                           format(args.L, args.window))
-
             path = args.log_dir + '/MetricNet_{}_{}.jpg'.format(args.L, args.window)
             draw_curve(path, x_epoch, train_loss_s, train_prec_s, test_loss_s, test_prec_s)
             pass
+        torch.save({'state_dict': metric_net.module.state_dict(), }, args.log_dir + '/metric_net_{}_{}.pth.tar'.
+                   format(args.L, args.window))
+        path = osp.join(args.log_dir, 'model_param_{}_{}.mat'.format(args.L, args.window))
+        save_model_as_mat(path, metric_net.module)
 
     checkpoint = torch.load(args.log_dir + '/metric_net_{}_{}.pth.tar'.format(args.L, args.window))
     model_dict = checkpoint['state_dict']
     metric_net.module.load_state_dict(model_dict)
     test(args, metric_net, test_loader, criterion, save_result=args.save_result)
-    if args.train:
-        # matlab save
-        path = osp.join(args.log_dir, 'model_param_{}_{}.mat'.format(args.L, args.window))
-        save_model_as_mat(path, metric_net.module)
 
 
 if __name__ == '__main__':
