@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
  
 task(){
-	CUDA_VISIBLE_DEVICES=0 python main_gt.py --train --window "$1" --pcb;
+	CUDA_VISIBLE_DEVICES=1 python main.py --train --window "$1" --mot --combine-trainval;
 }
 
 
-for thing in 75 150 300 600 1200 2400 4800 9600 19200 'Inf'; do
+for thing in 15 30 75 150 300 'Inf'; do
 	task "$thing" & 
 done

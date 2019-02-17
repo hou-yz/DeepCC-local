@@ -1,4 +1,10 @@
 opts = get_opts();
+opts.experiment_name = '1fps_og';
+opts.sequence = 8;
+sequence_window   = opts.sequence_intervals{opts.sequence};
+startFrame       = sequence_window(1);
+% endFrame         = sequence_window(end);
+endFrame         = sequence_window(1)+60*30;
 
 % Load ground truth trajectories (or your own)
 load(fullfile(opts.dataset_path, 'ground_truth', 'trainval.mat'));
@@ -13,7 +19,7 @@ video_name = fullfile(opts.experiment_root, opts.experiment_name, folder, 'duke_
 % Params
 colors    = distinguishable_colors(1000);
 tail_size = 300;
-fps       = 120;
+fps       = 10;
 rois      = opts.ROIs;
 ids       = unique(trajectories(:,2));
 
@@ -87,6 +93,10 @@ for frame = startFrame:fps:endFrame
     finalimg = insertText(finalimg,[1440 270], 'Camera 4', 'FontSize',20, 'BoxColor', 'black','BoxOpacity',0.8,'TextColor','white');
     
     % Write mosaic frame to video
+    writeVideo(vid,finalimg);   
+    writeVideo(vid,finalimg);   
+    writeVideo(vid,finalimg);   
+    writeVideo(vid,finalimg);   
     writeVideo(vid,finalimg);   
 end
 close(vid);

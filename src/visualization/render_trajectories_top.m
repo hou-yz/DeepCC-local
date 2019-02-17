@@ -1,6 +1,8 @@
 clc
 clear
 opts = get_opts();
+opts.experiment_name = '1fps_og';
+opts.sequence = 8;
 
 % Load ground truth trajectories (or your own)
 load(fullfile(opts.dataset_path, 'ground_truth', 'trainval.mat'));
