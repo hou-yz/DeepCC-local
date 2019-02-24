@@ -5,7 +5,7 @@ mot=1;
 if mot
     opts = get_opts_mot();
     opts.feature_dir = 'D:/Data/MOT16/gt_feat/';
-    opts.net.experiment_root = 'og512';%
+    opts.net.experiment_root = 'ide256';%'og512';%
 else
     opts = get_opts();
     opts.sequence = 7;

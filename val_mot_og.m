@@ -34,9 +34,9 @@ end
 % opts.visualize = true;
 
 % Tracklets
-% compute_L1_tracklets_mot(opts);
+compute_L1_tracklets_mot(opts);
 
 % Single-camera trajectories
 opts.trajectories.appearance_groups = 1;
-% compute_L2_trajectories_mot(opts);
+compute_L2_trajectories_mot(opts);
 evaluate(opts,1);
