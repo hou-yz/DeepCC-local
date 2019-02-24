@@ -1,8 +1,15 @@
 function compute_L1_tracklets(opts)
 % Computes tracklets for all cameras
-
-appear_model_param = load(fullfile('src','hyper_score/logs',opts.appear_model_name));
-motion_model_param = load(fullfile('src','hyper_score/logs',opts.motion_model_name));
+if opts.tracklets.og_appear_score
+    appear_model_param = [];
+else
+    appear_model_param = load(fullfile('src','hyper_score/logs',opts.appear_model_name));
+end
+if opts.tracklets.og_motion_score
+    motion_model_param = [];
+else
+    motion_model_param = load(fullfile('src','hyper_score/logs',opts.motion_model_name));
+end
 for iCam = 1:8
     
     opts.current_camera = iCam;

@@ -1,7 +1,15 @@
 function compute_L3_identities(opts)
 % Computes multi-camera trajectories from single-camera trajectories
-appear_model_param = load(fullfile('src','hyper_score/logs',opts.appear_model_name));
-motion_model_param = load(fullfile('src','hyper_score/logs',opts.motion_model_name));
+if opts.identities.og_appear_score
+    appear_model_param = [];
+else
+    appear_model_param = load(fullfile('src','hyper_score/logs',opts.appear_model_name));
+end
+if opts.identities.og_motion_score
+    motion_model_param = [];
+else
+    motion_model_param = load(fullfile('src','hyper_score/logs',opts.motion_model_name));
+end
 
 filename = sprintf('%s/%s/L3-identities/L2trajectories.mat',opts.experiment_root, opts.experiment_name);
 
