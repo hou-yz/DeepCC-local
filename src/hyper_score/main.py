@@ -49,12 +49,15 @@ def main():
     if args.mot:
         args.lr = 1e-3
         args.data_path = 'MOT'
-        args.log_dir = ''
-        # args.features = 512
-        # train_data_path = '/home/houyz/Data/MOT16/gt_feat/all_seq_feat.h5'
-        # test_data_path = '/home/houyz/Data/MOT16/gt_feat/all_seq_feat.h5'
-        train_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_basis_train_1fps/tracklet_features.h5'
-        test_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_basis_train_1fps/tracklet_features.h5'
+        args.log_dir = 'og512'
+        args.features = 512
+        # args.log_dir = 'ide256'
+        # args.features = 256
+
+        train_data_path = '/home/houyz/Data/MOT16/gt_feat/{}/all_seq_feat.h5'.format(args.log_dir)
+        test_data_path = '/home/houyz/Data/MOT16/gt_feat/{}/all_seq_feat.h5'.format(args.log_dir)
+        # train_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_basis_train_1fps/tracklet_features.h5'
+        # test_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_basis_train_1fps/tracklet_features.h5'
     else:
         if args.triplet:
             args.data_path = '1fps_train_IDE_triplet_40'

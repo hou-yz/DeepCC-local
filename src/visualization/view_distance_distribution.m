@@ -1,4 +1,4 @@
-function [thres_uni,diff_p_uni,diff_n_uni]=view_distance_distribution(opts,type)
+function [thres_uni,diff_p_uni,diff_n_uni]=view_distance_distribution(opts,type,mot)
 % data = readtable('src/triplet-reid/data/duke_test.csv', 'Delimiter',','); % reid
 
 % opts.net.experiment_root = 'experiments/fc256_6fps_epoch45';
@@ -6,19 +6,28 @@ function [thres_uni,diff_p_uni,diff_n_uni]=view_distance_distribution(opts,type)
 
 % cam, pid, frame, 256-dim feat
 features = [];
-for iCam = 1:8
+if mot
+    features = h5read(sprintf('%s/%s/all_seq_feat.h5',opts.feature_dir,opts.net.experiment_root),'/emb')';
+else
+    for iCam = 1:8
     tmp_features = h5read(fullfile(opts.net.experiment_root, sprintf('features%d.h5',iCam)),'/emb');
     tmp_features = tmp_features';
     sequence_window   = opts.sequence_intervals{opts.sequence};
     sequence_window = global2local(opts.start_frames(iCam), sequence_window);
     in_time_range_ids = ismember(tmp_features(:,3),sequence_window);
     features = [features;tmp_features(in_time_range_ids,:)];
+    end
 end
 % pooling
-pooling = 4;
-labels = features(1:pooling:length(features),2);
+pooling = 10;
+if mot
+    labels = features(1:pooling:length(features),2)+features(1:pooling:length(features),1)*1000;
+else
+    labels = features(1:pooling:length(features),2);
+end
 features = single(features(1:pooling:length(features),4:end));
 dist = pdist2(features,features);
+clear features
 %% Visualize distance distribution
     same_label = triu(pdist2(labels,labels) == 0,1);
     different_label = triu(pdist2(labels,labels) ~= 0);

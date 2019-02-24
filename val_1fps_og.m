@@ -4,7 +4,7 @@ clc
 %% Options
 opts = get_opts();
 opts.experiment_name = '1fps_og';
-opts.feature_dir = 'det_features_ide_basis_train_1fps_val';
+opts.feature_dir = 'det_features_ide_basis_train_1fps_trainval';
 % basis setting for DeepCC
 opts.tracklets.window_width = 40;
 opts.trajectories.window_width = 150;

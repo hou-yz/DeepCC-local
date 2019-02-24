@@ -62,6 +62,7 @@ for i = 1:numTracklets
     
     assert(~isempty(currentTracklet));
 end
+end
 
 
 

@@ -68,8 +68,13 @@ for spatialGroupID = 1 : max(spatialGroupIDs)
     discountMatrix                  = min(1, -log(intervalDistance/params.window_width));
 %     correlationMatrix               = motionCorrelation + appearanceCorrelation; 
 %     correlationMatrix               = correlationMatrix .* discountMatrix;
-    correlationMatrix               = params.alpha*motionCorrelation .* discountMatrix + appearanceCorrelation; 
-    correlationMatrix(impMatrix==1) = -inf;
+    
+    if params.alpha
+        correlationMatrix               = params.alpha*motionCorrelation .* discountMatrix + appearanceCorrelation; 
+        correlationMatrix(impMatrix==1) = -inf;
+    else
+        correlationMatrix               = appearanceCorrelation; 
+    end
     
     % Show spatial grouping and correlations
     % if opts.visualize, trackletsVisualizePart2; end

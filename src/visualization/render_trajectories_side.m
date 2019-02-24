@@ -53,14 +53,14 @@ for frame = startFrame:fps:endFrame
         img = opts.reader.getFrame(iCam, global2local(opts.start_frames(iCam),frame));
         
         % Shade ROI with blue
-        roi = rois{iCam};
-        roimask = ones(size(img,1),size(img,2));
-        roimask = cv.fillPoly(roimask, roi);      
-        img = double(img);
-        c3 = img(:,:,3);
-        c3(logical(~roimask)) = 128 + 0.5*c3(logical(~roimask));
-        img(:,:,3) = c3;
-        img = uint8(img);
+%         roi = rois{iCam};
+%         roimask = ones(size(img,1),size(img,2));
+%         roimask = cv.fillPoly(roimask, roi);      
+%         img = double(img);
+%         c3 = img(:,:,3);
+%         c3(logical(~roimask)) = 128 + 0.5*c3(logical(~roimask));
+%         img(:,:,3) = c3;
+%         img = uint8(img);
         
         % Draw all tails for current camera frame
         for k = 1:length(ids)

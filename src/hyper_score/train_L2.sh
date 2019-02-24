@@ -5,6 +5,6 @@ task(){
 }
 
 
-for thing in 15 30 75 150 300 'Inf'; do
+for thing in 15 30 75 'Inf'; do
 	task "$thing" & 
 done

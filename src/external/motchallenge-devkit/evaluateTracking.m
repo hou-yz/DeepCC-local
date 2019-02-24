@@ -56,7 +56,7 @@ allMets = [];
 metsBenchmark = [];
 metsMultiCam = [];
 
-for ind = 1:8
+for ind = 1:length(allSequences)
     % Parse ground truth
     if ~multicam
         % MOTX parsing
