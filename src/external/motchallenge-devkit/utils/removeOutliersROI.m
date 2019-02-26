@@ -1,26 +1,24 @@
-function resdataProc = removeOutliersROI(resdata, cam, settype)
+function resdataProc = removeOutliersROI(resdata, cam, settype, dataset_path)
 
 % Fetch data
-if ~exist('res/AIC19/ROIs','dir')
+if ~exist(fullfile(dataset_path, 'ROIs'),'dir')
     fprintf('Downloading ROI images...\n');
     url = 'https://drive.google.com/uc?export=download&id=1aT8rZ2sEdBIKNuDJz1EinsBpgvYobZHN';
-    if ~exist('res','dir'), mkdir('res'); end
-    if ~exist('res/AIC19','dir'), mkdir('res/AIC19'); end
-    if ~exist('res/AIC19/ROIs','dir'), mkdir('res/AIC19/ROIs'); end
-    filename = 'res/AIC19/ROIs.zip';
+    if ~exist(fullfile(dataset_path, 'ROIs'),'dir'), mkdir(fullfile(dataset_path, 'ROIs')); end
+    filename = fullfile(dataset_path, 'ROIs.zip');
     if exist('websave','builtin')
       outfilename = websave(filename,url); % exists from MATLAB 2014b
     else
       outfilename = urlwrite(url, filename);
     end
-    unzip(outfilename,'res/AIC19/ROIs/');
+    unzip(outfilename,fullfile(dataset_path, 'ROIs'));
     delete(filename);
 end
 
 resdataProc = [];
 
 % Read ROI image
-roipath = sprintf('res/AIC19/ROIs/%s/c%03d/roi.jpg', settype, cam);
+roipath = fullfile(dataset_path, sprintf('ROIs/%s/c%03d/roi.jpg',settype, cam));
 ROI = imread(roipath);
 % ROI = rgb2gray(ROI);
 

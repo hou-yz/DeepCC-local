@@ -127,10 +127,10 @@ for ind = 1:length(allSequences)
     elseif multicam && vehicle
         % CiyFlow parsing
          if strcmp(seqmap,'AIC19-test.txt')
-            load('gt/AIC19/test.mat');
+            load(fullfile(dataset_path,'ground_truth', 'test.mat'));
             gtdata = testData;
         elseif strcmp(seqmap,'AIC19-train.txt')
-            load('gt/AIC19/train.mat');
+            load(fullfile(dataset_path,'ground_truth', 'train.mat'));
             gtdata = trainData;
         else
             fprintf('Unknown test set %s\n',testSet);
@@ -206,7 +206,7 @@ for ind = 1:length(allSequences)
     elseif multicam && vehicle
         % Duke data format
         sequenceName = allSequences{ind};
-        resFilename = fullfile(resDir, [sequenceName,  '.txt']);;
+        resFilename = fullfile(resDir, [sequenceName,  '.txt']);
         s = dir(resFilename);
         if exist(resFilename,'file') && s.bytes ~= 0
             resdata = dlmread(resFilename);
@@ -217,7 +217,7 @@ for ind = 1:length(allSequences)
         settype = sequenceName(6:end);
         
         % Filter rows by ROI
-        resdata = removeOutliersROI(resdata, cam, settype);
+        resdata = removeOutliersROI(resdata, cam, settype, dataset_path);
         resdata = sortrows(resdata,[1 2]);
         resMat{ind} = resdata;
         
@@ -233,8 +233,8 @@ for ind = 1:length(allSequences)
         rows = find(ismember(frameIdPairs, dupFrameIdExample, 'rows'));
         
         errorMessage = sprintf('Invalid submission: Found duplicate ID/Frame pairs in sequence %s.\nInstance:\n', sequenceName);
-        errorMessage = [errorMessage, sprintf('%10.2f', resMat{ind}(rows(1),:)), sprintf('\n')];
-        errorMessage = [errorMessage, sprintf('%10.2f', resMat{ind}(rows(2),:)), sprintf('\n')];
+        errorMessage = [errorMessage, sprintf('%10.2f', resMat{ind}(rows(1),:)), newline];
+        errorMessage = [errorMessage, sprintf('%10.2f', resMat{ind}(rows(2),:)), newline];
         assert(~hasDuplicates, errorMessage);
     end
 
