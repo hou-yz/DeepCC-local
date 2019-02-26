@@ -40,7 +40,7 @@ fn = zeros(size(cost));
 [costBlock, fpBlock, fnBlock] = costBlockMex(ground_truth, prediction, threshold, world);
 % for i = 1:length(ground_truth)
 %     for j = 1:length(prediction)
-%         [costBlock(i,j), fpBlock(i,j), fnBlock(i,j)] = costFunction(ground_truth{i}, prediction{j}, threshold, world);
+%         [cost(i,j), fp(i,j), fn(i,j)] = costFunction(ground_truth{i}, prediction{j}, threshold, world);
 %     end
 % end
 cost(1:size(costBlock,1),1:size(costBlock,2)) = costBlock;
@@ -89,6 +89,7 @@ IDPrecision = IDTP / (IDTP + IDFP);
 if numPRED == 0, IDPrecision = 0; end
 IDRecall = IDTP / (IDTP + IDFN);
 IDF1 = 2*IDTP/(numGT + numPRED);
+%IDF1 = 2*IDTP/(2*IDTP + IDFN);
 
 measures.IDP = IDPrecision * 100;
 measures.IDR = IDRecall * 100;

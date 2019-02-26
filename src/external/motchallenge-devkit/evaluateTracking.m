@@ -13,7 +13,8 @@ function [allMets, metsBenchmark, metsMultiCam] = evaluateTracking(seqmap, resDi
 % The folder containing the ground truth files.
 %
 % - benchmark
-% The name of the benchmark, e.g. 'MOT15', 'MOT16', 'MOT17', 'DukeMTMCT'
+% The name of the benchmark, e.g. 'MOT15', 'MOT16', 'MOT17', 'DukeMTMCT', 
+% 'AIC19'
 %
 % Output:
 % - allMets
@@ -32,6 +33,7 @@ warning off;
 world = 0;
 threshold = 0.5;
 multicam = 0;
+vehicle = 0;
 if strcmp(benchmark, 'MOT15')
 elseif strcmp(benchmark, 'MOT15_3D')
     world = 1;
@@ -41,6 +43,9 @@ elseif strcmp(benchmark, 'MOT17')
 elseif strcmp(benchmark, 'PETS2017')
 elseif strcmp(benchmark, 'DukeMTMCT')
     multicam = 1;
+elseif strcmp(benchmark, 'AIC19')
+    multicam = 1;
+    vehicle = 1;
 end
 
 % Read sequence list
@@ -57,8 +62,9 @@ metsBenchmark = [];
 metsMultiCam = [];
 
 for ind = 1:length(allSequences)
+    
     % Parse ground truth
-    if ~multicam
+    if ~multicam && ~vehicle
         % MOTX parsing
         sequenceName = char(allSequences(ind));
         sequenceFolder = [gtDataDir, sequenceName, filesep];
@@ -80,7 +86,7 @@ for ind = 1:length(allSequences)
         gtdata(:,2) = ic;
         gtMat{ind} = gtdata;
         
-    else
+    elseif multicam && ~vehicle
         % DukeMTMCT parsing
         ROI = getROIs();
         if strcmp(seqmap,'DukeMTMCT-test-easy.txt')
@@ -118,10 +124,32 @@ for ind = 1:length(allSequences)
         gtdata = sortrows(gtdata,[1 2]);
         gtMat{ind} = gtdata;
         
+    elseif multicam && vehicle
+        % CiyFlow parsing
+         if strcmp(seqmap,'AIC19-test.txt')
+            load('gt/AIC19/test.mat');
+            gtdata = testData;
+        elseif strcmp(seqmap,'AIC19-train.txt')
+            load('gt/AIC19/train.mat');
+            gtdata = trainData;
+        else
+            fprintf('Unknown test set %s\n',testSet);
+            return;
+         end
+        
+        sequenceName = allSequences{ind};
+        cam = str2num(sequenceName(2:4));
+        filter = gtdata(:,1) == cam;
+        gtdata = gtdata(filter,:);
+        gtdata = gtdata(:,2:end);
+        gtdata(:,[1 2]) = gtdata(:,[2 1]);
+        gtdata = sortrows(gtdata,[1 2]);
+        gtMat{ind} = gtdata;
+        
     end
     
     % Parse result
-    if ~multicam
+    if ~multicam && ~vehicle
         % MOTX data format
         resFilename = fullfile(resDir,  [sequenceName,  '.txt']);
         if strcmp(benchmark, 'MOT16') || strcmp(benchmark, 'MOT17')
@@ -134,10 +162,15 @@ for ind = 1:length(allSequences)
         end
         
         % Read result file
-        try
-            resdata = dlmread(resFilename);
-        catch
-            error('Invalid submission. Result file for sequence %s is empty or invalid\n', resFilename);
+        if exist(resFilename,'file')
+            s = dir(resFilename);
+            if s.bytes ~= 0
+                resdata = dlmread(resFilename);
+            else
+                resdata = zeros(0,9);
+            end
+        else
+            error('Invalid submission. Result file for sequence %s is missing or invalid\n', resFilename);
         end
         resdata(resdata(:,1)<1,:) = [];      % ignore negative frames
         if strcmp(benchmark, 'MOT15_3D')
@@ -146,7 +179,7 @@ for ind = 1:length(allSequences)
         resdata(resdata(:,1) > max(gtMat{ind}(:,1)),:) = []; % clip result to gtMaxFrame
         resMat{ind} = resdata;
         
-    else
+    elseif multicam && ~vehicle
         % Duke data format
         sequenceName = allSequences{ind};
         resFilename = fullfile(resDir, [sequenceName,  '.txt']);
@@ -165,10 +198,28 @@ for ind = 1:length(allSequences)
         % Filter rows by feet position within ROI
         feetpos = [ resdata(:,3) + 0.5*resdata(:,5), resdata(:,4) + resdata(:,6)];
         resdata = resdata(inpolygon(feetpos(:,1),feetpos(:,2), ROI{cam}(:,1),ROI{cam}(:,2)),:);
+        % resdata = removeOutliersROI(resdata, cam, 'NaN');
         resdata(:,1) = resdata(:,1) + startTimes(cam) - testInterval(1); % normalize frames
         resdata = sortrows(resdata,[1 2]);
         resMat{ind} = resdata;
         
+    elseif multicam && vehicle
+        % Duke data format
+        sequenceName = allSequences{ind};
+        resFilename = fullfile(resDir, [sequenceName,  '.txt']);;
+        s = dir(resFilename);
+        if exist(resFilename,'file') && s.bytes ~= 0
+            resdata = dlmread(resFilename);
+        else
+            resdata = zeros(0,9);
+        end
+        cam = str2num(sequenceName(2:4));
+        settype = sequenceName(6:end);
+        
+        % Filter rows by ROI
+        resdata = removeOutliersROI(resdata, cam, settype);
+        resdata = sortrows(resdata,[1 2]);
+        resMat{ind} = resdata;
         
     end
     
@@ -186,11 +237,21 @@ for ind = 1:length(allSequences)
         errorMessage = [errorMessage, sprintf('%10.2f', resMat{ind}(rows(2),:)), sprintf('\n')];
         assert(~hasDuplicates, errorMessage);
     end
+
+end
+
+if multicam && vehicle
+    % Remove ID(s) that only pass through single camera
+    resMat = removeObjsSingleCam(resMat);
+end
+    
+for ind = 1:length(allSequences)
     
     % Evaluate sequence
     [metsCLEAR, mInf, additionalInfo] = CLEAR_MOT_HUN(gtMat{ind}, resMat{ind}, threshold, world);
     metsID = IDmeasures(gtMat{ind}, resMat{ind}, threshold, world);
     mets = [metsID.IDF1, metsID.IDP, metsID.IDR, metsCLEAR];
+    sequenceName = allSequences{ind};
     allMets(ind).name = sequenceName;
     allMets(ind).m    = mets;
     allMets(ind).IDmeasures = metsID;
@@ -210,8 +271,6 @@ evalFile = fullfile(resDir, 'eval.txt');
 dlmwrite(evalFile, metsBenchmark);
 
 % Multicam scores
-%     multicam = 0;
-
 if multicam
     
     metsMultiCam = evaluateMultiCam(gtMat, resMat, threshold, world);

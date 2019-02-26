@@ -46,11 +46,11 @@ additionalInfo=[];
 % Evaluate
 VERBOSE = false;
 [mme, c, fp, m, g, d, alltracked, allfalsepos] = clearMOTMex(gtMat, resMat, threshold, world, VERBOSE);
-Fgt = max(gtMat(:,1)); % #frames in GT          % Assumes first gt frame is 1
-Ngt = length(unique(gtMat(:,2))); % #ids in GT
-F = max(resMat(:,1)); % #frames in result
-missed=sum(m); % m: #missed(fn) bboxs in each frame
-falsepositives=sum(fp); % fp: #fp bboxs in each frame
+Fgt = max(gtMat(:,1)); % Assumes first gt frame is 1
+Ngt = length(unique(gtMat(:,2)));
+F = max(resMat(:,1));
+missed=sum(m);
+falsepositives=sum(fp);
 idswitches=sum(mme);
 
 % Sanity check
@@ -73,7 +73,10 @@ if world, MOTP = MOTP / threshold; end
 if isnan(MOTP), MOTP=0; end % force to 0 if no matches found
 
 MOTAL=(1-((sum(m)+sum(fp)+log10(sum(mme)+1))/sum(g)))*100;
+%MOTAL=(1-((sum(m)+log10(sum(mme)+1))/sum(g)))*100;
 MOTA=(1-((sum(m)+sum(fp)+(sum(mme)))/sum(g)))*100;
+%MOTA=(1-((sum(m)+(sum(mme)))/sum(g)))*100;
+
 recall=sum(c)/sum(g)*100;
 precision=sum(c)/(sum(fp)+sum(c))*100;
 if isnan(precision), precision=0; end % force to 0 if no matches found
