@@ -28,7 +28,7 @@ for i = 1:length(opts.seqs)
         trajectories = createTrajectories(opts, trajectories, startFrame, endFrame, iCam,appear_model_param,motion_model_param);
 
         % Update loop range
-        startFrame = endFrame   - opts.trajectories.overlap;
+        startFrame = endFrame   - opts.trajectories.window_width/2;
         endFrame   = startFrame + opts.trajectories.window_width;
     end
 
