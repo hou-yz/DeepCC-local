@@ -23,8 +23,8 @@ for iCam = 1:8
     
     opts.current_camera = iCam;
     sequence_interval = opts.sequence_intervals{opts.sequence};
-    startFrame = global2local(opts.start_frames(opts.current_camera), sequence_interval(1) - opts.trajectories.window_width);
-    endFrame   = global2local(opts.start_frames(opts.current_camera), sequence_interval(1) + opts.trajectories.window_width);
+    startFrame = global2local(opts.start_frames(opts.current_camera), sequence_interval(1));
+    endFrame   = global2local(opts.start_frames(opts.current_camera), sequence_interval(1) + opts.trajectories.window_width - 1);
 
     trajectories = trajectoriesFromTracklets; 
     
@@ -36,7 +36,7 @@ for iCam = 1:8
         trajectories = createTrajectories(opts, trajectories, startFrame, endFrame, iCam,appear_model_param,motion_model_param);
 
         % Update loop range
-        startFrame = endFrame   - opts.trajectories.overlap;
+        startFrame = endFrame   - opts.trajectories.window_width/2;
         endFrame   = startFrame + opts.trajectories.window_width;
     end
 

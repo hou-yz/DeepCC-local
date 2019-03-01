@@ -6,13 +6,13 @@ dataset.videoParts = [9, 9, 9, 9, 9, 8, 8, 9];
 dataset.savePath = 'F:/DukeMTMC/'; % Where to store DukeMTMC (160 GB)
 
 GET_ALL               = false; % Set this to true if you want to download everything
-GET_GROUND_TRUTH      = true;
-GET_CALIBRATION       = true;
-GET_VIDEOS            = true;
+GET_GROUND_TRUTH      = false;
+GET_CALIBRATION       = false;
+GET_VIDEOS            = false;
 GET_DPM               = false;
-GET_OPENPOSE          = true;
+GET_OPENPOSE          = false;
 GET_FGMASKS           = false;
-GET_REID              = true;
+GET_REID              = false;
 GET_VIDEO_REID        = false;
 
 
@@ -65,6 +65,16 @@ if GET_ALL || GET_OPENPOSE
     for cam = 1:dataset.numCameras
         url = sprintf('http://vision.cs.duke.edu/DukeMTMC/data/detections/openpose/camera%d.mat',cam);
         filename = sprintf('%sdetections/openpose/camera%d.mat',dataset.savePath,cam);
+        fprintf([filename '\n']);
+        websave(filename,url,options);
+    end
+end
+
+%% Download Features for OpenPose detections
+if GET_ALL || GET_OPENPOSE
+    for cam = 1:dataset.numCameras
+        url = sprintf('http://vision.cs.duke.edu/DukeMTMC/data/detections/openpose/features/features%d.h5',cam);
+        filename = sprintf('%sdetections/openpose/features/features%d.h5',dataset.savePath,cam);
         fprintf([filename '\n']);
         websave(filename,url,options);
     end

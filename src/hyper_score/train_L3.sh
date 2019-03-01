@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
  
 task(){
-	CUDA_VISIBLE_DEVICES=1 python main.py --train --window "$1" -L L3 --pcb;
+	CUDA_VISIBLE_DEVICES=5 python main.py --train --window "$1" -L L3 --pcb;
 }
 
 

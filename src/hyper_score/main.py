@@ -14,7 +14,7 @@ def main():
     parser = argparse.ArgumentParser(description='Hyper Score')
     parser.add_argument('--batch-size', type=int, default=64, metavar='N',
                         help='input batch size for training (default: 64)')
-    parser.add_argument('-j', '--num-workers', type=int, default=4)
+    parser.add_argument('-j', '--num-workers', type=int, default=1)
     parser.add_argument('--epochs', type=int, default=40, metavar='N')
     parser.add_argument('--step-size', type=int, default=30)
     parser.add_argument('--lr', type=float, default=1e-4, metavar='LR')
@@ -42,9 +42,9 @@ def main():
     parser.add_argument('--triplet', action='store_true')
     parser.add_argument('--motion', action='store_true')
     args = parser.parse_args()
-    if 'L3' in args.L:
-        args.weight_decay = 1e-3
-        pass
+    # if 'L3' in args.L:
+    #     args.weight_decay = 1e-3
+    #     pass
 
     if args.mot:
         args.lr = 1e-3
@@ -64,16 +64,16 @@ def main():
             train_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_triplet_basis_train_1fps/tracklet_features.h5'
             test_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_triplet_basis_train_1fps/tracklet_features.h5'
         elif args.pcb:
-            args.weight_decay = 5e-3
+            # args.weight_decay = 5e-3
             # args.lr = 5e-5
             args.features = 384
             args.data_path = '1fps_train_PCB_40'
             train_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_pcb_basis_fc64_train_1fps/tracklet_features.h5'
             test_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_pcb_basis_fc64_train_1fps/tracklet_features.h5'
             # args.weight_decay = 1e-3
-            if 'L3' in args.L:
-                args.weight_decay = 1e-2
-                pass
+            # if 'L3' in args.L:
+            #     args.weight_decay = 1e-2
+            #     pass
         else:
             train_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_basis_train_1fps/tracklet_features.h5'
             test_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_basis_train_1fps/tracklet_features.h5'
