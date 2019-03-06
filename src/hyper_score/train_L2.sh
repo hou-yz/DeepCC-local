@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
  
 task(){
-	CUDA_VISIBLE_DEVICES=4 python main.py --train --window "$1" --pcb;
+	CUDA_VISIBLE_DEVICES=4 python main.py --train --window "$1" --triplet;
 }
 
 

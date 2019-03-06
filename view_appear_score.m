@@ -1,7 +1,7 @@
 clc
 clear
 %% Options
-mot=1;
+mot=0;
 if mot
     opts = get_opts_mot();
     opts.feature_dir = 'D:/Data/MOT16/gt_feat/';
@@ -9,7 +9,7 @@ if mot
 else
     opts = get_opts();
     opts.sequence = 7;
-    opts.net.experiment_root = 'experiments/ide_basis_train_1fps';%
+    opts.net.experiment_root = 'experiments/ide_triplet_basis_crop_train_1fps';%'experiments/ide_basis_train_1fps';%
 end
 type='mid' %'1x'%
 
