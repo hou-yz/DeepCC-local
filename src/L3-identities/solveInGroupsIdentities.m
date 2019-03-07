@@ -84,13 +84,15 @@ for i = 1 : length(allGroups)
             same_id_correlation_matrix=[same_id_correlation_matrix;correlationMatrix(x,y)];
         end
     end
-            
-        
     
     identitySolutionTime = toc(solutionTime);
     identitySolverTime = identitySolverTime + identitySolutionTime;
     
     group_results{i}.observations = indices;
+    
+    if opts.visualize
+        view_tsne(correlationMatrix,group_results{i}.observations);
+    end
 end
 
 

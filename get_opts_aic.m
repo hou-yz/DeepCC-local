@@ -51,7 +51,6 @@ trajectories.appearance_groups = 0; % determined automatically when zero
 trajectories.alpha = 1;
 trajectories.beta = 0.01;
 trajectories.window_width = 300;
-trajectories.overlap = 150;
 trajectories.speed_limit = 30;
 trajectories.indifference_time = 100;
 trajectories.threshold = 8;

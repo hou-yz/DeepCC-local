@@ -97,7 +97,7 @@ for spatialGroupID = 1 : max(spatialGroupIDs)
     originalDetections(spatialGroupObservations, 2) = identities;
     
     % Show clustered detections
-    if opts.visualize, trackletsVisualizePart3; end
+    if opts.visualize, trackletsVisualizePart3; view_tsne(correlationMatrix,labels);end
 end
 fprintf('\n');
 

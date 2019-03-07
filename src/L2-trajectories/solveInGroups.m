@@ -74,9 +74,13 @@ for i = 1 : length(allGroups)
     end
     
     % compute the correlation matrix
-    correlationMatrix = appearanceAffinity + params.alpha*spacetimeAffinity;
-    correlationMatrix = correlationMatrix .* indifferenceMatrix.^params.use_indiff;
-    correlationMatrix(impossibilityMatrix == 1) = -inf;
+    if params.alpha
+        correlationMatrix = appearanceAffinity + params.alpha*spacetimeAffinity;
+        correlationMatrix = correlationMatrix .* indifferenceMatrix.^params.use_indiff;
+        correlationMatrix(impossibilityMatrix == 1) = -inf;
+    else
+        correlationMatrix = appearanceAffinity;
+    end
     correlationMatrix(sameLabels) = 1;
     
     % show appearance group tracklets
@@ -97,8 +101,10 @@ for i = 1 : length(allGroups)
     trajectorySolverTime = trajectorySolverTime + trajectorySolutionTime;
     
     result_appearance{i}.observations = indices;
+    if opts.visualize
+        view_tsne(correlationMatrix,result_appearance{i}.labels);
+    end
 end
-
 
 % collect independent solutions from each appearance group
 result.labels       = [];
@@ -111,5 +117,5 @@ end
 [~,id]              = sort(result.observations);
 result.observations = result.observations(id);
 result.labels       = result.labels(id);
-
+end
 

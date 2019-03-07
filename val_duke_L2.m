@@ -8,8 +8,7 @@ opts.feature_dir = 'det_features_ide_basis_train_1fps_val';
 % basis setting for DeepCC
 opts.tracklets.window_width = 40;
 opts.trajectories.window_width = 150;
-opts.trajectories.overlap = 75;
-opts.identities.window_width = 12000;
+opts.identities.window_width = 6000;
 % correlation threshold setting according to `view_distance_distribution(opts)`
 opts.tracklets.threshold    = 18.45;
 opts.trajectories.threshold = 0;%0.468; 
@@ -24,7 +23,7 @@ opts.identities.diff_n   = 0.1;
 
 % alpha
 opts.tracklets.alpha    = 0;
-opts.trajectories.alpha = 1;
+opts.trajectories.alpha = 0;
 opts.identities.alpha   = 0;
 
 create_experiment_dir(opts);
@@ -40,8 +39,9 @@ end
 % opts.visualize = true;
 opts.sequence = 8; % val
 
-opts.appear_model_name = '1fps_train_IDE_40/model_param_L2_75.mat';
+opts.appear_model_name = '1fps_train_IDE_40/GT/model_param_L2_600.mat';
 % Tracklets
+opts.use_groupping = 0;
 opts.optimization = 'KL';
 
 % Single-camera trajectories
@@ -65,7 +65,7 @@ opts.identities.appearance_groups = 0;
 DukeSCTs = [];
 DukeMCTs = [];
 for i = 1:10
-    [DukeSCTs(i,:), DukeMCTs(i,:)] = test_tracker(opts,0,0,1);
+    [DukeSCTs(i,:), DukeMCTs(i,:)] = test_tracker(opts,0,1,1);
 end
 DukeSCT = mean(DukeSCTs,1)
 DukeMCT = mean(DukeMCTs,1)
