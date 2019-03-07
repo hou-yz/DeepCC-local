@@ -23,7 +23,7 @@ opts.identities.diff_n   = 0.1;
 
 % alpha
 opts.tracklets.alpha    = 0;
-opts.trajectories.alpha = 0;
+opts.trajectories.alpha = 1;
 opts.identities.alpha   = 0;
 
 create_experiment_dir(opts);

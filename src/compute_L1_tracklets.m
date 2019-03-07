@@ -31,7 +31,7 @@ for iCam = 1:8
     in_time_range_ids = detections(:,2)>=start_frame & detections(:,2)<=end_frame;
     all_dets   = detections(in_time_range_ids,:);
     if size(features,2) == size(detections,1)
-        features = features(:,in_time_range_ids);
+        features = features(3:end,in_time_range_ids);
     else
         features = features(3:end,features(2,:)>=start_frame & features(2,:)<=end_frame);
     end
