@@ -34,6 +34,7 @@ opts.appear_model_name = '1fps_train_IDE_40/model_param_L2_75.mat';
 opts.motion_model_name = '1fps_train_IDE_40/model_param_L2_motion_150.mat';
 opts.fft = false;
 opts.soft = 0.1;
+opts.save_score = 0;
 
 % Tracklets
 tracklets = [];
