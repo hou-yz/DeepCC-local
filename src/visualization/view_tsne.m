@@ -1,11 +1,11 @@
 function view_tsne(distance,labels)
-figure(4)
+figure
 clf('reset');
 hold on
 %% Perform tSNE
 uni_labels = unique(labels);
 no_dims = 2;
-perplexity = 100;
+perplexity = 30;
 yd = tsne_d(distance, [], no_dims, perplexity);
 %% Plot results
 for i = 1:length(uni_labels)

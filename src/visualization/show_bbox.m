@@ -1,10 +1,6 @@
-function show_bbox(opts,iCam,frame,bbox1)
+function fig1=show_bbox(opts,iCam,frame,bbox)
 img = opts.reader.getFrame(iCam,frame);
-fig1 = img(bbox1(2):bbox1(2)+bbox1(4),bbox1(1):bbox1(1)+bbox1(3),:);
-% subplot(1,2,1)
-imshow(fig1)
-% fig2 = img(bbox2(2):bbox2(2)+bbox2(4),bbox2(1):bbox2(1)+bbox2(3),:);
-% subplot(1,2,2)
+fig1 = img(bbox(2):min(bbox(2)+bbox(4),size(img,1)),bbox(1):min(bbox(1)+bbox(3),size(img,2)),:);
 % imshow(fig1)
 end
 

@@ -2,7 +2,7 @@ restoredefaultpath
 clear; 
 close all; 
 opts = get_opts();
-opts.sequence=5;
+opts.sequence=8;
 
 % fps at 1/30/60
 fps = 1;
