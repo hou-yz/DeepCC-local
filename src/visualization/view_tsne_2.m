@@ -7,6 +7,7 @@ uni_labels = unique(in_window_pids);
 no_dims = 2;
 if mct
     perplexity = 8;
+    uni_labels = uni_labels(num_traj_per_pid>1);
 else
     perplexity = 18;
 end

@@ -1,7 +1,8 @@
 
 colors = distinguishable_colors(1000);
 % colors(1,:) = [237,177,32]/255;%yellow[126,47,142]/255;%purple
-colors(2,:) = [217,83,25]/255;%orangecolors(3,:);% bright green
+colors([2,4,5],:) = colors([3,5,4],:);
+colors(3,:) = [217,83,25]/255;%orange colors(3,:);% bright green
 % colors(3,:) = [126,47,142]/255;%purple[237,177,32]/255;%yellow
 % colors(4,:) = colors(5,:);% bright pink
 % colors(5,:) = [0,114,189]/255;%blue
@@ -13,12 +14,12 @@ hold on
 for i = 1:length(uni_labels)
     label = uni_labels(i);
     target_yd = yd(in_window_pids==label,:);
-%     scatter(target_yd(:, 1), target_yd(:, 2),'filled')
-    if num_traj_per_pid(i)>1
-        scatter(target_yd(:, 1), target_yd(:, 2),60,colors(i,:));
-    else
-        scatter(target_yd(:, 1), target_yd(:, 2),36,colors(i,:),'filled');
-    end
+    scatter(target_yd(:, 1), target_yd(:, 2),36,colors(i,:),'filled');
+%     if num_traj_per_pid(i)>1
+%         scatter(target_yd(:, 1), target_yd(:, 2),60,colors(i,:));
+%     else
+%         scatter(target_yd(:, 1), target_yd(:, 2),36,colors(i,:),'filled');
+%     end
     
     if opts.visualize
     target_tracklets = in_window_tracklet(in_window_pids==label);

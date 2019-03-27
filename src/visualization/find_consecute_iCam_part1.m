@@ -1,7 +1,7 @@
 clc
 clear
 opts = get_opts();
-load('D:\MATLAB\Data\DukeMTMC\ground_truth\trainval.mat')
+load('D:\Data\DukeMTMC\ground_truth\trainval.mat')
 % [camera, ID, frame, left, top, width, height, worldX, worldY, feetX, feetyY]
 for iCam = 1:8
     line_id = trainData(:,1)==iCam;
@@ -27,11 +27,17 @@ num_non_optimal_path = 0;
 length_optimal_path = 0;
 length_non_optimal_path = 0;
 
+all_duration = [];
+
 
 for i = 1:length(ids)
     id = ids(i);
     lines = trainData(trainData(:,2)==id,:);
     lines = sortrows(lines,3);
+    cams = unique(lines(:,1));
+    if numel(cams)>3
+        cams
+    end
     switch_cam_lines_id = [1;(lines(1:end-1,1)==lines(2:end,1))==0];
     % also add person_id who leave and enter the same camera after a while 
     switch_cam_lines_id(([0;(lines(1:end-1,3)+same_id_same_cam_threshold<lines(2:end,3)).*(lines(1:end-1,1)==lines(2:end,1))])==1)=1;
@@ -46,6 +52,8 @@ for i = 1:length(ids)
     end_point = lines(outro_lines_id,[8,9]);
     
     duration = lines(outro_lines_id,3) - lines(intro_lines_id,3);
+    
+    all_duration = [all_duration;duration];
     
     L1 = sqrt(sum((end_point(1:end-1,:) - start_point(2:end,:)).^2,2));
     L2 = sqrt(sum((end_point(1:end-1,:) - end_point(2:end,:)).^2,2));
