@@ -54,7 +54,7 @@ violators       = violators + violators';
 
 % build impossibility matrix
 impossibilityMatrix = zeros(numTracklets);
-impossibilityMatrix(violators == 1 & merging ~=1) = 1;
+impossibilityMatrix(violators > 0 & merging ~=1) = 1;
 impossibilityMatrix(overlapping == 1 & merging ~=1) = 1;
 
 % this is a symmetric matrix, although tracklets are oriented in time
@@ -62,7 +62,7 @@ errorMatrix     = min(errorForward, errorBackward);
 errorMatrix     = errorMatrix .* v;
 errorMatrix(~v) = 0;
 errorMatrix     = errorMatrix + errorMatrix';
-errorMatrix(violators == 1) = Inf;
+errorMatrix(violators > 0) = Inf;
 
 % compute indifference matrix
 timeDifference  = frameDifference .* (frameDifference > 0);

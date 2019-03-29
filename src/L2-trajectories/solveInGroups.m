@@ -57,11 +57,16 @@ for i = 1 : length(allGroups)
     group       = allGroups(i);
     indices     = find(appearanceGroups == group);
     sameLabels  = pdist2(labels(indices), labels(indices)) == 0;
-    [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinity(tracklets(indices), params.beta, params.speed_limit, params.indifference_time, iCam);
+    if opts.dataset == 0
+        [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinity(tracklets(indices), params.beta, params.speed_limit, params.indifference_time, iCam);
+        spacetimeAffinity = spacetimeAffinity-1;
+    elseif opts.dataset == 1 || opts.dataset == 2
+        spacetimeAffinity = 0;
+        impossibilityMatrix = impossibility_frame_overlap([tracklets(indices).startFrame]',[tracklets(indices).endFrame]');    
+    end
     
     % compute appearance and spacetime scores
     if params.og_motion_score
-        spacetimeAffinity = spacetimeAffinity-1;
     else
         motionFeat = getMotionFeat(tracklets(indices), iCam, opts);
         spacetimeAffinity = getHyperScore(motionFeat,motion_model_param,opts.soft,threshold, diff_p,1);
@@ -77,9 +82,10 @@ for i = 1 : length(allGroups)
     if params.alpha
         correlationMatrix = appearanceAffinity + params.alpha*spacetimeAffinity;
         correlationMatrix = correlationMatrix .* indifferenceMatrix.^params.use_indiff;
-        correlationMatrix(impossibilityMatrix == 1) = -inf;
+        correlationMatrix(impossibilityMatrix == 1) = -inf;  
     else
         correlationMatrix = appearanceAffinity;
+%         correlationMatrix(impossibilityMatrix == 1) = -inf;  
     end
     correlationMatrix(sameLabels) = 1;
     

@@ -73,20 +73,22 @@ for spatialGroupID = 1 : max(spatialGroupIDs)
     end
     
     % use iou instead of speed estimation
-    [motionCorrelation, impMatrix]  = motionAffinity(spatialGroupDetectionCenters,spatialGroupDetectionFrames,spatialGroupEstimatedVelocity,params.speed_limit, params.beta);
-    motionCorrelation = iouAffinity(spatialGroupDetectionbboxs,spatialGroupDetectionCenters);
-    impMatrix = zeros(size(motionCorrelation));
-    
+    if opts.dataset == 0
+        [motionCorrelation, impMatrix]  = motionAffinity(spatialGroupDetectionCenters,spatialGroupDetectionFrames,spatialGroupEstimatedVelocity,params.speed_limit, params.beta);
+    elseif opts.dataset == 1 || opts.dataset == 2
+        motionCorrelation = iouAffinity(spatialGroupDetectionbboxs,spatialGroupDetectionCenters);
+        impMatrix = impossibility_frame_overlap(spatialGroupDetectionFrames,spatialGroupDetectionFrames);    
+    end
     % Combine affinities into correlations
     intervalDistance                = pdist2(spatialGroupDetectionFrames,spatialGroupDetectionFrames);
     discountMatrix                  = min(1, -log(intervalDistance/params.window_width));
     if params.alpha
-        correlationMatrix               = params.alpha*motionCorrelation .* discountMatrix + appearanceCorrelation; 
+        correlationMatrix               = params.alpha*motionCorrelation .* discountMatrix + appearanceCorrelation;   
         correlationMatrix(impMatrix==1) = -inf;
     else
         correlationMatrix               = appearanceCorrelation; 
+%         correlationMatrix(impMatrix==1) = -inf;
     end
-    
     % Show spatial grouping and correlations
     % if opts.visualize, trackletsVisualizePart2; end
     

@@ -54,13 +54,19 @@ for i = 1 : length(allGroups)
     else
         appearanceCorrelation = getHyperScore(featureVectors(indices),appear_model_param,opts.soft, params.threshold,params.diff_p,0);
     end
-    [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinityID(trajectories(indices),opts.identities.consecutive_icam_matrix,opts.identities.reintro_time_matrix,opts.identities.optimal_filter);
+    if opts.dataset == 0
+    	[spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinityID(trajectories(indices),opts.identities.consecutive_icam_matrix,opts.identities.reintro_time_matrix,opts.identities.optimal_filter);
+    elseif opts.dataset == 1 || opts.dataset == 2
+        spacetimeAffinity = 0;
+        impossibilityMatrix = impossibility_frame_overlap([trajectories(indices).startFrame]',[trajectories(indices).endFrame]');    
+    end
     
     if params.alpha
         correlationMatrix = 1 * appearanceCorrelation + params.alpha*(spacetimeAffinity).*(1-indifferenceMatrix);
         correlationMatrix(impossibilityMatrix) = -Inf;
     else
         correlationMatrix = appearanceCorrelation;
+%         correlationMatrix(impossibilityMatrix) = -Inf;
     end
     
     correlationMatrix(sameLabels) = max(10, correlationMatrix(sameLabels));

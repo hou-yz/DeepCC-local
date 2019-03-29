@@ -50,15 +50,15 @@ function compute_L3_identities_aic(opts)
         endFrame   = startFrame + opts.identities.window_width;
     end
     
-    indexs = [];
+    to_delete = [];
     
     for index = 1:length(identities)
-        if length(identities(index).iCams) == 1 | length(identities(index).iCams) > length(opts.seqs)
-            indexs = [indexs, index];
+        if length(identities(index).iCams) > 8
+            to_delete = [to_delete, index];
         end
     end
     
-    identities(indexs) = [];
+    identities(to_delete) = [];
     
     %% save results
     fprintf('Saving results\n');
