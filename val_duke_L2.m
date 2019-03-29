@@ -41,7 +41,7 @@ opts.sequence = 8; % val
 
 opts.appear_model_name = '1fps_train_IDE_40/GT/model_param_L2_600.mat';
 % Tracklets
-opts.use_groupping = 0;
+opts.tracklets.spatial_groups = 0;
 opts.optimization = 'KL';
 
 % Single-camera trajectories

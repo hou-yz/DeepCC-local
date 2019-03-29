@@ -3,6 +3,7 @@ function opts = get_opts_mot()
 addpath(genpath('src'))
 
 opts = [];
+opts.dataset = 1;%0 for duke, 1 for mot, 2 for aic
 opts.feature_dir     = 'D:/Data/MOT16/det_feat/og512/';
 opts.dataset_path    = 'D:/Data/MOT16/';
 opts.gurobi_path     = 'C:/Utils/gurobi801/win64/matlab';
@@ -18,7 +19,6 @@ opts.image_height = 1080;
 opts.current_camera = -1;
 opts.minimum_trajectory_length = 50;
 opts.optimization = 'KL'; 
-opts.use_groupping = 1;
 opts.sequence = 7;
 opts.sequence_names = {'trainval', 'trainval_mini', 'test_easy', 'test_hard', 'trainval_nano','test_all','train','val'};
 opts.seqs = [2,4,5,9,10,11,13];
@@ -30,6 +30,7 @@ opts.soft = 0.1;
 
 % Tracklets
 tracklets = [];
+tracklets.spatial_groups = 1;
 tracklets.window_width = 50;
 tracklets.min_length = 5;
 tracklets.alpha = 1;

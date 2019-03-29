@@ -55,8 +55,13 @@ for i = 1 : length(allGroups)
         appearanceCorrelation = getHyperScore(featureVectors(indices),appear_model_param,opts.soft, params.threshold,params.diff_p,0);
     end
     [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinityID(trajectories(indices),opts.identities.consecutive_icam_matrix,opts.identities.reintro_time_matrix,opts.identities.optimal_filter);
-    correlationMatrix = 1 * appearanceCorrelation + params.alpha*(spacetimeAffinity).*(1-indifferenceMatrix);
-    correlationMatrix(impossibilityMatrix) = -Inf;
+    
+    if params.alpha
+        correlationMatrix = 1 * appearanceCorrelation + params.alpha*(spacetimeAffinity).*(1-indifferenceMatrix);
+        correlationMatrix(impossibilityMatrix) = -Inf;
+    else
+        correlationMatrix = appearanceCorrelation;
+    end
     
     correlationMatrix(sameLabels) = max(10, correlationMatrix(sameLabels));
     
@@ -90,9 +95,7 @@ for i = 1 : length(allGroups)
     
     group_results{i}.observations = indices;
     
-    if opts.visualize
-        view_tsne(correlationMatrix,group_results{i}.observations);
-    end
+%     if opts.visualize,view_tsne(correlationMatrix,group_results{i}.observations);end
 end
 
 

@@ -23,7 +23,7 @@ detectionFrames         = originalDetections(currentDetectionsIDX, 1);
 estimatedVelocity       = estimateVelocities(originalDetections, startFrame, endFrame, params.nearest_neighbors, params.speed_limit);
 
 % Spatial groupping
-spatialGroupIDs         = getSpatialGroupIDs(opts.use_groupping, currentDetectionsIDX, detectionCenters, params);
+spatialGroupIDs         = getSpatialGroupIDs(opts.tracklets.spatial_groups, currentDetectionsIDX, detectionCenters, params);
 
 % Show window detections
 if opts.visualize, trackletsVisualizePart1; end
@@ -47,12 +47,22 @@ end
     %% SOLVE A GRAPH PARTITIONING PROBLEM FOR EACH SPATIAL GROUP
 fprintf('Creating tracklets: solving space-time groups ');
 for spatialGroupID = 1 : max(spatialGroupIDs)
-    
     elements = find(spatialGroupIDs == spatialGroupID);
     spatialGroupObservations        = currentDetectionsIDX(elements);
     spatialGroupDetectionCenters    = detectionCenters(elements,:);
+    spatialGroupDetectionbboxs      = originalDetections(elements,3:6);
     spatialGroupDetectionFrames     = detectionFrames(elements,:);
     spatialGroupEstimatedVelocity   = estimatedVelocity(elements,:);
+    
+%     if opts.visualize
+%         for i = 1:numel(elements)
+%             bbox = spatialGroupDetectionbboxs(i,:);
+%             frame = spatialGroupDetectionFrames(i);
+%             fig = show_bbox(opts,iCam,frame,bbox);
+%             figure(5)
+%             imshow(fig)
+%         end
+%     end
     
     if params.og_appear_score
         % Create an appearance affinity matrix and a motion affinity matrix
@@ -61,14 +71,15 @@ for spatialGroupID = 1 : max(spatialGroupIDs)
         features = cell2mat(allFeatures.appearance(spatialGroupObservations));
         appearanceCorrelation = getHyperScore(features,appear_model_param,opts.soft, threshold,diff_p,0);
     end
+    
+    % use iou instead of speed estimation
     [motionCorrelation, impMatrix]  = motionAffinity(spatialGroupDetectionCenters,spatialGroupDetectionFrames,spatialGroupEstimatedVelocity,params.speed_limit, params.beta);
+    motionCorrelation = iouAffinity(spatialGroupDetectionbboxs,spatialGroupDetectionCenters);
+    impMatrix = zeros(size(motionCorrelation));
     
     % Combine affinities into correlations
     intervalDistance                = pdist2(spatialGroupDetectionFrames,spatialGroupDetectionFrames);
     discountMatrix                  = min(1, -log(intervalDistance/params.window_width));
-%     correlationMatrix               = motionCorrelation + appearanceCorrelation; 
-%     correlationMatrix               = correlationMatrix .* discountMatrix;
-    
     if params.alpha
         correlationMatrix               = params.alpha*motionCorrelation .* discountMatrix + appearanceCorrelation; 
         correlationMatrix(impMatrix==1) = -inf;
@@ -89,6 +100,8 @@ for spatialGroupID = 1 : max(spatialGroupIDs)
     elseif strcmp(opts.optimization,'BIPCC')
         initialSolution = KernighanLin(correlationMatrix);
         labels = BIPCC(correlationMatrix, initialSolution);
+    elseif strcmp(opts.optimization,'hier')
+        labels = hierarchical_cluster(correlationMatrix,ceil(numel(elements)/opts.tracklets.window_width));
     end
     
     labels      = labels + totalLabels;
@@ -97,7 +110,8 @@ for spatialGroupID = 1 : max(spatialGroupIDs)
     originalDetections(spatialGroupObservations, 2) = identities;
     
     % Show clustered detections
-    if opts.visualize, trackletsVisualizePart3; view_tsne(correlationMatrix,labels);end
+    if opts.visualize, trackletsVisualizePart3; end
+    % if opts.visualize,view_tsne(correlationMatrix,labels);end
 end
 fprintf('\n');
 

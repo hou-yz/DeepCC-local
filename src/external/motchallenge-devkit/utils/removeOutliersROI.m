@@ -1,4 +1,4 @@
-function resdataProc = removeOutliersROI(resdata, cam, settype, dataset_path)
+function resdataProc = removeOutliersROI(resdata, cam, dataset_path)
 
 % Fetch data
 if ~exist(fullfile(dataset_path, 'ROIs'),'dir')
@@ -18,7 +18,8 @@ end
 resdataProc = [];
 
 % Read ROI image
-roipath = fullfile(dataset_path, sprintf('ROIs/%s/c%03d/roi.jpg',settype, cam));
+roipath = fullfile(dataset_path, sprintf('ROIs/train/c%03d/roi.jpg', cam));
+
 ROI = imread(roipath);
 % ROI = rgb2gray(ROI);
 
@@ -26,10 +27,10 @@ ROI = imread(roipath);
 for ind = 1:size(resdata, 1)
     flagOutlier = false;
     
-    xmin = resdata(ind, 3) + 1;
-    ymin = resdata(ind, 4) + 1;
-    xmax = resdata(ind, 3) + resdata(ind, 5);
-    ymax = resdata(ind, 4) + resdata(ind, 6);
+    xmin = round(resdata(ind, 3) + 1);
+    ymin = round(resdata(ind, 4) + 1);
+    xmax = round(resdata(ind, 3) + resdata(ind, 5));
+    ymax = round(resdata(ind, 4) + resdata(ind, 6));
 %     xfoot = floor(resdata(ind, 3) + 0.5 * resdata(ind, 5));
 %     yfoot = floor(resdata(ind, 4) + resdata(ind, 6));
     

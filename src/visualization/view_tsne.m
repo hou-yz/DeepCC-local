@@ -1,5 +1,5 @@
 function view_tsne(distance,labels)
-figure
+figure(6)
 clf('reset');
 hold on
 %% Perform tSNE

@@ -11,12 +11,12 @@ sameLabels  = pdist2(labels, labels) == 0;
 % compute appearance and spacetime scores
 appearanceCorrelation = getAppearanceMatrix(feat_vectors,feat_vectors, params.threshold,params.diff_p,params.diff_n,params.step);
 [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinityID(trajs,opts.identities.consecutive_icam_matrix,opts.identities.reintro_time_matrix,opts.identities.optimal_filter);
-correlationMatrix = ...
-        1 * appearanceCorrelation + ...
-        params.alpha*(spacetimeAffinity).*(1-indifferenceMatrix);
-    
-    
-correlationMatrix(impossibilityMatrix) = -Inf;
+    if params.alpha
+        correlationMatrix = 1 * appearanceCorrelation + params.alpha*(spacetimeAffinity).*(1-indifferenceMatrix);
+        correlationMatrix(impossibilityMatrix) = -Inf;
+    else
+        correlationMatrix = appearanceCorrelation;
+    end
 
     
 %     correlationMatrix(sameLabels) = 100;
@@ -63,7 +63,8 @@ for i = 1:length(uniqueLabels)
         data = [data; identity.trajectories(k).data];
     end
     frames = unique(data(:,9));
-    assert(length(frames) == size(data,1), 'Found duplicate ID/Frame pairs');
+    
+%     assert(length(frames) == size(data,1), 'Found duplicate ID/Frame pairs');
     
 end
 

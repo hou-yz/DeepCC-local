@@ -1,6 +1,16 @@
 function trajectories = loadTrajectoryFeatures(opts, trajectories)
 count = 1;
-for iCam = 1:opts.num_cam
+if opts.dataset == 0
+    cam_pool = 1:opts.num_cam;
+elseif opts.dataset == 2
+    cam_pool = [];
+    seqs = opts.seqs{opts.sequence};
+    for scene = seqs
+        cam_pool = [cam_pool,opts.cams_in_scene{scene}];
+    end
+    cam_pool = unique(cam_pool);
+end
+for iCam = cam_pool
     traj_for_iCam = load(fullfile(opts.experiment_root, opts.experiment_name, 'L2-trajectories', sprintf('trajectories%d_%s.mat',iCam, opts.sequence_names{opts.sequence})));
     removed_ids = traj_for_iCam.removedIDs;
     traj_for_iCam = traj_for_iCam.trajectories;

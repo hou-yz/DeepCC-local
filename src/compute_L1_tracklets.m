@@ -82,3 +82,4 @@ for iCam = 1:8
     clear all_dets appearance detections features frames
     
 end
+end

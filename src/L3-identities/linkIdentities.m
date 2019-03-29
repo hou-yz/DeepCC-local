@@ -1,4 +1,4 @@
-function outputIdentities = linkIdentities( opts, inputIdentities, startTime, endTime,appear_model_param,motion_model_param)
+function outputIdentities = linkIdentities( opts, inputIdentities, startTime, endTime, appear_model_param,motion_model_param)
 
 
 % find current, old, and future tracklets
@@ -64,14 +64,14 @@ for i = 1:length(uniqueLabels)
     end
     identity.trajectories = sortStruct(identity.trajectories,'startFrame');
     
-    if opts.visualize
-            figure(1)
-            for k = 1:length(identity.trajectories)
-                img = identity.trajectories(k).snapshot;
-                subplot(1,length(identity.trajectories),k)
-                imshow(img)
-            end
-    end
+%     if opts.visualize
+%             figure(1)
+%             for k = 1:length(identity.trajectories)
+%                 img = identity.trajectories(k).snapshot;
+%                 subplot(1,length(identity.trajectories),k)
+%                 imshow(img)
+%             end
+%     end
 
     
     mergedIdentities = [mergedIdentities; identity];
@@ -103,7 +103,7 @@ for i = 1:length(uniqueLabels)
             data = [data; repairedIdentities(j).trajectories(k).data];
         end
         frames = unique(data(:,9));
-        assert(length(frames) == size(data,1),'Frame overlapping after remedy')
+%         assert(length(frames) == size(data,1),'Frame overlapping after remedy')
         end
     end
     
@@ -113,4 +113,5 @@ end
 outputIdentities = inputIdentities;
 outputIdentities(currentIdentitiesInd) = [];
 outputIdentities = [mergedIdentities', outputIdentities];
+end
 

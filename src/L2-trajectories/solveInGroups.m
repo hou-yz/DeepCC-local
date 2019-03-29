@@ -101,9 +101,7 @@ for i = 1 : length(allGroups)
     trajectorySolverTime = trajectorySolverTime + trajectorySolutionTime;
     
     result_appearance{i}.observations = indices;
-    if opts.visualize
-        view_tsne(correlationMatrix,result_appearance{i}.labels);
-    end
+%     if opts.visualize,view_tsne(correlationMatrix,result_appearance{i}.labels);end
 end
 
 % collect independent solutions from each appearance group

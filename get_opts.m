@@ -3,6 +3,7 @@ function opts = get_opts()
 addpath(genpath('src'))
 
 opts = [];
+opts.dataset = 0;%0 for duke, 1 for mot, 2 for aic
 opts.feature_dir     = [];
 opts.dataset_path    = 'D:/Data/DukeMTMC/';
 opts.gurobi_path     = 'C:/Utils/gurobi801/win64/matlab';
@@ -21,7 +22,6 @@ opts.world = 0;
 opts.ROIs = getROIs();
 opts.minimum_trajectory_length = 100;
 opts.optimization = 'BIPCC'; 
-opts.use_groupping = 1;
 opts.num_cam = 8;
 opts.sequence = 2;
 opts.sequence_names = {'trainval', 'trainval_mini', 'test_easy', 'test_hard', 'trainval_nano','test_all','train','val'};
@@ -37,6 +37,7 @@ opts.soft = 0.1;
 
 % Tracklets
 tracklets = [];
+tracklets.spatial_groups = 1;
 tracklets.window_width = 50;
 tracklets.min_length = 5;
 tracklets.alpha = 1;
@@ -85,8 +86,6 @@ identities.step = false;
 identities.extract_images = true;
 identities.og_appear_score = true;
 identities.og_motion_score = true;
-
-identities.consecutive_icam_matrix = [0,1,1,1,1,1,0,1;1,0,1,1,1,1,0,0;1,1,0,1,1,0,0,0;1,1,1,0,1,0,0,0;1,1,1,1,0,1,1,0;1,1,0,0,1,0,1,1;0,0,0,0,1,1,0,1;1,0,0,0,0,1,1,0];%same_track
 identities.reintro_time_matrix = ones(1,8)*inf;
 
 opts.tracklets = tracklets;
