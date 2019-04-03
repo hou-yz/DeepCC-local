@@ -61,8 +61,8 @@ for i = 1 : length(allGroups)
         [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinity(tracklets(indices), params.beta, params.speed_limit, params.indifference_time, iCam);
         spacetimeAffinity = spacetimeAffinity-1;
     elseif opts.dataset == 1 || opts.dataset == 2
-        spacetimeAffinity = 0;
-        impossibilityMatrix = impossibility_frame_overlap([tracklets(indices).startFrame]',[tracklets(indices).endFrame]');    
+        [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = aic_L2_motion_score(opts, tracklets(indices), params.beta, params.speed_limit, params.indifference_time, iCam);
+%         impossibilityMatrix = impossibility_frame_overlap([tracklets(indices).startFrame]',[tracklets(indices).endFrame]');    
     end
     
     % compute appearance and spacetime scores
@@ -90,7 +90,7 @@ for i = 1 : length(allGroups)
     correlationMatrix(sameLabels) = 1;
     
     % show appearance group tracklets
-%     if opts.visualize, trajectoriesVisualizePart2; end
+    if opts.visualize, trajectoriesVisualizePart2; end
     
     % solve the optimization problem
     solutionTime = tic;

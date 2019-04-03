@@ -11,7 +11,8 @@ function compute_L1_tracklets_aic(opts)
         motion_model_param = load(fullfile('src','hyper_score/logs',opts.motion_model_name));
     end
     for scene = opts.seqs{opts.sequence}
-    for iCam = opts.cams_in_scene{scene}
+    for i = numel(opts.cams_in_scene{scene}):-1:1
+        iCam = opts.cams_in_scene{scene}(i);
         opts.current_camera = iCam;
 
         % Load OpenPose detections for current camera
@@ -72,7 +73,7 @@ function compute_L1_tracklets_aic(opts)
 
             % Compute tracklets in current window
             % Then add them to the list of all tracklets
-            tracklets = createTracklets(opts, filteredDetections, filteredFeatures, window_start_frame, window_end_frame, tracklets,appear_model_param,motion_model_param);
+            tracklets = createTracklets(opts, filteredDetections, filteredFeatures, window_start_frame, window_end_frame, tracklets,appear_model_param,motion_model_param,iCam);
         end
 
         % Save tracklets

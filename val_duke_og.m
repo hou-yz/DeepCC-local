@@ -57,7 +57,7 @@ opts.identities.appearance_groups = 0;
 DukeSCTs = [];
 DukeMCTs = [];
 for i = 1:1
-    [DukeSCTs(i,:), DukeMCTs(i,:)] = test_tracker(opts,0,0,1);
+    [DukeSCTs(i,:), DukeMCTs(i,:)] = test_tracker(opts,0,1,1);
 end
 DukeSCT = mean(DukeSCTs,1)
 DukeMCT = mean(DukeMCTs,1)

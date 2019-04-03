@@ -1,4 +1,4 @@
-function smoothedTracklets = smoothTracklets( tracklets, segmentStart, segmentInterval, featuresAppearance, minTrackletLength, currentInterval )
+function smoothedTracklets = smoothTracklets(opts, tracklets, segmentStart, segmentInterval, featuresAppearance, minTrackletLength, currentInterval, iCam)
 % This function smooths given tracklets by fitting a low degree polynomial 
 % in their spatial location
 
@@ -7,7 +7,6 @@ numTracklets         = length(trackletIDs);
 smoothedTracklets    = struct([]);
 
 for i = 1:numTracklets
-
     mask = tracklets(:,2)==trackletIDs(i);
     detections = tracklets(mask,:);
     
@@ -15,7 +14,20 @@ for i = 1:numTracklets
     start = min(detections(:,1));
     finish = max(detections(:,1));
     
-    if (size(detections,1) < minTrackletLength) || (finish - start < minTrackletLength)
+    
+    bboxs = detections(:,3:6);
+    ious = bboxOverlapRatio(bboxs,bboxs);
+%     if opts.visualize
+%         for j = 1:size(detections,1)
+%             frame = detections(j,1);
+%             bbox = bboxs(j,:);
+%             fig = show_bbox(opts,iCam,frame,bbox);
+%             figure(5)
+%             imshow(fig)
+%         end
+%     end
+    
+    if (size(detections,1) < minTrackletLength) || (finish - start < minTrackletLength) || (sum(sum(ious>0)) == 0)
         continue;
     end
 
@@ -30,15 +42,13 @@ for i = 1:numTracklets
     
     % Fit left, top, right, bottom, xworld, yworld
     for k = 3:size(tracklets,2)
-       
-        points    = detections(:,k);
-        p         = polyfit(frames,points,1);
-        newpoints = polyval(p, datapoints);
-        
+        det_points    = detections(:,k);
+        motion_model  = polyfit(frames,det_points,1);
+        newpoints     = polyval(motion_model, datapoints);
+%         motion_model  = fitrgp(frames,det_points,'Basis','linear','FitMethod','exact','PredictMethod','exact');
+%         newpoints     = resubPredict(motion_model);
         currentTracklet(:,k) = newpoints';
     end
-    
-    
     
     % Compute appearance features
     meanFeature    = mean(cell2mat(featuresAppearance(mask,:)));

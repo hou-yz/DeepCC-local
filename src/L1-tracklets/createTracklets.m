@@ -1,4 +1,4 @@
-function  tracklets = createTracklets(opts, originalDetections, allFeatures, startFrame, endFrame, tracklets,appear_model_param,motoin_model_param)
+function  tracklets = createTracklets(opts, originalDetections, allFeatures, startFrame, endFrame, tracklets,appear_model_param,motoin_model_param, iCam)
 % CREATETRACKLETS This function creates short tracks composed of several detections.
 %   In the first stage our method groups detections into space-time groups.
 %   In the second stage a Binary Integer Program is solved for every space-time
@@ -54,15 +54,6 @@ for spatialGroupID = 1 : max(spatialGroupIDs)
     spatialGroupDetectionFrames     = detectionFrames(elements,:);
     spatialGroupEstimatedVelocity   = estimatedVelocity(elements,:);
     
-%     if opts.visualize
-%         for i = 1:numel(elements)
-%             bbox = spatialGroupDetectionbboxs(i,:);
-%             frame = spatialGroupDetectionFrames(i);
-%             fig = show_bbox(opts,iCam,frame,bbox);
-%             figure(5)
-%             imshow(fig)
-%         end
-%     end
     
     if params.og_appear_score
         % Create an appearance affinity matrix and a motion affinity matrix
@@ -74,10 +65,11 @@ for spatialGroupID = 1 : max(spatialGroupIDs)
     
     % use iou instead of speed estimation
     if opts.dataset == 0
-        [motionCorrelation, impMatrix]  = motionAffinity(spatialGroupDetectionCenters,spatialGroupDetectionFrames,spatialGroupEstimatedVelocity,params.speed_limit, params.beta);
+        [motionCorrelation, impMatrix] = motionAffinity(spatialGroupDetectionCenters,spatialGroupDetectionFrames,spatialGroupEstimatedVelocity,params.speed_limit, params.beta);
     elseif opts.dataset == 1 || opts.dataset == 2
-        motionCorrelation = iouAffinity(spatialGroupDetectionbboxs,spatialGroupDetectionCenters);
-        impMatrix = impossibility_frame_overlap(spatialGroupDetectionFrames,spatialGroupDetectionFrames);    
+        [motionCorrelation, impMatrix] = aic_L1_motion_score(spatialGroupDetectionbboxs,spatialGroupDetectionFrames,params.speed_limit, params.beta);
+%         motionCorrelation = iou_score(spatialGroupDetectionbboxs);
+%         impMatrix = impossibility_frame_overlap(spatialGroupDetectionFrames,spatialGroupDetectionFrames);    
     end
     % Combine affinities into correlations
     intervalDistance                = pdist2(spatialGroupDetectionFrames,spatialGroupDetectionFrames);
@@ -90,7 +82,7 @@ for spatialGroupID = 1 : max(spatialGroupIDs)
 %         correlationMatrix(impMatrix==1) = -inf;
     end
     % Show spatial grouping and correlations
-    % if opts.visualize, trackletsVisualizePart2; end
+    if opts.visualize, trackletsVisualizePart2; end
     
     % Solve the graph partitioning problem
     fprintf('%d ',spatialGroupID);
@@ -121,7 +113,7 @@ fprintf('\n');
 % Fit a low degree polynomial to include missing detections and smooth the tracklet
 trackletsToSmooth  = originalDetections(currentDetectionsIDX,:);
 featuresAppearance = allFeatures.appearance(currentDetectionsIDX);
-smoothedTracklets  = smoothTracklets(trackletsToSmooth, startFrame, params.window_width, featuresAppearance, params.min_length, currentInterval);
+smoothedTracklets  = smoothTracklets(opts, trackletsToSmooth, startFrame, params.window_width, featuresAppearance, params.min_length, currentInterval, iCam);
 
 % Assign IDs to all tracklets
 for i = 1:length(smoothedTracklets)

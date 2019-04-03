@@ -9,6 +9,7 @@ opts.dataset_path    = 'D:/Data/AIC19';
 opts.gurobi_path     = 'C:/Utils/gurobi801/linux64/matlab';
 opts.experiment_root = 'experiments';
 opts.experiment_name = 'aic_demo';
+opts.projection = get_projection_param(opts);
 
 opts.reader = MyVideoReader_aic(opts.dataset_path);
 
@@ -35,6 +36,7 @@ opts.soft = 0.1;
 opts.fft = false;
 opts.timestep = [0, 1.640, 2.049, 2.177, 2.235, 0, 0, 0, 0, 8.715, 8.457, 5.879, 0, 5.042, 8.492];
 
+
 % Tracklets
 tracklets = [];
 tracklets.spatial_groups = 1;
@@ -44,7 +46,7 @@ tracklets.alpha = 1;
 tracklets.beta = 0.02;
 tracklets.cluster_coeff = 0.75;
 tracklets.nearest_neighbors = 8;
-tracklets.speed_limit = 2000;
+tracklets.speed_limit = 500;
 tracklets.threshold = 8;
 tracklets.diff_p = 0;
 tracklets.diff_n = 0;
@@ -59,7 +61,7 @@ trajectories.appearance_groups = 0; % determined automatically when zero
 trajectories.alpha = 1;
 trajectories.beta = 0.001;
 trajectories.window_width = 30;
-trajectories.speed_limit = 1500;
+trajectories.speed_limit = 500;
 trajectories.indifference_time = 100;
 trajectories.threshold = 8;
 trajectories.diff_p = 0;
