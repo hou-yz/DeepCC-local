@@ -144,7 +144,7 @@ for ind = 1:length(allSequences)
         end
         
         sequenceName = allSequences{ind};
-        cam = regexp(sequenceName,'\d','Match');
+        cam = regexp(sequenceName,'\d+','Match');
         cam = str2num(cam{1});
         filter = gtdata(:,1) == cam;
         gtdata = gtdata(filter,:);
