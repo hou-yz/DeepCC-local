@@ -50,7 +50,7 @@ for i = 1:length(opts.seqs)
     gtMatViz = sortrows(gtMatViz, [1 2]);
     predMatViz = sortrows(predMatViz, [1 2]);
     
-    detections      = load(sprintf('%s/train/S%02d/c%03d/det/det_yolo3.txt', opts.dataset_path, opts.scene_by_icam(iCam), iCam));
+    detections      = load(sprintf('%s/train/S%02d/c%03d/det/det_yolo3.txt', opts.dataset_path, opts.trainval_scene_by_icam(iCam), iCam));
     start_frame     = detections(1, 1);
     end_frame       = detections(end, 1);
     
