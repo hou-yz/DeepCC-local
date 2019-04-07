@@ -23,4 +23,5 @@ else
     gps_points = gps_points(1:2,:)./gps_points(3,:);
 
 end
+gps_points = gps_points';
 end
