@@ -16,7 +16,7 @@ for scene = opts.seqs{opts.sequence}
     opts.current_camera = iCam;
 
     % Load OpenPose detections for current camera
-    detections      = load(sprintf('%s/train/S%02d/c%03d/det/det_yolo3.txt', opts.dataset_path, scene, iCam));
+    detections      = load(sprintf('%s/%s/S%02d/c%03d/det/det_yolo3.txt', opts.dataset_path, opts.sub_dir{opts.sequence}, scene, iCam));
     startFrame     = detections(1, 1);
     endFrame       = startFrame + opts.trajectories.window_width - 1;
 %     endFrame       = detections(end, 1);
@@ -38,7 +38,7 @@ for scene = opts.seqs{opts.sequence}
         clc; fprintf('Cam: %d - Window %d...%d\n', iCam, startFrame, endFrame);
 
         % Compute trajectories in current time window
-        trajectories = createTrajectories(opts, trajectories, startFrame, endFrame, iCam,appear_model_param,motion_model_param);
+        trajectories = createTrajectories_aic(opts, trajectories, startFrame, endFrame, iCam,appear_model_param,motion_model_param);
 
         % Update loop range
         startFrame = endFrame   - opts.trajectories.window_width/2;

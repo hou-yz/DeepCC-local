@@ -16,17 +16,17 @@ function compute_L1_tracklets_aic(opts)
         opts.current_camera = iCam;
 
         % Load OpenPose detections for current camera
-        detections      = load(sprintf('%s/train/S%02d/c%03d/det/det_yolo3.txt', opts.dataset_path, scene, iCam));
+        detections      = load(sprintf('%s/%s/S%02d/c%03d/det/det_yolo3.txt', opts.dataset_path, opts.sub_dir{opts.sequence}, scene, iCam));
         start_frame     = detections(1, 1);
         end_frame       = detections(end, 1);
         
-        imageROI = imread(sprintf('%s/train/S%02d/c%03d/roi.jpg', opts.dataset_path, scene, iCam));
+        imageROI        = imread(sprintf('%s/%s/S%02d/c%03d/roi.jpg', opts.dataset_path, opts.sub_dir{opts.sequence}, scene, iCam));
 
         % Load features for all detections
         if isempty(opts.feature_dir)
-            features   = h5read(sprintf('%s/L0-features/features%d.h5',opts.dataset_path,iCam),'/emb');
+            features    = h5read(sprintf('%s/L0-features/features%d.h5',opts.dataset_path,iCam),'/emb');
         else
-            features   = h5read(sprintf('%s/L0-features/%s/features%d.h5',opts.dataset_path,opts.feature_dir,iCam),'/emb');
+            features    = h5read(sprintf('%s/L0-features/%s/features%d.h5',opts.dataset_path,opts.feature_dir,iCam),'/emb');
         end
 
         in_time_range_ids = detections(:,1)>=start_frame & detections(:,1)<=end_frame;
