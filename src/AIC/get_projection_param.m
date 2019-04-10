@@ -28,6 +28,6 @@ for iCam = 1:40
     projection{iCam} = param;    
 end
 
-
+fclose('all');
 end
 

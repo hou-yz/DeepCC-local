@@ -26,7 +26,7 @@ opts.sequence_names = {'trainval', 'trainval_mini', 'test_easy', 'test_hard', 't
 opts.seqs = {[1,3,4],[],[],[],[],[2,5],[3,4],1};
 opts.scenarios = 1:5;
 opts.cams_in_scene = {1:5,6:9,10:15,16:40,[10,16:29,33:36]};
-opts.trainval_scene_by_icam = [1, 1, 1, 1, 1, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4];
+opts.trainval_scene_by_icam = [1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4];
 opts.render_threshold = -10;
 opts.load_tracklets = 1;
 opts.load_trajectories = 1;
@@ -35,9 +35,11 @@ opts.appear_model_name = '1fps_train_IDE_40/model_param_L2_75.mat';
 opts.motion_model_name = '1fps_train_IDE_40/model_param_L2_motion_150.mat';
 opts.soft = 0.1;
 opts.fft = false;
-opts.time_offset = get_time_offset(opts);
-opts.fps = 10*ones(1,40);
-opts.fps(15) = 8;
+opts.fps = 10;
+opts.frame_offset = get_frame_offset(opts);
+opts.world_center = {[42.525678, -90.723601],[42.491916, -90.723723],[42.498780, -90.686393],[42.498780, -90.686393],[42.498780, -90.686393]};
+opts.world_scale = 6371000;
+opts.fisheye_mapping = get_fisheye_mapping(opts);
 
 
 % Tracklets

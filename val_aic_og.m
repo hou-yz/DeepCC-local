@@ -54,7 +54,7 @@ evaluate(opts);
 
 % Multi-camera identities
 % opts.optimization = 'BIPCC';
-opts.identities.optimal_filter = true;
+opts.identities.optimal_filter = false;
 opts.identities.consecutive_icam_matrix = ones(40);
 opts.identities.reintro_time_matrix = ones(1,40)*inf;
 opts.identities.appearance_groups = 0;

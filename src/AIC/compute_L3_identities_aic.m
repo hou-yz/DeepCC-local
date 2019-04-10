@@ -27,8 +27,8 @@ function compute_L3_identities_aic(opts)
     identities = trajectories;
     for k = 1:length(identities)
         iCam = identities(k).trajectories.camera;
-        time_offset = opts.time_offset{opts.trainval_scene_by_icam(iCam)};
-        identities(k).trajectories(1).data(:,end+1) = local2global(time_offset(iCam), identities(k).trajectories(1).data(:,1));
+        frame_offset = opts.frame_offset{opts.trainval_scene_by_icam(iCam)};
+        identities(k).trajectories(1).data(:,end+1) = local2global(frame_offset(iCam), identities(k).trajectories(1).data(:,1));
         identities(k).trajectories(1).startFrame = identities(k).trajectories(1).data(1,9);
         identities(k).startFrame = identities(k).trajectories(1).startFrame;
         identities(k).trajectories(1).endFrame = identities(k).trajectories(1).data(end,9);

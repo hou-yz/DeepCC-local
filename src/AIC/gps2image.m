@@ -3,30 +3,29 @@ function image_points = gps2image(opts,gps_points,iCam)
 %   Detailed explanation goes here
 param = opts.projection{iCam};
 format long
+gps_points = gps_points / opts.world_scale  + opts.world_center{opts.trainval_scene_by_icam(iCam)}; 
+gps_points = [gps_points,ones(size(gps_points,1),1)]';
+
 if isempty(param.intrinsic)
-    gps_points = [gps_points,ones(size(gps_points,1),1)]';
-    camera_points = param.homography*gps_points;
+    camera_points = param.homography * gps_points;
     image_points = camera_points(1:2,:)./camera_points(3,:);
-    image_points = image_points';
 else
     % image_points = intrinsic * camera_points = intrinsic * homography * world_points
-    gps_points = [gps_points,ones(size(gps_points,1),1)]';
-    camera_points = param.intrinsic * param.homography * gps_points;
+    % without distortion
+    camera_points = param.homography * gps_points;
     camera_points = camera_points(1:2,:)./camera_points(3,:);
+    x  = camera_points(1,:)'; y  = camera_points(2,:)';
+    % add distortion 
+    k = param.distortion;
+    r = sqrt(x.^2 + y.^2);
+%     theta = 2/pi* atan(sqrt(x.^2 + y.^2));
+    theta = atan(r);
+    rho = theta + k(1)*theta.^3;
+    x_prime = rho./r.*x; y_prime = rho./r.*y;
+    camera_points = [x_prime';y_prime';ones(1,size(gps_points,2))];
     
-    x_prime  = camera_points(1,:)';
-    y_prime  = camera_points(2,:)';
-    k1 = param.distortion(1); k2 = param.distortion(2);
-    p1 = param.distortion(3); p2 = param.distortion(4);
-    coeff_x = [k1*(x_prime.^2 + y_prime.^2), zeros(size(x_prime)), x_prime.^2, -x_prime.^3];
-    coeff_y = [k1*(x_prime.^2 + y_prime.^2), zeros(size(y_prime)), y_prime.^2, -y_prime.^3];
-    x = zeros(size(x_prime)); y = zeros(size(y_prime));
-    
-    for i = 1:length(x_prime)
-        r = roots(coeff_x(i,:)); x(i) = r(imag(r)==0);
-        r = roots(coeff_y(i,:)); y(i) = r(imag(r)==0);
-    end
-    
-    image_points = [x,y];
+    image_points = param.intrinsic * camera_points;
+    image_points = image_points(1:2,:)./image_points(3,:);
 end
+image_points = image_points';
 end
