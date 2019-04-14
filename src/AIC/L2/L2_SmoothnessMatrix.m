@@ -42,18 +42,27 @@ for i = 1:length(trackletData)
         frames = [frame_i;frame_j];
         bbox_size = [bbox_size_i;bbox_size_j];
         
-        %% fit grp
-        % all parameters are same as cvpr2018 workshop
-        xModel = fitrgp(frames, xDetected, 'Basis', 'linear',...%'ComputationMethod','v',...
-        'FitMethod', 'exact', 'PredictMethod', 'exact', 'Sigma', sigma,...
-        'ConstantSigma', true, 'KernelFunction', 'matern52', 'KernelParameters', [1000,1000]);
-        yModel = fitrgp(frames, yDetected, 'Basis', 'linear',...%'ComputationMethod','v',...
-        'FitMethod', 'exact', 'PredictMethod', 'exact', 'Sigma', sigma,...
-        'ConstantSigma', true, 'KernelFunction', 'matern52', 'KernelParameters', [1000,1000]);
-        %% predict
-        xPredicted = predict(xModel, frames);
-        yPredicted = predict(yModel, frames);
+        %% fit with gp regression
+%         % all parameters are same as cvpr2018 workshop
+%         xModel = fitrgp(frames, xDetected, 'Basis', 'linear',...%'ComputationMethod','v',...
+%         'FitMethod', 'exact', 'PredictMethod', 'exact', 'Sigma', sigma,...
+%         'ConstantSigma', true, 'KernelFunction', 'matern52', 'KernelParameters', [1000,1000]);
+%         yModel = fitrgp(frames, yDetected, 'Basis', 'linear',...%'ComputationMethod','v',...
+%         'FitMethod', 'exact', 'PredictMethod', 'exact', 'Sigma', sigma,...
+%         'ConstantSigma', true, 'KernelFunction', 'matern52', 'KernelParameters', [1000,1000]);
+%         
+%         xPredicted = predict(xModel, frames);
+%         yPredicted = predict(yModel, frames);
         
+        %% fit with polyval
+        xModel = polyfit(frames,xDetected,2);
+        xPredicted = polyval(xModel, frames);
+        yModel = polyfit(frames,yDetected,2);
+        yPredicted = polyval(yModel, frames);
+%         motion_model  = fitrgp(frames,det_points,'Basis','linear','FitMethod','exact','PredictMethod','exact');
+%         newpoints     = resubPredict(motion_model);
+                
+        %% diff
         considered_frame = (frames>frame_i(end)-intervalLength) .* (frames<frame_j(1)+intervalLength);
 
         pos_diff = sqrt(((xPredicted - xDetected).^ 2 + (yPredicted - yDetected).^ 2)./ bbox_size.^ 2);

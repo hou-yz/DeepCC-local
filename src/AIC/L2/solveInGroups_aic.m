@@ -70,23 +70,23 @@ for i = 1 : length(allGroups)
         [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinity(tracklets(indices), params.beta, params.speed_limit, params.indifference_time, iCam);
         spacetimeAffinity = spacetimeAffinity-1;
     elseif opts.dataset == 1 || opts.dataset == 2
-        spacetimeAffinity = 0;
+        [velocityChangeLoss,timeIntervalLoss, iouAffinity, consider_matrix] = L2_VelocityTimeMatrix(realdataInTracklets(indices), params.smoothness_interval_length);
+        spacetimeAffinity =  - params.weightTimeInterval * timeIntervalLoss ...
+            - min(params.weightVelocityChange * (velocityChangeLoss),1) ...
+            + params.weightIOU * (iouAffinity);
         if params.weightSmoothness ~=0
         smoothnessLoss = L2_SmoothnessMatrix(realdataInTracklets(indices), params.smoothness_interval_length);
-        spacetimeAffinity = -params.weightSmoothness .* smoothnessLoss; 
+        spacetimeAffinity = spacetimeAffinity - params.weightSmoothness .* smoothnessLoss; 
         end
-        [velocityChangeLoss,timeIntervalLoss, iouAffinity, consider_matrix] = L2_VelocityTimeMatrix(realdataInTracklets(indices), params.smoothness_interval_length);
-        spacetimeAffinity = spacetimeAffinity - max(params.weightVelocityChange * (velocityChangeLoss),-1) ...
-            - params.weightTimeInterval * timeIntervalLoss ...
-            + params.weightIOU * (iouAffinity);
         
+        appearanceAffinity = appearanceAffinity-0.1;
         indifferenceMatrix = 1;
         impossibilityMatrix = 0;%impossibility_frame_overlap([tracklets(indices).startFrame]',[tracklets(indices).endFrame]');    
     end
     
     % compute the correlation matrix
     if params.alpha
-        correlationMatrix = - 0.2 + appearanceAffinity + params.alpha*spacetimeAffinity;
+        correlationMatrix = appearanceAffinity + params.alpha*spacetimeAffinity;
         correlationMatrix = correlationMatrix .* indifferenceMatrix.^params.use_indiff;
         correlationMatrix(impossibilityMatrix == 1) = -inf;
     else

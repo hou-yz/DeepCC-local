@@ -18,8 +18,8 @@ endFrame(i) = max(frames);
 % headData(i).data = trackletData{i}(frames<frames(1)+intervalLength,:);
 % tailData(i).data = trackletData{i}(frames>frames(end)-intervalLength,:);
 structData(i).data = trackletData{i};
-start_bbox(i,:) = trackletData{i}(1,3:6);
-end_bbox(i,:) = trackletData{i}(end,3:6);
+start_bbox(i,:) = max(trackletData{i}(1,3:6),1);
+end_bbox(i,:) = max(trackletData{i}(end,3:6),1);
 end
 
 start_le_end = startFrame>=endFrame';

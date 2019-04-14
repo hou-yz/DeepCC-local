@@ -28,17 +28,12 @@ opts.trajectories.alpha = 1;
 opts.identities.alpha   = 0;
 
 % weights
-opts.trajectories.weightSmoothness = 0;
-opts.trajectories.weightVelocityChange = 0.01;
+% opts.trajectories.weightSmoothness = 1;
+% opts.trajectories.weightVelocityChange = 1e-3;
 % opts.trajectories.weightTimeInterval = 0.01;
 opts.trajectories.weightIOU = 0.5;
 
 create_experiment_dir(opts);
-%% Setup Gurobi
-if ~exist('setup_done','var')
-    setup;
-    setup_done = true;
-end
 
 %% Run Tracker
 % opts.visualize = true;
