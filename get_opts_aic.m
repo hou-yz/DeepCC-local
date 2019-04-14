@@ -9,7 +9,7 @@ opts.dataset_path    = 'D:/Data/AIC19';
 opts.gurobi_path     = 'C:/Utils/gurobi801/linux64/matlab';
 opts.experiment_root = 'experiments';
 opts.experiment_name = 'aic_demo';
-opts.projection = get_projection_param(opts);
+[opts.projection,opts.fisheye_mapping] = get_projection_param(opts);
 
 opts.reader = MyVideoReader_aic(opts.dataset_path);
 
@@ -40,7 +40,6 @@ opts.fps = 10;
 opts.frame_offset = get_frame_offset(opts);
 opts.world_center = {[42.525678, -90.723601],[42.491916, -90.723723],[42.498780, -90.686393],[42.498780, -90.686393],[42.498780, -90.686393]};
 opts.world_scale = 1e6;
-opts.fisheye_mapping = get_fisheye_mapping(opts);
 
 
 % Tracklets

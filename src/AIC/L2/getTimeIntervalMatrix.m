@@ -22,7 +22,6 @@ for i = 1:length(featureData)
     end
 end
 
-timeIntervalMatrix = reshape(mapminmax(timeIntervalMatrix(:)'), size(timeIntervalMatrix));
 
 end
 

@@ -48,7 +48,6 @@ for i = 1:length(featureData)
     end
 end
 
-velocityChangeMatrix = reshape(mapminmax(velocityChangeMatrix(:)'), size(velocityChangeMatrix));
 
 end
 

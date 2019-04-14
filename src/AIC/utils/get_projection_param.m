@@ -1,4 +1,4 @@
-function projection = get_projection_param(opts)
+function [projection,camera_pos_mapping] = get_projection_param(opts)
 projection = cell(1,40);
 for iCam = 1:40
     param = struct('homography',[],'error',[],'intrinsic',[],'distortion',[]);
@@ -29,5 +29,14 @@ for iCam = 1:40
 end
 
 fclose('all');
+
+
+camera_pos_mapping = cell(1,40);
+
+format long
+for iCam = [5,35]
+    load(fullfile('src/AIC/utils',sprintf('C%02d_Mapping.mat',iCam)))
+    camera_pos_mapping{1,iCam} = struct('undistort2pix_x',x','undistort2pix_y',y');
+end
 end
 

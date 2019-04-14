@@ -71,7 +71,6 @@ for i = 1:length(featureData)
     end
 end
 
-smoothnessMatrix = reshape(mapminmax(smoothnessMatrix(:)'), size(smoothnessMatrix));
 
 end
 

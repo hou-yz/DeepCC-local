@@ -58,7 +58,7 @@ for i = 1 : length(allGroups)
     	[spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinityID(trajectories(indices),opts.identities.consecutive_icam_matrix,opts.identities.reintro_time_matrix,opts.identities.optimal_filter);
     elseif opts.dataset == 1 || opts.dataset == 2
         spacetimeAffinity = 0;
-        impossibilityMatrix = impossibility_frame_overlap([trajectories(indices).startFrame]',[trajectories(indices).endFrame]');    
+        impossibilityMatrix = 0;    
     end
     
     if params.alpha

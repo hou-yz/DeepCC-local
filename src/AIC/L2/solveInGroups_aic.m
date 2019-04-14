@@ -1,4 +1,4 @@
-function result = solveInGroups(opts, tracklets, labels, iCam,appear_model_param,motion_model_param)
+function result = solveInGroups_aic(opts, tracklets, labels, iCam,appear_model_param,motion_model_param)
 
 global trajectorySolverTime;
 
@@ -63,7 +63,13 @@ for i = 1 : length(allGroups)
         [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinity(tracklets(indices), params.beta, params.speed_limit, params.indifference_time, iCam);
         spacetimeAffinity = spacetimeAffinity-1;
     elseif opts.dataset == 1 || opts.dataset == 2
-        spacetimeAffinity = 0;
+        smoothnessAffinity = getSmoothnessMatrix(realdataInTracklets(indices), params.smoothness_interval_length);
+        velocityChangeAffinity = getVelocityChangeMatrix(dataInTracklets(indices));
+        timeIntervalAffinity = getTimeIntervalMatrix(dataInTracklets(indices));
+        
+        spacetimeAffinity =  params.weightSmoothness .* smoothnessAffinity + ...
+                             params.weightVelocityChange * velocityChangeAffinity +  params.weightTimeInterval * timeIntervalAffinity;
+
         impossibilityMatrix = impossibility_frame_overlap([tracklets(indices).startFrame]',[tracklets(indices).endFrame]');    
     end
     
@@ -87,21 +93,6 @@ for i = 1 : length(allGroups)
         correlationMatrix(impossibilityMatrix == 1) = -inf;
     else
         correlationMatrix = params.weightAppearance .* appearanceAffinity;
-    end
-    
-    if params.og_smoothness_score
-        smoothnessAffinity = getSmoothnessMatrix(realdataInTracklets(indices), params.smoothness_interval_length);
-        correlationMatrix =  correlationMatrix + params.weightSmoothness .* smoothnessAffinity;
-    end
-    
-    if params.og_velocity_change_score
-        velocityChangeAffinity = getVelocityChangeMatrix(dataInTracklets(indices));
-        correlationMatrix = correlationMatrix + params.weightVelocityChange .* velocityChangeAffinity;
-    end
-    
-    if params.og_time_interval_score
-        timeIntervalAffinity = getTimeIntervalMatrix(dataInTracklets(indices));
-        correlationMatrix = correlationMatrix + params.weightTimeInterval .* timeIntervalAffinity;
     end
     
     correlationMatrix(sameLabels) = 1;
