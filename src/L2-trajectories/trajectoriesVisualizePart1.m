@@ -20,7 +20,7 @@ for k = 1 : length(currentTrajectories)
         trackletCentersView = getBoundingBoxCenters(detections(:,[3:6]));
         scatter(trackletCentersView(:,1),trackletCentersView(:,2),'filled');
         total = size(trackletCentersView,1);
-        text(trackletCentersView(round(total/2),1),trackletCentersView(round(total/2),2)+0.01,sprintf('(%d,%d),I:%d,F:%d)',k,i,trCount,min(detections(:,1))));
+        text(trackletCentersView(round(total/2),1),trackletCentersView(round(total/2),2)+0.01,sprintf('(%d,%d),I:%d,F:%d)',k,i,trCount,min(detections(:,1))),'color','yellow');
         hold on;
         
     end

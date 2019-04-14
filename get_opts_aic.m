@@ -39,13 +39,13 @@ opts.fft = false;
 opts.fps = 10;
 opts.frame_offset = get_frame_offset(opts);
 opts.world_center = {[42.525678, -90.723601],[42.491916, -90.723723],[42.498780, -90.686393],[42.498780, -90.686393],[42.498780, -90.686393]};
-opts.world_scale = 1e6;
+opts.world_scale = 6371000;
 
 
 % Tracklets
 tracklets = [];
 tracklets.spatial_groups = 1;
-tracklets.window_width = 5;
+tracklets.window_width = 10;
 tracklets.min_length = 2;
 tracklets.alpha = 1;
 tracklets.beta = 0.02;
@@ -75,14 +75,11 @@ trajectories.step = false;
 trajectories.og_appear_score = true;
 trajectories.og_motion_score = true;
 trajectories.use_indiff = true;
-trajectories.og_smoothness_score = 0;
-trajectories.og_velocity_change_score = 0;
-trajectories.og_time_interval_score = 0;
-trajectories.smoothness_interval_length = 2;
-trajectories.weightAppearance = 1;
+trajectories.smoothness_interval_length = 4;
 trajectories.weightSmoothness = 0;
 trajectories.weightVelocityChange = 0;
 trajectories.weightTimeInterval = 0;
+trajectories.weightIOU = 0;
 
 % Identities
 identities = [];

@@ -58,41 +58,39 @@ for i = 1 : length(allGroups)
     fprintf('merging tracklets in appearance group %d\n',i);
     group       = allGroups(i);
     indices     = find(appearanceGroups == group);
-    sameLabels  = pdist2(labels(indices), labels(indices)) == 0;
-    if opts.dataset == 0
-        [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinity(tracklets(indices), params.beta, params.speed_limit, params.indifference_time, iCam);
-        spacetimeAffinity = spacetimeAffinity-1;
-    elseif opts.dataset == 1 || opts.dataset == 2
-        smoothnessAffinity = getSmoothnessMatrix(realdataInTracklets(indices), params.smoothness_interval_length);
-        velocityChangeAffinity = getVelocityChangeMatrix(dataInTracklets(indices));
-        timeIntervalAffinity = getTimeIntervalMatrix(dataInTracklets(indices));
-        
-        spacetimeAffinity =  params.weightSmoothness .* smoothnessAffinity + ...
-                             params.weightVelocityChange * velocityChangeAffinity +  params.weightTimeInterval * timeIntervalAffinity;
-
-        impossibilityMatrix = impossibility_frame_overlap([tracklets(indices).startFrame]',[tracklets(indices).endFrame]');    
-    end
+    sameLabels  = pdist2(labels(indices), labels(indices)) == 0;    
     
-    % compute appearance and spacetime scores
-    if params.og_motion_score
-    else
-        motionFeat = getMotionFeat(tracklets(indices), iCam, opts);
-        spacetimeAffinity = getHyperScore(motionFeat,motion_model_param,opts.soft,threshold, diff_p,1);
-    end
-
     if params.og_appear_score
         appearanceAffinity = getAppearanceMatrix(featureVectors(indices),featureVectors(indices), threshold, diff_p,diff_n,params.step);
     else
         appearanceAffinity = getHyperScore(featureVectors(indices),appear_model_param,opts.soft,threshold, diff_p,0);
     end
     
+    if opts.dataset == 0
+        [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinity(tracklets(indices), params.beta, params.speed_limit, params.indifference_time, iCam);
+        spacetimeAffinity = spacetimeAffinity-1;
+    elseif opts.dataset == 1 || opts.dataset == 2
+        spacetimeAffinity = 0;
+        if params.weightSmoothness ~=0
+        smoothnessLoss = L2_SmoothnessMatrix(realdataInTracklets(indices), params.smoothness_interval_length);
+        spacetimeAffinity = -params.weightSmoothness .* smoothnessLoss; 
+        end
+        [velocityChangeLoss,timeIntervalLoss, iouAffinity, consider_matrix] = L2_VelocityTimeMatrix(realdataInTracklets(indices), params.smoothness_interval_length);
+        spacetimeAffinity = spacetimeAffinity - max(params.weightVelocityChange * (velocityChangeLoss),-1) ...
+            - params.weightTimeInterval * timeIntervalLoss ...
+            + params.weightIOU * (iouAffinity);
+        
+        indifferenceMatrix = 1;
+        impossibilityMatrix = 0;%impossibility_frame_overlap([tracklets(indices).startFrame]',[tracklets(indices).endFrame]');    
+    end
+    
     % compute the correlation matrix
     if params.alpha
-        correlationMatrix = appearanceAffinity + params.alpha*spacetimeAffinity;
+        correlationMatrix = - 0.2 + appearanceAffinity + params.alpha*spacetimeAffinity;
         correlationMatrix = correlationMatrix .* indifferenceMatrix.^params.use_indiff;
         correlationMatrix(impossibilityMatrix == 1) = -inf;
     else
-        correlationMatrix = params.weightAppearance .* appearanceAffinity;
+        correlationMatrix = appearanceAffinity;
     end
     
     correlationMatrix(sameLabels) = 1;

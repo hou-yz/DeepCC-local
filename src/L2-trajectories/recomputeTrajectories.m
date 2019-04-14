@@ -59,10 +59,10 @@ for i = 1:length(trajectories)
         tracklet.feature = feature;
         if k == 1
             tracklet.features = features;
-            tracklet.realdata = realdata;
+%             tracklet.realdata = realdata;
         else
             tracklet.features = [];
-            tracklet.realdata = [];
+%             tracklet.realdata = [];
         end
         newTrajectory.startFrame = min(newTrajectory.startFrame, tracklet.startFrame);
         newTrajectory.endFrame = max(newTrajectory.endFrame, tracklet.endFrame);

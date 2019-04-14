@@ -56,11 +56,6 @@ for scene = opts.seqs{opts.sequence}
     trackerOutputRemoved(:,2) = ic;
     trackerOutput = sortrows(trackerOutputRemoved,[2 1]);
 
-    if iCam == 15
-        trackerOutput = fps_8to10(trackerOutput);
-    end
-
-    
     %% Save output
     fprintf('Saving results\n');
     fileOutput = trackerOutput(:, [1:6]);
