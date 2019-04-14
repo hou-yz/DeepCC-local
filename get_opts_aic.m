@@ -5,8 +5,8 @@ addpath(genpath('src'))
 opts = [];
 opts.dataset = 2;%0 for duke, 1 for mot, 2 for aic
 opts.feature_dir     = [];
-opts.dataset_path    = '~/Data/AIC19';
-opts.gurobi_path     = '~/Utils/gurobi801/linux64/matlab';
+opts.dataset_path    = 'D:/Data/AIC19';
+opts.gurobi_path     = 'C:/Utils/gurobi801/linux64/matlab';
 opts.experiment_root = 'experiments';
 opts.experiment_name = 'aic_demo';
 opts.projection = get_projection_param(opts);

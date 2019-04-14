@@ -9,31 +9,32 @@ if isempty(param.intrinsic)
     gps_points = (gps_points(1:2,:)./gps_points(3,:))';
 else
 %     image_points = intrinsic * camera_points = intrinsic * homography * world_points
-    pixel = opts.fisheye_mapping{iCam}.pixel;
-    gps = opts.fisheye_mapping{iCam}.gps;
-    dist = pdist2(image_points(:,1),pixel(:,1)) + pdist2(image_points(:,2),pixel(:,2));
+
+    pix_x = opts.fisheye_mapping{iCam}.undistort2pix_x;
+    pix_y = opts.fisheye_mapping{iCam}.undistort2pix_y;   
+    
+    undistorted_x = 1:size(pix_x,1);undistorted_y = 1:size(pix_x,2);
+    [undistorted_x,undistorted_y] = meshgrid(undistorted_x,undistorted_y);
+    undistorted_x = undistorted_x'; undistorted_y = undistorted_y';
+    
+    pix_x = reshape(pix_x,[],1);
+    pix_y = reshape(pix_y,[],1);
+    undistorted_x = reshape(undistorted_x,[],1);
+    undistorted_y = reshape(undistorted_y,[],1);
+
+    camera_points = zeros(size(image_points));
+    
+    for i = 1:100:length(image_points)
+    line_ids = i:min(i+99,length(image_points));
+    dist = pdist2(image_points(line_ids,1),pix_x) + pdist2(image_points(line_ids,2),pix_y);
     [~,index] = min(dist,[],2);
-    gps_points = gps(index,:);
-%     % with distortion
-%     camera_points = param.intrinsic \ [image_points,ones(size(image_points,1),1)]';
-%     camera_points = (camera_points(1:2,:)./camera_points(3,:))';
-%     x_prime  = camera_points(:,1);    y_prime  = camera_points(:,2);
-%     % remove distortion
-%     % assume theta is normalized to [0,1]
-%     rho = sqrt(x_prime.^2 + y_prime.^2);
-%     k = param.distortion;
-%     coeff = [ones(length(camera_points),1)*[k(1),0,1],-rho];
-%     theta = zeros(length(camera_points),1);
-%     for i = 1:10%length(camera_points)
-%         s = roots(coeff(i,:));  
-%         theta(i) = s(s<1 & s>0);
-%     end
-%     r = tan(theta * pi/2);
-%     x = x_prime.^2 .* r.^2 ./ rho.^2;    y = y_prime.^2 .* r.^2 ./ rho.^2;
-%     % without distortion
-%     camera_points = [x,y,ones(length(image_points),1)]';
-%     gps_points = param.homography \ camera_points;
-%     gps_points = (gps_points(1:2,:)./gps_points(3,:))';
+    camera_points(line_ids,:) = [undistorted_x(index),undistorted_y(index)];
+    end
+    
+    camera_points = [camera_points,ones(size(image_points,1),1)]';
+    
+    gps_points = param.homography \ camera_points;
+    gps_points = (gps_points(1:2,:)./gps_points(3,:))';
 end
 gps_points = (gps_points - opts.world_center{opts.trainval_scene_by_icam(iCam)}) * opts.world_scale;
 end

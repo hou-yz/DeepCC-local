@@ -10,7 +10,7 @@ cam_pool = opts.cams_in_scene{scene};
 all_detections = cell(1,length(cam_pool));
 
 for i = length(cam_pool):-1:1
-    iCam = 5%cam_pool(i);
+    iCam = cam_pool(i);
     opts.current_camera = iCam;
     % Load OpenPose detections for current camera
     if gt

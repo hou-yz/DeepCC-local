@@ -1,10 +1,10 @@
 experiments/
 src/external/mexopencv/
 src/hyper_score/.idea/*
+src/hyper_score/logs/*
 script/
 *.mex*
 *.asv
 *.pyc
-*.mat
 *.tar
 *.jpg
