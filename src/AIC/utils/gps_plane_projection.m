@@ -3,7 +3,7 @@ clc
 
 opts = get_opts_aic();
 scene = 1;
-gt = 1;
+gt = 0;
 
 
 cam_pool = opts.cams_in_scene{scene};

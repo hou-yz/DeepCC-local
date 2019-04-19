@@ -43,7 +43,7 @@ for i = 1:numTracklets
     % Fit left, top, right, bottom, xworld, yworld
     for k = 3:size(tracklets,2)
         det_points    = detections(:,k);
-        motion_model  = polyfit(frames,det_points,1);
+        motion_model  = polyfit(frames,det_points,2);
         newpoints     = polyval(motion_model, datapoints);
 %         motion_model  = fitrgp(frames,det_points,'Basis','linear','FitMethod','exact','PredictMethod','exact');
 %         newpoints     = resubPredict(motion_model);
@@ -54,7 +54,8 @@ for i = 1:numTracklets
     meanFeature    = mean(cell2mat(featuresAppearance(mask,:)));
     centers          = getBoundingBoxCenters(currentTracklet(:,[3:6]));
     centerPoint      = mean(centers); % assumes more then one detection per tracklet
-    centerPointWorld = 1;% median(currentTracklet(:,[7,8]));
+    % centerPointWorld = 1;% 
+    centerPointWorld = mean(currentTracklet(:,[7,8]));
     
     smoothedTracklets(end+1).feature       = meanFeature; 
     smoothedTracklets(end).center          = centerPoint;

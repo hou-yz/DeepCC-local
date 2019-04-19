@@ -39,19 +39,19 @@ opts.fft = false;
 opts.fps = 10;
 opts.frame_offset = get_frame_offset(opts);
 opts.world_center = {[42.525678, -90.723601],[42.491916, -90.723723],[42.498780, -90.686393],[42.498780, -90.686393],[42.498780, -90.686393]};
-opts.world_scale = 6371000;
+opts.world_scale = 6371000/180*pi;
 
 
 % Tracklets
 tracklets = [];
 tracklets.spatial_groups = 1;
 tracklets.window_width = 10;
-tracklets.min_length = 2;
+tracklets.min_length = 5;
 tracklets.alpha = 1;
 tracklets.beta = 0.02;
 tracklets.cluster_coeff = 0.75;
 tracklets.nearest_neighbors = 8;
-tracklets.speed_limit = 500;
+tracklets.speed_limit = 40*3.6;
 tracklets.threshold = 8;
 tracklets.diff_p = 0;
 tracklets.diff_n = 0;
@@ -66,7 +66,7 @@ trajectories.appearance_groups = 0; % determined automatically when zero
 trajectories.alpha = 1;
 trajectories.beta = 0.001;
 trajectories.window_width = 30;
-trajectories.speed_limit = 500;
+trajectories.speed_limit = 40*3.6;
 trajectories.indifference_time = 100;
 trajectories.threshold = 8;
 trajectories.diff_p = 0;
@@ -78,7 +78,8 @@ trajectories.use_indiff = true;
 trajectories.smoothness_interval_length = 4;
 trajectories.weightSmoothness = 0;
 trajectories.weightVelocityChange = 0;
-trajectories.weightTimeInterval = 0;
+trajectories.weightDistance = 0;
+trajectories.weightShapeChange = 0;
 trajectories.weightIOU = 0;
 
 % Identities
@@ -88,7 +89,7 @@ identities.appearance_groups = 0; % determined automatically when zero
 identities.alpha = 2;
 identities.beta = 0.01;
 identities.overlap = 5;
-identities.speed_limit = 2000;
+identities.speed_limit = 60*3.6;
 identities.indifference_time = 150;
 identities.threshold = 8;
 identities.diff_p = 0;

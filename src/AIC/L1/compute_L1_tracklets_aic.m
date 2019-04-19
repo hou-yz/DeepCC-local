@@ -16,7 +16,7 @@ function compute_L1_tracklets_aic(opts)
         opts.current_camera = iCam;
 
         % Load OpenPose detections for current camera
-        detections      = load(sprintf('%s/%s/S%02d/c%03d/det/det_yolo3.txt', opts.dataset_path, opts.sub_dir{opts.sequence}, scene, iCam));
+        detections      = load(sprintf('%s/%s/S%02d/c%03d/det/det_yolo3_gps.txt', opts.dataset_path, opts.sub_dir{opts.sequence}, scene, iCam));
         start_frame     = detections(1, 1);
         end_frame       = detections(end, 1);
         
@@ -65,7 +65,10 @@ function compute_L1_tracklets_aic(opts)
             detections_in_window            = detections_in_window(valid, :);
             valid                           = detections_conf > opts.render_threshold;
             detections_in_window            = detections_in_window(valid, :);
-            detections_in_window(:,7:end)   = [];
+            if opts.dataset == 2
+                detections_in_window(:,7:8) = detections_in_window(:,10:11);
+            end
+            detections_in_window(:,9:end)   = [];
             detections_in_window(:,[2 1])   = [ones(size(detections_in_window,1),1)*iCam,detections_in_window(:,1)];
             filteredDetections              = detections_in_window;
             filteredFeatures                = [];

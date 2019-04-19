@@ -27,16 +27,17 @@ opts.tracklets.alpha    = 1;
 opts.trajectories.alpha = 1;
 opts.identities.alpha   = 0;
 
+% opts.visualize = true;
 % weights
 % opts.trajectories.weightSmoothness = 1;
-% opts.trajectories.weightVelocityChange = 1e-3;
-% opts.trajectories.weightTimeInterval = 0.01;
+% opts.trajectories.weightVelocityChange = 0.01;
+% opts.trajectories.weightDistance = 0.01;
+% opts.trajectories.weightShapeChange = 1;
 opts.trajectories.weightIOU = 0.5;
 
 create_experiment_dir(opts);
 
 %% Run Tracker
-% opts.visualize = true;
 opts.sequence = 8;
 
 if opts.sequence == 6
