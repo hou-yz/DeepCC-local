@@ -6,7 +6,7 @@ for i = 1:length(opts.seqs)
 
     iCam = opts.seqs(i);
     opts.current_camera = iCam;
-%     detections          = load(sprintf('%s/train/S%02d/c%03d/det/det_yolo3.txt', opts.dataset_path, opts.trainval_scene_by_icam(iCam), iCam));
+%     detections          = load(sprintf('%s/train/S%02d/c%03d/det/det_%s.txt', opts.dataset_path, opts.trainval_scene_by_icam(iCam), iCam, opts.detections));
     detections          = load(sprintf('%s/train/S%02d/c%03d/gt/gt.txt', opts.dataset_path, opts.trainval_scene_by_icam(iCam), iCam));
     
     features = zeros(length(detections), 36+2);
