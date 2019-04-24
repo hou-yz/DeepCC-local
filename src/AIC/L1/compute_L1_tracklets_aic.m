@@ -11,12 +11,12 @@ function compute_L1_tracklets_aic(opts)
         motion_model_param = load(fullfile('src','hyper_score/logs',opts.motion_model_name));
     end
     for scene = opts.seqs{opts.sequence}
-    for i = numel(opts.cams_in_scene{scene}):-1:1
+    for i = 1:numel(opts.cams_in_scene{scene})
         iCam = opts.cams_in_scene{scene}(i);
         opts.current_camera = iCam;
 
         % Load OpenPose detections for current camera
-        detections      = load(sprintf('%s/%s/S%02d/c%03d/det/det_yolo3_gps.txt', opts.dataset_path, opts.sub_dir{opts.sequence}, scene, iCam));
+        detections      = load(sprintf('%s/%s/S%02d/c%03d/det/det_%s_gps.txt', opts.dataset_path, opts.sub_dir{opts.sequence}, scene, iCam, opts.detections));
         start_frame     = detections(1, 1);
         end_frame       = detections(end, 1);
         

@@ -70,17 +70,18 @@ for i = 1 : length(allGroups)
         [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinity(tracklets(indices), params.beta, params.speed_limit, params.indifference_time, iCam);
         spacetimeAffinity = spacetimeAffinity-1;
     elseif opts.dataset == 1 || opts.dataset == 2
-%         tracklet_gps = [];
-        [velocityChangeLoss,distanceLoss,shapeChangeLoss, iouAffinity, consider_matrix, impossibilityMatrix] = aic_VelocityTimeMatrix(opts,realdataInTracklets(indices), params.smoothness_interval_length);
+        [velocityChangeLoss,distanceLoss,shapeChangeLoss, iouAffinity, timeIntervalMatrix, impossibilityMatrix] = aic_VelocityTimeMatrix(opts,dataInTracklets(indices), params.smoothness_interval_length);
         spacetimeAffinity = - params.weightDistance * distanceLoss + params.weightShapeChange * shapeChangeLoss - params.weightVelocityChange * velocityChangeLoss ...
              + params.weightIOU * (iouAffinity-0.2);
         if params.weightSmoothness ~=0
-        smoothnessScore = aic_SmoothnessMatrix(realdataInTracklets(indices), params.smoothness_interval_length);
-        spacetimeAffinity = spacetimeAffinity + params.weightSmoothness .* smoothnessScore; 
+        smoothnessLoss = aic_SmoothnessMatrix(dataInTracklets(indices), params.smoothness_interval_length);
+        spacetimeAffinity = spacetimeAffinity - params.weightSmoothness .* smoothnessLoss; 
         end
         
         appearanceAffinity = appearanceAffinity-0.1;
         indifferenceMatrix = 1;
+%         indifferenceMatrix = min(1, -log(timeIntervalMatrix/params.window_width));
+%         indifferenceMatrix = 1 - sigmf(timeIntervalMatrix,[0.1, params.indifference_time/2]);
         impossibilityMatrix = 0;%impossibility_frame_overlap([tracklets(indices).startFrame]',[tracklets(indices).endFrame]');    
     end
     % compute the correlation matrix
@@ -118,6 +119,10 @@ for i = 1 : length(allGroups)
     trajectorySolverTime = trajectorySolverTime + trajectorySolutionTime;
     
     result_appearance{i}.observations = indices;
+    identities = result_appearance{i}.labels;
+    consider_tracklets = tracklets(indices);
+    % Show clustered detections
+    if opts.visualize, trajectoriesVisualizePart2_5; end
 %     if opts.visualize,view_tsne(correlationMatrix,result_appearance{i}.labels);end
 end
 

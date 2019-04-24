@@ -16,7 +16,7 @@ for scene = opts.seqs{opts.sequence}
     opts.current_camera = iCam;
 
     % Load OpenPose detections for current camera
-    detections      = load(sprintf('%s/%s/S%02d/c%03d/det/det_yolo3.txt', opts.dataset_path, opts.sub_dir{opts.sequence}, scene, iCam));
+    detections      = load(sprintf('%s/%s/S%02d/c%03d/det/det_%s.txt', opts.dataset_path, opts.sub_dir{opts.sequence}, scene, iCam, opts.detections));
     startFrame     = detections(1, 1);
     endFrame       = startFrame + opts.trajectories.window_width - 1;
 %     endFrame       = detections(end, 1);

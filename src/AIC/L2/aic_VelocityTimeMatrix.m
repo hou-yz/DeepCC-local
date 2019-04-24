@@ -1,11 +1,10 @@
-function [velocityChangeMatrix,distanceMatrix,shapeChangeMatrix,iousMatrix,consider_matrix, impMatrix] = aic_VelocityTimeMatrix(opts,trackletData,intervalLength)
+function [velocityChangeMatrix,distanceMatrix,shapeChangeMatrix,iousMatrix,timeIntervalMatrix, impossibilityMatrix] = aic_VelocityTimeMatrix(opts,trackletData,intervalLength)
 
 velocityChangeMatrix = zeros(length(trackletData));
 distanceMatrix = zeros(length(trackletData));
 shapeChangeMatrix = zeros(length(trackletData));
 timeIntervalMatrix = zeros(length(trackletData));
 iousMatrix = zeros(length(trackletData));
-impMatrix = zeros(length(trackletData));
 
 startFrame = zeros(1,length(trackletData));
 endFrame = zeros(1,length(trackletData));
@@ -31,8 +30,8 @@ end_bbox_size(i) = sqrt(trackletData{i}(end, 5).^ 2 + trackletData{i}(end, 6).^ 
 bbox_hw(i,:) = mean(max(trackletData{i}(end,5:6),1));
 end
 
-start_le_end = startFrame>=endFrame';
-% start_le_end = logical(triu(ones(length(trackletData)),1));
+% start_le_end = startFrame>=endFrame';
+start_le_end = logical(triu(ones(length(trackletData)),1));
 %% time
 %tail_start_frame - head_end_frame
 time_interval = startFrame - endFrame';
@@ -40,11 +39,11 @@ timeIntervalMatrix(start_le_end) = time_interval(start_le_end);
 timeIntervalMatrix = (timeIntervalMatrix + timeIntervalMatrix');
 
 % [~, ~, tail_startpoint, head_endpoint, ~, ~, Velocity] = getTrackletFeatures(structData);
-[~, head_endpoint, headVelocity] = getGpsSpeed( trackletData);
-[tail_startpoint, ~, tailVelocity] = getGpsSpeed( trackletData);
+[~, head_endpoint, headVelocity,headIntervals] = getGpsSpeed( trackletData);
+[tail_startpoint, ~, tailVelocity,tailIntervals] = getGpsSpeed( trackletData);
 %% distance
-distance_x = tail_startpoint(:,1) - head_endpoint(:,1)';
-distance_y = tail_startpoint(:,2) - head_endpoint(:,2)';
+distance_x = tail_startpoint(:,1)' - head_endpoint(:,1);
+distance_y = tail_startpoint(:,2)' - head_endpoint(:,2);
 diff_x = distance_x;
 diff_y = distance_y;
 % diff_x = distance_x-headVelocity(:,1) + distance_x-(tailVelocity(:,1)');
@@ -72,15 +71,34 @@ shapeChangeMatrix = shapeChangeMatrix + shapeChangeMatrix';
 %% iou
 ious = bboxOverlapRatio(start_bbox,end_bbox);
 iousMatrix(start_le_end) = ious(start_le_end);
-iousMatrix = (iousMatrix + iousMatrix');
+iousMatrix = iousMatrix + iousMatrix';
 % iousMatrix(iousMatrix==0)=-0.5;
 %% impossible
-impMatrix = neededVelocity>opts.trajectories.speed_limit;
-% impMatrix(shapeChangeMatrix > 2)=1;
-% impMatrix(iousMatrix==0) = 1;
-% impMatrix(timeIntervalMatrix>intervalLength) = 0;
+overlapping     = pdist2(headIntervals,tailIntervals, @overlapTest);
+merging         = (distanceMatrix < 2) & overlapping & (ious > 0);
+velocity        = distanceMatrix./(abs(timeIntervalMatrix)+10^-12);
+violators       = velocity > opts.trajectories.speed_limit;
+
+% build impossibility matrix
+impossibilityMatrix = zeros(length(trackletData));
+impossibilityMatrix(violators & merging ~=1) = 1;
+impossibilityMatrix(overlapping & merging ~=1) = 1;
 
 %%
 consider_matrix = start_le_end + start_le_end';
+end
+
+
+function overlap = overlapTest(interval1, interval2)
+
+duration1       = interval1(2) - interval1(1);
+duration2       = interval2(:,2) - interval2(:, 1);
+
+i1              = repmat(interval1,size(interval2,1), 1);
+unionMin        = min([i1, interval2], [], 2);
+unionMax        = max([i1, interval2], [], 2);
+
+overlap         = double(duration1 + duration2 - unionMax + unionMin >= 0);
+
 end
 

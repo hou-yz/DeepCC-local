@@ -1,4 +1,4 @@
-function [ startpoint, endpoint, velocity] = getGpsSpeed( trackletData)
+function [ startpoint, endpoint, velocity,intervals] = getGpsSpeed( trackletData)
 
 numTracklets = length(trackletData);
 

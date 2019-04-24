@@ -9,7 +9,7 @@ if dataset == 1
 elseif dataset == 2
     opts = get_opts_aic();
     opts.sequence = 1;
-    opts.net.experiment_root = 'experiments/zju_best_labeled_trainval';%'og512';%
+    opts.net.experiment_root = 'experiments/zju_best_labeled_trainval';
 else
     opts = get_opts();
     opts.sequence = 7;

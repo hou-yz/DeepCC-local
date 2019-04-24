@@ -1,16 +1,23 @@
 function [smoothnessMatrix] = aic_SmoothnessMatrix(trackletData, intervalLength)
 
-smoothness = zeros(length(trackletData));
+iscell = isa(trackletData,'cell');
+if ~iscell
+    trackletData = {trackletData.data};
+    frame_col = 9;
+else
+    frame_col = 1;
+end
 
+smoothness = zeros(length(trackletData));
 startFrame = zeros(1,length(trackletData));
 endFrame = zeros(1,length(trackletData));
 for i = 1:length(trackletData)
-startFrame(i) = min(trackletData{i}(:,1));
-endFrame(i) = max(trackletData{i}(:,1));
+startFrame(i) = min(trackletData{i}(:,frame_col));
+endFrame(i) = max(trackletData{i}(:,frame_col));
 end
 
 start_le_end = startFrame>=endFrame';
-% start_le_end = logical(triu(ones(length(trackletData)),1));
+start_le_end = logical(triu(ones(length(trackletData)),1));
 
 % sigma = 8;
 
@@ -21,7 +28,7 @@ for i = 1:length(trackletData)
     
     pos_x_i = trackletData{i}(:, 7);
     pos_y_i = trackletData{i}(:, 8);
-    frame_i = trackletData{i}(:, 1);
+    frame_i = trackletData{i}(:, frame_col);
 %     bbox_size_i = sqrt(trackletData{i}(:, 5).^ 2 + trackletData{i}(:, 6).^ 2);
 
     
@@ -33,7 +40,7 @@ for i = 1:length(trackletData)
         
         pos_x_j = trackletData{j}(:, 7);
         pos_y_j = trackletData{j}(:, 8);
-        frame_j = trackletData{j}(:, 1);
+        frame_j = trackletData{j}(:, frame_col);
 %         bbox_size_j = sqrt(trackletData{j}(:, 5).^ 2 + trackletData{j}(:, 6).^ 2);
 
         
@@ -67,11 +74,12 @@ for i = 1:length(trackletData)
 %         hold on
 %         scatter(xDetected,yDetected)
 %         scatter(xPredicted,yPredicted,'fill')
+%         legend('Detected Position','Predicted Position')
         
         %% diff
 %         considered_frame = (frames>frame_i(end)-intervalLength) .* (frames<frame_j(1)+intervalLength);
-%         considered_frame = frames(-intervalLength+length(frame_i):intervalLength+length(frame_i));
-        considered_frame = frames;
+        considered_frame = frames(-intervalLength+length(frame_i):intervalLength+length(frame_i));
+%         considered_frame = frames;
 %         pos_diff = sqrt(((xPredicted - xDetected).^ 2 + (yPredicted - yDetected).^ 2)./ bbox_size.^ 2);
         pos_diff = sqrt((xPredicted - xDetected).^ 2 + (yPredicted - yDetected).^ 2);
         smoothnessLoss = mean(pos_diff(logical(considered_frame)));
@@ -81,9 +89,8 @@ end
 smoothness = smoothness + smoothness';
 
 % smoothnessMatrix = 1./exp(10*smoothness)-0.5;
-smoothnessMatrix = 1 - smoothness;
+smoothnessMatrix = smoothness;
 smoothnessMatrix(~start_le_end) = 0;
 smoothnessMatrix = smoothnessMatrix + smoothnessMatrix';
-smoothnessMatrix = max(smoothnessMatrix,-1);
 end
 

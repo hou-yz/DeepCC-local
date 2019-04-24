@@ -48,7 +48,7 @@ end
 %% Tracklets
 opts.tracklets.spatial_groups = 0;
 opts.optimization = 'KL';
-% compute_L1_tracklets_aic(opts);
+compute_L1_tracklets_aic(opts);
 
 %% Single-camera trajectories
 % weights
