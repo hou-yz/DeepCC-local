@@ -58,7 +58,18 @@ for i = 1 : length(allGroups)
     	[spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinityID(trajectories(indices),opts.identities.consecutive_icam_matrix,opts.identities.reintro_time_matrix,opts.identities.optimal_filter);
     elseif opts.dataset == 1 || opts.dataset == 2
         spacetimeAffinity = 0;
-        impossibilityMatrix = 0;    
+%         [velocityChangeLoss,distanceLoss,shapeChangeLoss, iouAffinity, consider_matrix, impossibilityMatrix] = aic_VelocityTimeMatrix(opts,trajectories(indices), params.smoothness_interval_length);
+%         spacetimeAffinity = - params.weightDistance * distanceLoss + params.weightShapeChange * shapeChangeLoss - params.weightVelocityChange * velocityChangeLoss ...
+%              + params.weightIOU * iouAffinity;
+        if params.weightSmoothness ~=0
+        smoothnessLoss = aic_SmoothnessMatrix(trajectories(indices), params.smoothness_interval_length);
+        spacetimeAffinity = spacetimeAffinity - params.weightSmoothness .* smoothnessLoss; 
+        end
+        
+%         appearanceAffinity = appearanceAffinity;
+        indifferenceMatrix = 1;
+        impossibilityMatrix = 0;%impossibility_frame_overlap([tracklets(indices).startFrame]',[tracklets(indices).endFrame]');    
+
     end
     
     if params.alpha

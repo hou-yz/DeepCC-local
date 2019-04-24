@@ -18,13 +18,16 @@ if dataset == 0
 elseif dataset == 1
     features = h5read(sprintf('%s/%s/all_seq_feat.h5',opts.feature_dir,opts.net.experiment_root),'/emb')';
 else
-    for i = 1:length(opts.seqs)
-        iCam = opts.seqs(i);
+    for scene = opts.seqs{opts.sequence}
+    for iCam = opts.cams_in_scene{scene}
         tmp_features = h5read(fullfile(opts.net.experiment_root, sprintf('features%d.h5',iCam)),'/emb');
         tmp_features = tmp_features';
         features = [features;tmp_features];
     end
+    end
 end
+
+features(features(:,1)==-1,:)=[];
 % pooling
 if dataset == 2
     pooling = 1;

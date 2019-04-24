@@ -67,10 +67,12 @@ for spatialGroupID = 1 : max(spatialGroupIDs)
     if opts.dataset == 0
         [motionCorrelation, impMatrix] = motionAffinity(spatialGroupDetectionCenters,spatialGroupDetectionFrames,spatialGroupEstimatedVelocity,params.speed_limit, params.beta);
     elseif opts.dataset == 1 || opts.dataset == 2
-        [motionCorrelation, impMatrix] = aic_L1_motion_score(spatialGroupDetectionbboxs,spatialGroupDetectionFrames,params.speed_limit, params.beta);
+        world_pos = originalDetections(elements,7:8);
+        [motionCorrelation, impMatrix] = aic_L1_motion_score(spatialGroupDetectionbboxs, world_pos,spatialGroupDetectionFrames,params.speed_limit, params.beta);
 %         appearanceCorrelation = appearanceCorrelation-0.2;
 %         motionCorrelation = iou_score(spatialGroupDetectionbboxs);
 %         impMatrix = impossibility_frame_overlap(spatialGroupDetectionFrames,spatialGroupDetectionFrames);    
+%         impMatrix = 0;
     end
     % Combine affinities into correlations
     intervalDistance                = pdist2(spatialGroupDetectionFrames,spatialGroupDetectionFrames);
@@ -83,7 +85,7 @@ for spatialGroupID = 1 : max(spatialGroupIDs)
 %         correlationMatrix(impMatrix==1) = -inf;
     end
     % Show spatial grouping and correlations
-    if opts.visualize, trackletsVisualizePart2; end
+%     if opts.visualize, trackletsVisualizePart2; end
     
     % Solve the graph partitioning problem
     fprintf('%d ',spatialGroupID);

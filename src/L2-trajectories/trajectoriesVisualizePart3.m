@@ -1,7 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % VISUALIZE 3: SHOW ALL MERGED TRACKLETS IN WINDOWS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+figure(3)
 imshow(opts.reader.getFrame(opts.current_camera,endTime));
 hold on;
 
