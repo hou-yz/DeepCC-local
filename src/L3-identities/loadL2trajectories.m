@@ -21,8 +21,10 @@ for iCam = cam_pool
         id = ids(idx);
         trajectory = [];
         trajectory.data = tracker_output(tracker_output(:,2)==id,:);
+        if opts.dataset~=2
         feet_world = image2world(feetPosition(trajectory.data(:,[3:6])), iCam);
         trajectory.data(:,[7,8]) = feet_world;
+        end
         trajectory.mcid = count;
         trajectory.scid = id;
         trajectory.camera = iCam;

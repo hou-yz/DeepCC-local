@@ -72,17 +72,17 @@ for i = 1 : length(allGroups)
     elseif opts.dataset == 1 || opts.dataset == 2
         [velocityChangeLoss,distanceLoss,shapeChangeLoss, iouAffinity, timeIntervalMatrix, impossibilityMatrix] = aic_VelocityTimeMatrix(opts,dataInTracklets(indices), params.smoothness_interval_length);
         spacetimeAffinity = - params.weightDistance * distanceLoss + params.weightShapeChange * shapeChangeLoss - params.weightVelocityChange * velocityChangeLoss ...
-             + params.weightIOU * (iouAffinity-0.2);
+             + params.weightIOU * (iouAffinity-0);
         if params.weightSmoothness ~=0
         smoothnessLoss = aic_SmoothnessMatrix(dataInTracklets(indices), params.smoothness_interval_length);
-        spacetimeAffinity = spacetimeAffinity - params.weightSmoothness .* smoothnessLoss; 
+        spacetimeAffinity = spacetimeAffinity - params.weightSmoothness .* (smoothnessLoss-1); 
         end
         
-        appearanceAffinity = appearanceAffinity-0.1;
+        appearanceAffinity = appearanceAffinity;
         indifferenceMatrix = 1;
 %         indifferenceMatrix = min(1, -log(timeIntervalMatrix/params.window_width));
 %         indifferenceMatrix = 1 - sigmf(timeIntervalMatrix,[0.1, params.indifference_time/2]);
-        impossibilityMatrix = 0;%impossibility_frame_overlap([tracklets(indices).startFrame]',[tracklets(indices).endFrame]');    
+        impossibilityMatrix = false;%impossibility_frame_overlap([tracklets(indices).startFrame]',[tracklets(indices).endFrame]');    
     end
     % compute the correlation matrix
     if params.alpha

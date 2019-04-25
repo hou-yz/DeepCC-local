@@ -55,20 +55,18 @@ for i = 1 : length(allGroups)
         appearanceCorrelation = getHyperScore(featureVectors(indices),appear_model_param,opts.soft, params.threshold,params.diff_p,0);
     end
     if opts.dataset == 0
-    	[spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinityID(trajectories(indices),opts.identities.consecutive_icam_matrix,opts.identities.reintro_time_matrix,opts.identities.optimal_filter);
+    	[spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinityID(opts,trajectories(indices),opts.identities.consecutive_icam_matrix,opts.identities.reintro_time_matrix,opts.identities.optimal_filter);
     elseif opts.dataset == 1 || opts.dataset == 2
-        spacetimeAffinity = 0;
-%         [velocityChangeLoss,distanceLoss,shapeChangeLoss, iouAffinity, consider_matrix, impossibilityMatrix] = aic_VelocityTimeMatrix(opts,trajectories(indices), params.smoothness_interval_length);
-%         spacetimeAffinity = - params.weightDistance * distanceLoss + params.weightShapeChange * shapeChangeLoss - params.weightVelocityChange * velocityChangeLoss ...
-%              + params.weightIOU * iouAffinity;
-        if params.weightSmoothness ~=0
-        smoothnessLoss = aic_SmoothnessMatrix(trajectories(indices), params.smoothness_interval_length);
-        spacetimeAffinity = spacetimeAffinity - params.weightSmoothness .* smoothnessLoss; 
-        end
-        
+%         spacetimeAffinity = 0;
+%         if params.weightSmoothness ~=0
+%         smoothnessLoss = aic_SmoothnessMatrix(trajectories(indices), params.smoothness_interval_length);
+%         spacetimeAffinity = spacetimeAffinity - params.weightSmoothness .* smoothnessLoss; 
+%         end
+        [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinityID(opts,trajectories(indices),opts.identities.consecutive_icam_matrix,opts.identities.reintro_time_matrix,opts.identities.optimal_filter);
+
 %         appearanceAffinity = appearanceAffinity;
         indifferenceMatrix = 1;
-        impossibilityMatrix = 0;%impossibility_frame_overlap([tracklets(indices).startFrame]',[tracklets(indices).endFrame]');    
+        impossibilityMatrix = false;%impossibility_frame_overlap([tracklets(indices).startFrame]',[tracklets(indices).endFrame]');    
 
     end
     

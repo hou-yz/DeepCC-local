@@ -31,19 +31,20 @@ bbox_hw(i,:) = mean(max(trackletData{i}(end,5:6),1));
 end
 
 % start_le_end = startFrame>=endFrame';
+consecutive = startFrame==endFrame'+1;
 start_le_end = logical(triu(ones(length(trackletData)),1));
 %% time
 %tail_start_frame - head_end_frame
-time_interval = startFrame - endFrame';
+time_interval = endFrame-startFrame';
 timeIntervalMatrix(start_le_end) = time_interval(start_le_end);
 timeIntervalMatrix = (timeIntervalMatrix + timeIntervalMatrix');
 
 % [~, ~, tail_startpoint, head_endpoint, ~, ~, Velocity] = getTrackletFeatures(structData);
-[~, head_endpoint, headVelocity,headIntervals] = getGpsSpeed( trackletData);
-[tail_startpoint, ~, tailVelocity,tailIntervals] = getGpsSpeed( trackletData);
+[head_startpoint, head_endpoint, headVelocity,headIntervals] = getGpsSpeed( trackletData);
+[tail_startpoint, tail_endpoint, tailVelocity,tailIntervals] = getGpsSpeed( trackletData);
 %% distance
-distance_x = tail_startpoint(:,1)' - head_endpoint(:,1);
-distance_y = tail_startpoint(:,2)' - head_endpoint(:,2);
+distance_x = tail_endpoint(:,1) - head_startpoint(:,1)';
+distance_y = tail_endpoint(:,2) - head_startpoint(:,2)';
 diff_x = distance_x;
 diff_y = distance_y;
 % diff_x = distance_x-headVelocity(:,1) + distance_x-(tailVelocity(:,1)');
@@ -70,13 +71,13 @@ shapeChangeMatrix(start_le_end) = shapeChange(start_le_end);
 shapeChangeMatrix = shapeChangeMatrix + shapeChangeMatrix';
 %% iou
 ious = bboxOverlapRatio(start_bbox,end_bbox);
-iousMatrix(start_le_end) = ious(start_le_end);
+iousMatrix(consecutive) = ious(consecutive);
 iousMatrix = iousMatrix + iousMatrix';
 % iousMatrix(iousMatrix==0)=-0.5;
 %% impossible
 overlapping     = pdist2(headIntervals,tailIntervals, @overlapTest);
-merging         = (distanceMatrix < 2) & overlapping & (ious > 0);
-velocity        = distanceMatrix./(abs(timeIntervalMatrix)+10^-12);
+merging         = (distanceMatrix < 6) & overlapping & (ious > 0);
+velocity        = distanceMatrix./(abs(timeIntervalMatrix)+10^-12)*10;
 violators       = velocity > opts.trajectories.speed_limit;
 
 % build impossibility matrix

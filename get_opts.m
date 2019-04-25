@@ -34,6 +34,7 @@ opts.appear_model_name = '1fps_train_IDE_40/model_param_L2_75.mat';
 opts.motion_model_name = '1fps_train_IDE_40/model_param_L2_motion_150.mat';
 opts.fft = false;
 opts.soft = 0.1;
+opts.fft = 60000/1001;
 
 % Tracklets
 tracklets = [];
@@ -75,9 +76,8 @@ identities.window_width = 5000;
 identities.appearance_groups = 0; % determined automatically when zero
 identities.alpha = 1;
 identities.beta = 0.01;
-identities.overlap = 150;
-identities.speed_limit = 30;
-% identities.indifference_time = 150;
+identities.speed_limit = 2.5;
+identities.indifference_time = 6000;
 identities.threshold = 8;
 identities.diff_p = 0;
 identities.diff_n = 0;

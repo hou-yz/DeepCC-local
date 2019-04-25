@@ -81,7 +81,7 @@ for i = 1:length(uniqueLabels)
         data = [data; identity.trajectories(k).data];
     end
     frames = unique(data(:,9));
-    if length(frames) ~= size(data,1)
+    if length(frames) ~= size(data,1) && opts.dataset~=2
         fprintf( 'Found duplicate ID/Frame pairs, restore to source');
         remedy_labels = 1:length(identity.trajectories);
         repairedIdentities=remedyIdentities(opts,identity.trajectories,remedy_labels);

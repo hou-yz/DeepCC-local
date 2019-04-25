@@ -40,7 +40,7 @@ function compute_L3_identities_aic(opts)
     startFrame     = 1;
     endFrame       = 1 + opts.identities.window_width - 1;
 
-    while startFrame <= 2600
+    while startFrame <= 6000
         clc; fprintf('Window %d...%d\n', startFrame, endFrame);
 
         identities = linkIdentities(opts, identities, startFrame, endFrame,appear_model_param,motion_model_param);

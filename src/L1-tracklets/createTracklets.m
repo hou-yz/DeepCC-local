@@ -69,7 +69,7 @@ for spatialGroupID = 1 : max(spatialGroupIDs)
     elseif opts.dataset == 1 || opts.dataset == 2
         world_pos = originalDetections(elements,7:8);
         [motionCorrelation, impMatrix] = aic_L1_motion_score(spatialGroupDetectionbboxs, world_pos,spatialGroupDetectionFrames,params.speed_limit, params.beta);
-%         appearanceCorrelation = appearanceCorrelation-0.2;
+        appearanceCorrelation = appearanceCorrelation;
 %         motionCorrelation = iou_score(spatialGroupDetectionbboxs);
 %         impMatrix = impossibility_frame_overlap(spatialGroupDetectionFrames,spatialGroupDetectionFrames);    
 %         impMatrix = 0;

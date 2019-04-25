@@ -59,10 +59,7 @@ for i = 1 : length(allGroups)
     sameLabels  = pdist2(labels(indices), labels(indices)) == 0;
     if opts.dataset == 0
         [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinity(tracklets(indices), params.beta, params.speed_limit, params.indifference_time, iCam);
-        spacetimeAffinity = spacetimeAffinity-1;
-    elseif opts.dataset == 1 || opts.dataset == 2
-        [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = aic_L2_motion_score(opts, tracklets(indices), params.beta, params.speed_limit, params.indifference_time, iCam);
-%         impossibilityMatrix = impossibility_frame_overlap([tracklets(indices).startFrame]',[tracklets(indices).endFrame]');    
+        spacetimeAffinity = spacetimeAffinity-1;    
     end
     
     % compute appearance and spacetime scores

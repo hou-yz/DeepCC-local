@@ -24,7 +24,7 @@ for i = 1 : length(currentTrajectories)
        trackletLabels   = [trackletLabels; i]; %#ok
        
        inAssociation(length(trackletLabels)) = false; %#ok
-       if k >= length(currentTrajectories(i).tracklets) - 5
+       if k >= length(currentTrajectories(i).tracklets) - 2
            inAssociation(length(trackletLabels)) = true; %#ok
        end
        

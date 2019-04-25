@@ -37,6 +37,8 @@ function compute_L1_tracklets_aic(opts)
         else
             features = features(3:end,features(2,:)>=start_frame & features(2,:)<=end_frame);
         end
+        
+        assert(size(features,2) == size(detections,1))
 
         appearance = cell(size(all_dets,1),1);
         frames     = cell(size(all_dets,1),1);

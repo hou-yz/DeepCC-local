@@ -1,4 +1,4 @@
-function [motionMatrix, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinityID(trajectories,consecutive_icam_matrix,reintro_time_matrix,optimal_filter)
+function [motionMatrix, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinityID(opts,trajectories,consecutive_icam_matrix,reintro_time_matrix,optimal_filter)
 
 numTrajectories = length(trajectories);
 
@@ -6,9 +6,18 @@ numTrajectories = length(trajectories);
 
 
 % parameters
-par_indifference = 6000;
-speedLimit       = 2.5;
-frameRate        = 60000/1001;
+par_indifference = opts.identities.indifference_time;%6000;
+speedLimit       = opts.identities.speed_limit;%2.5;
+frameRate        = opts.fps;%60000/1001;
+if opts.dataset~=2
+    sigmoid_coeff = [5,0];
+    bias = 0.53;
+    negative = 0;
+else
+    sigmoid_coeff = [0.1,0];
+    bias = 0.5;
+    negative = 1;
+end
 
 %% create binary feasibility matrix based on speed and direction
 feasibilityMatrix = zeros(numTrajectories);
@@ -78,8 +87,8 @@ for idx1 = 1 : numTrajectories-1
         speedA = mean(speedA(max([2, end-9]):end));
         speedB = sqrt(sum(diff(B.data(:, [7 8])).^2, 2)); 
         speedB = mean(speedB(1:min([numel(speedB)-1, 10])));
-        motionMatrix(idx1, idx2) = sigmf(min([abs(speedA-needed_speed), abs(speedB-needed_speed)]), [5 0])-0.53;
-        
+        motionMatrix(idx1, idx2) = sigmf(min([abs(speedA-needed_speed), abs(speedB-needed_speed)]), sigmoid_coeff)-bias;
+        motionMatrix(idx1, idx2) = motionMatrix(idx1, idx2)*(-1)^negative;
     end
 end
 motionMatrix = motionMatrix + motionMatrix';

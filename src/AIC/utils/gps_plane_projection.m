@@ -2,10 +2,10 @@ clear
 clc
 
 opts = get_opts_aic();
-scene = 1;
+scene = 4;
 gt = 0;
 
-opts.detections = 'yolo3';
+% opts.detections = 'yolo3';
 cam_pool = opts.cams_in_scene{scene};
 all_detections = cell(1,length(cam_pool));
 

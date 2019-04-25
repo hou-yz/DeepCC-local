@@ -30,7 +30,7 @@ end
 features(features(:,1)==-1,:)=[];
 % pooling
 if dataset == 2
-    pooling = 1;
+    pooling = 2;
 else
     pooling = 10;
 end
