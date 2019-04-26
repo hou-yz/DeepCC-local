@@ -11,21 +11,10 @@ opts.trajectories.window_width = 30;
 opts.trajectories.overlap = 15;
 opts.identities.window_width = 1000;
 % correlation threshold setting according to `view_distance_distribution(opts)`
-% opts.feature_dir = 'det_features_zju_best_test_ssd';
-% opts.tracklets.threshold    = 7;
-% opts.trajectories.threshold = 7;
-% opts.identities.threshold   = 7;
-% opts.tracklets.diff_p    = 2.14;
-% opts.trajectories.diff_p = 2.14;
-% opts.identities.diff_p   = 2.14;
-% opts.tracklets.diff_n    = 2.14;
-% opts.trajectories.diff_n = 2.14;
-% opts.identities.diff_n   = 2.14;
-
-opts.feature_dir = 'det_features_ide_basis_train_10fps_lr_5e-2_ssd512_test';
-opts.tracklets.threshold    = 10;
-opts.trajectories.threshold = 10;
-opts.identities.threshold   = 10;
+opts.feature_dir = 'det_features_ide_duhm_test_ssd';
+opts.tracklets.threshold    = 12;
+opts.trajectories.threshold = 12;
+opts.identities.threshold   = 12;
 opts.tracklets.diff_p    = 7.66;
 opts.trajectories.diff_p = 7.66;
 opts.identities.diff_p   = 7.66;
@@ -68,8 +57,7 @@ opts.trajectories.weightIOU = 0.5;
 
 opts.optimization = 'KL';
 %opts.trajectories.use_indiff = false;
-opts.experiment_name = 'aic_og';
-opts.trajectories.appearance_groups = 1;
+opts.trajectories.appearance_groups = 0;
 compute_L2_trajectories_aic(opts);
 
 %% Multi-camera identities
@@ -83,5 +71,5 @@ opts.identities.reintro_time_matrix = ones(1,40)*inf;
 opts.identities.appearance_groups = 0;
 compute_L3_identities_aic(opts);
 
-prepareMOTChallengeSubmission_aic;
+prepareMOTChallengeSubmission_aic(opts);
 

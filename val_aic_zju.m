@@ -3,7 +3,7 @@ clc
 
 %% Options
 opts = get_opts_aic();
-opts.experiment_name = 'aic_og';
+opts.experiment_name = 'aic_zju';
 % opts.detections = 'yolo3';
 % basis setting for DeepCC
 opts.tracklets.window_width = 10;
@@ -11,28 +11,16 @@ opts.trajectories.window_width = 30;
 opts.trajectories.overlap = 15;
 opts.identities.window_width = 1000;
 % correlation threshold setting according to `view_distance_distribution(opts)`
-% opts.feature_dir = 'det_features_zju_best_val_ssd';
-% opts.tracklets.threshold    = 7;
-% opts.trajectories.threshold = 7;
-% opts.identities.threshold   = 7;
-% opts.tracklets.diff_p    = 2.14;
-% opts.trajectories.diff_p = 2.14;
-% opts.identities.diff_p   = 2.14;
-% opts.tracklets.diff_n    = 2.14;
-% opts.trajectories.diff_n = 2.14;
-% opts.identities.diff_n   = 2.14;
-
-opts.feature_dir = 'det_features_ide_basis_train_10fps_lr_5e-2_ssd512_trainval';
-opts.tracklets.threshold    = 10;
-opts.trajectories.threshold = 10;
-opts.identities.threshold   = 10;
-opts.tracklets.diff_p    = 7.66;
-opts.trajectories.diff_p = 7.66;
-opts.identities.diff_p   = 7.66;
-opts.tracklets.diff_n    = 7.66;
-opts.trajectories.diff_n = 7.66;
-opts.identities.diff_n   = 7.66;
-
+opts.feature_dir = 'det_features_zju_best_val_ssd';
+opts.tracklets.threshold    = 7.3;
+opts.trajectories.threshold = 7.3;
+opts.identities.threshold   = 7.3;
+opts.tracklets.diff_p    = 2.14;
+opts.trajectories.diff_p = 2.14;
+opts.identities.diff_p   = 2.14;
+opts.tracklets.diff_n    = 2.14;
+opts.trajectories.diff_n = 2.14;
+opts.identities.diff_n   = 2.14;
 
 % alpha
 % opts.tracklets.alpha    = 1;
@@ -54,11 +42,11 @@ opts.sequence = 8;
 %% Tracklets
 opts.tracklets.spatial_groups = 0;
 opts.optimization = 'KL';
-% compute_L1_tracklets_aic(opts);
+compute_L1_tracklets_aic(opts);
 
 %% Single-camera trajectories
 % weights
-% opts.trajectories.weightSmoothness = 0.1;
+opts.trajectories.weightSmoothness = 0.1;
 % opts.trajectories.weightVelocityChange = 0.01;
 % opts.trajectories.weightDistance = 0.01;
 % opts.trajectories.weightShapeChange = 1;
@@ -66,11 +54,10 @@ opts.optimization = 'KL';
 
 opts.optimization = 'KL';
 %opts.trajectories.use_indiff = false;
-opts.experiment_name = 'aic_og';
-opts.trajectories.appearance_groups = 1;
-% compute_L2_trajectories_aic(opts);
-% opts.eval_dir = 'L2-trajectories';
-% evaluate(opts);
+opts.trajectories.appearance_groups = 0;
+compute_L2_trajectories_aic(opts);
+opts.eval_dir = 'L2-trajectories';
+evaluate(opts);
 
 %% Multi-camera identities
 % weights

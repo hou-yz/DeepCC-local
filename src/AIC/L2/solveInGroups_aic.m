@@ -75,7 +75,7 @@ for i = 1 : length(allGroups)
              + params.weightIOU * (iouAffinity-0);
         if params.weightSmoothness ~=0
         smoothnessLoss = aic_SmoothnessMatrix(dataInTracklets(indices), params.smoothness_interval_length);
-        spacetimeAffinity = spacetimeAffinity - params.weightSmoothness .* (smoothnessLoss-1); 
+        spacetimeAffinity = spacetimeAffinity - min(params.weightSmoothness .* (smoothnessLoss),1); 
         end
         
         appearanceAffinity = appearanceAffinity;

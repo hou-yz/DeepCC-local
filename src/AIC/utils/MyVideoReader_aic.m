@@ -12,7 +12,7 @@ classdef MyVideoReader_aic < handle
         PrevCamera = -1;
         PrevFrame = 0;
         Video = [];
-        subset_num = [1, 1, 1, 1, 1, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4];
+        subset_num = [1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4];
     end
     methods
         function obj = MyVideoReader_aic(datasetPath)

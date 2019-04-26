@@ -1,10 +1,5 @@
-% function prepareMOTChallengeSubmission_aic(opts)
+function prepareMOTChallengeSubmission_aic(opts)
 % Prepare submission file duke.txt
-
-opts = get_opts_aic;
-
-opts.sequence = 6;
-opts.experiment_name = 'aic_og';
 
 submission_data = [];
 for scene = opts.seqs{opts.sequence}
@@ -20,4 +15,4 @@ end
 
 % Write duke.txt
 dlmwrite(sprintf('%s/%s/aic19.txt',opts.experiment_root, opts.experiment_name), int32(submission_data), 'delimiter', ' ','precision',6);
-
+end
