@@ -20,8 +20,10 @@ function compute_L1_tracklets_aic(opts)
         start_frame     = detections(1, 1);
         end_frame       = detections(end, 1);
         
-        imageROI        = imread(sprintf('%s/%s/S%02d/c%03d/roi.jpg', opts.dataset_path, opts.sub_dir{opts.sequence}, scene, iCam));
-
+%         imageROI        = imread(sprintf('%s/%s/S%02d/c%03d/roi.jpg', opts.dataset_path, opts.sub_dir{opts.sequence}, scene, iCam));
+        imageROI        = imread(sprintf('%s/ROIs/background/c%02d.jpg', opts.dataset_path,  iCam));
+        imageROI        = imbinarize(imageROI,0.5);
+        
         % Load features for all detections
         if isempty(opts.feature_dir)
             features    = h5read(sprintf('%s/L0-features/features%d.h5',opts.dataset_path,iCam),'/emb');
@@ -59,13 +61,10 @@ function compute_L1_tracklets_aic(opts)
             window_frames        = window_start_frame : window_end_frame;
             window_inds          = find(ismember(all_dets(:,1),window_frames));
             detections_in_window = all_dets(window_inds,:);
-            detections_conf      = sum(detections_in_window(:,7),2);
             % num_visible          = sum(detections_in_window(:,7)> opts.render_threshold, 2);
 
             % Use only valid detections
             valid                           = getAICValidDetections(detections_in_window, imageROI);
-            detections_in_window            = detections_in_window(valid, :);
-            valid                           = detections_conf > opts.render_threshold;
             detections_in_window            = detections_in_window(valid, :);
             if opts.dataset == 2
                 detections_in_window(:,7:8) = detections_in_window(:,10:11);

@@ -6,7 +6,7 @@ ious = bboxOverlapRatio(bboxs,bboxs);
 frameDifference = repmat(frames,1,numel(frames)) - repmat(frames',numel(frames),1);
 overlapping     = frameDifference == 0;
 centersDistance = pdist2(centers,centers);
-merging         = (centersDistance < 6) & overlapping & (ious > 0);
+merging         = (centersDistance < 2) & overlapping & (ious > 0);
 velocity        = centersDistance./(abs(frameDifference)+10^-12)*10;
 violators       = velocity > speedLimit;
 

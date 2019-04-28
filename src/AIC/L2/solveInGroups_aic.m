@@ -29,6 +29,7 @@ if isempty(tracklets)
 end
 
 featureVectors      = {tracklets.feature};
+% when aic, realdata == data 
 realdataInTracklets = {tracklets.realdata};
 dataInTracklets     = {tracklets.data};
 % adaptive number of appearance groups
@@ -70,19 +71,19 @@ for i = 1 : length(allGroups)
         [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinity(tracklets(indices), params.beta, params.speed_limit, params.indifference_time, iCam);
         spacetimeAffinity = spacetimeAffinity-1;
     elseif opts.dataset == 1 || opts.dataset == 2
-        [velocityChangeLoss,distanceLoss,shapeChangeLoss, iouAffinity, timeIntervalMatrix, impossibilityMatrix] = aic_VelocityTimeMatrix(opts,dataInTracklets(indices), params.smoothness_interval_length);
-        spacetimeAffinity = - params.weightDistance * distanceLoss + params.weightShapeChange * shapeChangeLoss - params.weightVelocityChange * velocityChangeLoss ...
-             + params.weightIOU * (iouAffinity-0);
-        if params.weightSmoothness ~=0
+        impossibilityMatrix = zeros(length(dataInTracklets(indices)));
+        spacetimeAffinity   = zeros(length(dataInTracklets(indices)));
+%         [velocityChangeLoss,distanceLoss,shapeChangeLoss, iouAffinity, timeIntervalMatrix, impossibilityMatrix] = aic_VelocityTimeMatrix(opts,dataInTracklets(indices), params.smoothness_interval_length);
+%         spacetimeAffinity = - params.weightDistance * distanceLoss + params.weightShapeChange * shapeChangeLoss - params.weightVelocityChange * velocityChangeLoss + params.weightIOU * (iouAffinity-0);
         smoothnessLoss = aic_SmoothnessMatrix(dataInTracklets(indices), params.smoothness_interval_length);
-        spacetimeAffinity = spacetimeAffinity - min(params.weightSmoothness .* (smoothnessLoss),1); 
-        end
+        impossibilityMatrix(smoothnessLoss>2) = 1;
+        
         
         appearanceAffinity = appearanceAffinity;
         indifferenceMatrix = 1;
 %         indifferenceMatrix = min(1, -log(timeIntervalMatrix/params.window_width));
 %         indifferenceMatrix = 1 - sigmf(timeIntervalMatrix,[0.1, params.indifference_time/2]);
-        impossibilityMatrix = false;%impossibility_frame_overlap([tracklets(indices).startFrame]',[tracklets(indices).endFrame]');    
+%         impossibilityMatrix = false;%impossibility_frame_overlap([tracklets(indices).startFrame]',[tracklets(indices).endFrame]');    
     end
     % compute the correlation matrix
     if params.alpha
@@ -91,6 +92,7 @@ for i = 1 : length(allGroups)
         correlationMatrix(impossibilityMatrix == 1) = -inf;
     else
         correlationMatrix = appearanceAffinity;
+        correlationMatrix(impossibilityMatrix == 1) = -inf;
     end
     
     if sum(sum(isnan(correlationMatrix)))

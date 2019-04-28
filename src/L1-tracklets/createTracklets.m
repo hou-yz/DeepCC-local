@@ -82,7 +82,7 @@ for spatialGroupID = 1 : max(spatialGroupIDs)
         correlationMatrix(impMatrix==1) = -inf;
     else
         correlationMatrix               = appearanceCorrelation; 
-%         correlationMatrix(impMatrix==1) = -inf;
+        correlationMatrix(impMatrix==1) = -inf;
     end
     % Show spatial grouping and correlations
 %     if opts.visualize, trackletsVisualizePart2; end
@@ -117,6 +117,17 @@ fprintf('\n');
 trackletsToSmooth  = originalDetections(currentDetectionsIDX,:);
 featuresAppearance = allFeatures.appearance(currentDetectionsIDX);
 smoothedTracklets  = smoothTracklets(opts, trackletsToSmooth, startFrame, params.window_width, featuresAppearance, params.min_length, currentInterval, iCam);
+%% bbox enlarge for aic
+if opts.dataset == 2
+    for i = 1:length(smoothedTracklets)
+        % left,top,width,height
+        bboxs = smoothedTracklets(i).data(:,3:6);
+        bboxs(:,1:2) = bboxs(:,1:2)-0.2*bboxs(:,3:4);
+        bboxs(:,3:4) = 1.4*bboxs(:,3:4);
+        smoothedTracklets(i).data(:,3:6) = bboxs;
+    end
+end
+
 
 % Assign IDs to all tracklets
 for i = 1:length(smoothedTracklets)

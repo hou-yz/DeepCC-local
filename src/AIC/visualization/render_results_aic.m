@@ -1,29 +1,29 @@
-function render_results_aic()
 % Creates a movie for each camera view to help visualize errors
 % Requires that single-camera results exists in experiment folder L2-trajectories
 
 % IDTP - Green
 % IDFP - Blue
 % IDFN - Black
+clc
+clear
+
 tail_colors = [0 0 1; 0 1 0; 0 0 0];
 tail_size = 100;
 
 colors = distinguishable_colors(1000);
 
 opts = get_opts_aic();
+opts.experiment_name = 'aic_zju';
+opts.sequence = 8;
 
 folder = 'video-results';
 mkdir([opts.experiment_root, filesep, opts.experiment_name, filesep, folder]);
-
 % Load ground truth
 load(fullfile(opts.dataset_path, 'ground_truth', 'train.mat'));
-
 % Render one video per camera
-for i = 1:length(opts.seqs)
-    
-    iCam = opts.seqs(i);
-    
-    readerVideo = MyVideoReader_aic(iCam);
+for scene = opts.seqs{opts.sequence}
+for i = 1:length(opts.cams_in_scene{scene})
+    iCam = opts.cams_in_scene{scene}(i);
     
     % Create video
     filename = sprintf('%s/%s/%s/cam%d_%s',opts.experiment_root, opts.experiment_name, folder, iCam, opts.sequence_names{opts.sequence});
@@ -55,27 +55,31 @@ for i = 1:length(opts.seqs)
     end_frame       = detections(end, 1);
     
     %     tic
-    for iFrame = start_frame:end_frame
+    for frame = start_frame-1:end_frame-1
         %IDFP
         %         if mod(iFrame,100)==1
         %             t_100 = toc
         %             tic
         %             fprintf('Cam %d:  %d/%d\n', iCam, iFrame, global2local(opts.start_frames(iCam),sequence_interval(end)));
         %         end
-        fprintf('Cam %d:  %d/%d\n', iCam, iFrame, end_frame);
-        image  = readerVideo.getFrame(iCam, iFrame);
+        fprintf('Cam %d:  %d/%d\n', iCam, frame, end_frame);
+        image  = opts.reader.getFrame(iCam, frame);
         
-        rows        = find(predMatViz(:, 1) == iFrame);
+        rows        = find(predMatViz(:, 1) == frame);
+        if isempty(rows)
+            writeVideo(video, image);
+            continue
+        end
         identities  = predMatViz(rows, 2);
         positions   = [predMatViz(rows, 3),  predMatViz(rows, 4), predMatViz(rows, 5), predMatViz(rows, 6)];
         
-        if ~isempty(positions)
+        if ~isempty(positions) && ~isempty(identities)
             image = insertObjectAnnotation(image,'rectangle', ...
                 positions, identities,'TextBoxOpacity', 0.8, 'FontSize', 16, 'Color', 255*colors(identities,:) );
         end
         
         % Tail Pred
-        rows = find((predMatViz(:, 1) <= iFrame) & (predMatViz(:,1) >= iFrame - tail_size));
+        rows = find((predMatViz(:, 1) <= frame) & (predMatViz(:,1) >= frame - tail_size));
         identities = predMatViz(rows, 2);
         
         feetposition = feetPosition(predMatViz(rows,3:6));
@@ -90,7 +94,7 @@ for i = 1:length(opts.seqs)
         image = insertShape(image,'FilledCircle',circles,'Color', current_tail_colors*255);
         
         % IDFN
-        rows = find((gtMatViz(:, 1) <= iFrame) & (gtMatViz(:,1) >= iFrame - tail_size));
+        rows = find((gtMatViz(:, 1) <= frame) & (gtMatViz(:,1) >= frame - tail_size));
         feetposition = feetPosition(gtMatViz(rows,3:6));
         
         is_TP = gtMatViz(rows,end);
@@ -101,7 +105,7 @@ for i = 1:length(opts.seqs)
         circles = feetposition;
         circles(:,3) = 3;
         image = insertShape(image,'FilledCircle',circles(~is_TP,:),'Color', current_tail_colors(~is_TP,:)*255);
-        image = insertText(image,[0 0], sprintf('Cam %d - Frame %d',iCam, iFrame),'FontSize',20);
+        image = insertText(image,[0 0], sprintf('Cam %d - Frame %d',iCam, frame),'FontSize',20);
         image = insertText(image,[0 40; 60 40; 120 40], {'IDTP', 'IDFP','IDFN'},'FontSize',20,'BoxColor',{'green','blue','black'},'TextColor',{'white','white','white'});
         
         writeVideo(video, image);
@@ -109,5 +113,6 @@ for i = 1:length(opts.seqs)
     end
     close(video);
     
+end
 end
 

@@ -13,11 +13,12 @@ classdef MyVideoReader_aic < handle
         PrevFrame = 0;
         Video = [];
         subset_num = [1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4];
+        train_test = {'train','test','train','train','train'};
     end
     methods
         function obj = MyVideoReader_aic(datasetPath)
             obj.DatasetPath = datasetPath;
-            obj.Video = VideoReader(fullfile(sprintf('%s/train/S%02d/c%03d', obj.DatasetPath, obj.subset_num(obj.CurrentCamera), obj.CurrentCamera), 'vdo.avi'));
+            obj.Video = VideoReader(fullfile(sprintf('%s/%s/S%02d/c%03d', obj.DatasetPath, obj.train_test{obj.subset_num(obj.CurrentCamera)}, obj.subset_num(obj.CurrentCamera), obj.CurrentCamera), 'vdo.avi'));
         end
         
         function img = getFrame(obj, iCam, iFrame)
@@ -26,7 +27,7 @@ classdef MyVideoReader_aic < handle
             if iCam ~= obj.CurrentCamera
                 obj.CurrentCamera = iCam;
                 obj.PrevFrame = -1;
-                obj.Video = VideoReader(fullfile(sprintf('%s/train/S%02d/c%03d', obj.DatasetPath, obj.subset_num(obj.CurrentCamera), obj.CurrentCamera), 'vdo.avi'));
+                obj.Video = VideoReader(fullfile(sprintf('%s/%s/S%02d/c%03d', obj.DatasetPath, obj.train_test{obj.subset_num(obj.CurrentCamera)}, obj.subset_num(obj.CurrentCamera), obj.CurrentCamera), 'vdo.avi'));
             end
             
             if iFrame ~= obj.PrevFrame + 1

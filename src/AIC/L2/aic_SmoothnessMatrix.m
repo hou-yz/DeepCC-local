@@ -78,8 +78,8 @@ for i = 1:length(trackletData)
         
         %% diff
 %         considered_frame = (frames>frame_i(end)-intervalLength) .* (frames<frame_j(1)+intervalLength);
-        considered_frame = frames(-intervalLength+length(frame_i):intervalLength+length(frame_i));
-%         considered_frame = frames;
+%         considered_frame = frames(-intervalLength+length(frame_i):intervalLength+length(frame_i));
+        considered_frame = frames;
 %         pos_diff = sqrt(((xPredicted - xDetected).^ 2 + (yPredicted - yDetected).^ 2)./ bbox_size.^ 2);
         pos_diff = sqrt((xPredicted - xDetected).^ 2 + (yPredicted - yDetected).^ 2);
         smoothnessLoss = mean(pos_diff(logical(considered_frame)));

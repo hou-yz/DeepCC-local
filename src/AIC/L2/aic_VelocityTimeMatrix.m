@@ -76,9 +76,11 @@ iousMatrix = iousMatrix + iousMatrix';
 % iousMatrix(iousMatrix==0)=-0.5;
 %% impossible
 overlapping     = pdist2(headIntervals,tailIntervals, @overlapTest);
-merging         = (distanceMatrix < 6) & overlapping & (ious > 0);
+merging         = (distanceMatrix < 2) & overlapping & (ious > 0);
 velocity        = distanceMatrix./(abs(timeIntervalMatrix)+10^-12)*10;
 violators       = velocity > opts.trajectories.speed_limit;
+violators(velocityChangeMatrix > opts.trajectories.speed_limit) = 1;
+% violators(neededVelocity > opts.trajectories.speed_limit) = 1;
 
 % build impossibility matrix
 impossibilityMatrix = zeros(length(trackletData));

@@ -6,7 +6,7 @@ opts = get_opts_aic();
 opts.experiment_name = 'aic_zju';
 % opts.detections = 'yolo3';
 % basis setting for DeepCC
-opts.tracklets.window_width = 10;
+opts.tracklets.window_width = 5;
 opts.trajectories.window_width = 30;
 opts.trajectories.overlap = 15;
 opts.identities.window_width = 1000;
@@ -42,11 +42,11 @@ opts.sequence = 8;
 %% Tracklets
 opts.tracklets.spatial_groups = 0;
 opts.optimization = 'KL';
-compute_L1_tracklets_aic(opts);
+% compute_L1_tracklets_aic(opts);
 
 %% Single-camera trajectories
 % weights
-opts.trajectories.weightSmoothness = 0.1;
+% opts.trajectories.weightSmoothness = 0.1;
 % opts.trajectories.weightVelocityChange = 0.01;
 % opts.trajectories.weightDistance = 0.01;
 % opts.trajectories.weightShapeChange = 1;

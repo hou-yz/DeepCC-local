@@ -19,7 +19,7 @@ for i = 1:length(uniqueLabels)
 %         trajectory.feature = tracklets(ind).feature;
         trajectory.features = [trajectory.features;tracklets(ind).features];
     end
-    trajectory.feature = mean(cell2mat(trajectory.features));
+    trajectory.feature = mean(cell2mat(trajectory.features),1);
 
 %     real_frame_length = 0;
 %     trajectory.feature=zeros(size(trajectory.tracklets(1).feature));

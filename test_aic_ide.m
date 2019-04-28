@@ -11,10 +11,10 @@ opts.trajectories.window_width = 30;
 opts.trajectories.overlap = 15;
 opts.identities.window_width = 1000;
 % correlation threshold setting according to `view_distance_distribution(opts)`
-opts.feature_dir = 'det_features_ide_duhm_test_ssd';
-opts.tracklets.threshold    = 12;
-opts.trajectories.threshold = 12;
-opts.identities.threshold   = 12;
+opts.feature_dir = 'det_features_ide_basis_train_10fps_lr_5e-2_ssd512_test';
+opts.tracklets.threshold    = 10.5;
+opts.trajectories.threshold = 10.5;
+opts.identities.threshold   = 10.5;
 opts.tracklets.diff_p    = 7.66;
 opts.trajectories.diff_p = 7.66;
 opts.identities.diff_p   = 7.66;
@@ -37,8 +37,8 @@ if ~exist('setup_done','var')
 end
 
 %% Run Tracker
-% opts.visualize = true;
-opts.sequence = 6;
+opts.visualize = true;
+opts.sequence = 3;
 opts.scene_by_icam = [1, 1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5];
 
 

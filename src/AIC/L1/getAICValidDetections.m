@@ -12,4 +12,8 @@ function valid = getAICValidDetections(detections_in_interval, imageROI)
             valid(k) = false;
         end
 
+        if bboxDetection(3)<20 || bboxDetection(4)<20
+            valid(k) = false;
+        end
     end
+end
