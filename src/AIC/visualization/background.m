@@ -2,14 +2,30 @@ clc
 clear
 
 opts = get_opts_aic();
-% scene = 4;
+all_colors = distinguishable_colors(1000)*255;
+
+% for scene = 1:5
 % for iCam = opts.cams_in_scene{scene}
-%     image = opts.reader.getFrame(iCam,1);
-%     imwrite(rgb2gray(image),fullfile(sprintf('%s/aic_label_det/background', opts.experiment_root),sprintf('c%02d.jpg',iCam)))
+%         %% load image background
+%     imageROI = opts.reader.getFrame(iCam,1);
+%     
+%     %% load gt
+%     if scene~=2
+%     gt = load(sprintf('%s/%s/S%02d/c%03d/gt/gt.txt', opts.dataset_path, opts.folder_by_scene{scene}, scene, iCam));
+%     circles = gt(:,3:4)+0.5*gt(:,5:6);
+%     circles(:,3) = 3;
+%     colors = all_colors(gt(:,2),:);
+%     imageROI = insertShape(imageROI,'FilledCircle',circles,'Color', colors);
+%     end
+%     imwrite(imageROI,  fullfile(sprintf('%s/aic_label_det/background', opts.experiment_root),sprintf('c%02d.png',iCam)))
+% end
 % end
 
-for iCam = 5
-    imageROI        = imread(fullfile(sprintf('%s/aic_label_det/background', opts.experiment_root),sprintf('c%02d.jpg',iCam)));
+for scene = 1:5
+for iCam = opts.cams_in_scene{scene}
+    imageROI        = imread(fullfile(sprintf('%s/aic_label_det/background_crop', opts.experiment_root),sprintf('c%02d.png',iCam)));
+    imageROI        = rgb2gray(imageROI);
     imageROI        = ~imbinarize(imageROI,1-10^-12);
-    imwrite(imageROI,sprintf('%s/ROIs/background/c%02d.jpg', opts.dataset_path,  iCam));
+    imwrite(imageROI,sprintf('%s/ROIs/background/c%02d.png', opts.dataset_path,  iCam));
+end
 end

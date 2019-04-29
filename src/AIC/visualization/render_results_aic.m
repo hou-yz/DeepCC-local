@@ -14,7 +14,7 @@ colors = distinguishable_colors(1000);
 
 opts = get_opts_aic();
 opts.experiment_name = 'aic_zju';
-opts.sequence = 8;
+opts.sequence = 1;
 
 folder = 'video-results';
 mkdir([opts.experiment_root, filesep, opts.experiment_name, filesep, folder]);

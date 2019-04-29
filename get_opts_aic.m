@@ -24,7 +24,6 @@ opts.optimization = 'KL';
 opts.sequence = 1;
 opts.sequence_names = {'trainval', 'trainval_mini', 'test_easy', 'test_hard', 'trainval_nano','test_all','train','val'};
 opts.seqs = {[1,3,4],[],[2],[5],[],[2,5],[3,4],1};
-opts.scenarios = 1:5;
 opts.folder_by_scene = {'train', 'test','train', 'train','test'};
 opts.cams_in_scene = {1:5,6:9,10:15,16:40,[10,16:29,33:36]};
 opts.sub_dir = {'train', '', 'test', 'test', '', 'test', 'train', 'train'};

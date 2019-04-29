@@ -49,7 +49,7 @@ compute_L1_tracklets_aic(opts);
 
 %% Single-camera trajectories
 % weights
-opts.trajectories.weightSmoothness = 0.1;
+% opts.trajectories.weightSmoothness = 0.1;
 % opts.trajectories.weightVelocityChange = 0.01;
 % opts.trajectories.weightDistance = 0.01;
 % opts.trajectories.weightShapeChange = 1;

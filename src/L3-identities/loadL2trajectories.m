@@ -1,16 +1,11 @@
-function trajectories = loadL2trajectories(opts)
+function trajectories = loadL2trajectories(opts, scene)
 % Loads single camera trajectories that have been written to disk
 trajectories = [];
 count = 1;
 if opts.dataset == 0
     cam_pool = 1:opts.num_cam;
 elseif opts.dataset == 2
-    cam_pool = [];
-    seqs = opts.seqs{opts.sequence};
-    for scene = seqs
-        cam_pool = [cam_pool,opts.cams_in_scene{scene}];
-    end
-    cam_pool = unique(cam_pool);
+    cam_pool = opts.cams_in_scene{scene};
 end
 for iCam = cam_pool
     tracker_output = dlmread(fullfile(opts.experiment_root, opts.experiment_name, 'L2-trajectories', sprintf('cam%d_%s.txt',iCam, opts.sequence_names{opts.sequence})));

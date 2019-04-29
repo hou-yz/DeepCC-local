@@ -123,7 +123,8 @@ if opts.dataset == 2
         % left,top,width,height
         bboxs = smoothedTracklets(i).data(:,3:6);
         bboxs(:,1:2) = bboxs(:,1:2)-0.2*bboxs(:,3:4);
-        bboxs(:,3:4) = 1.4*bboxs(:,3:4);
+        bboxs(:,3) = 1.4*bboxs(:,3);
+        bboxs(:,4) = 1.4*bboxs(:,4);
         smoothedTracklets(i).data(:,3:6) = bboxs;
     end
 end

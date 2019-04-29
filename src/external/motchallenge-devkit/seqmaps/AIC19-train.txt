@@ -1,9 +1,4 @@
 name
-cam1_train
-cam2_train
-cam3_train
-cam4_train
-cam5_train
 cam10_train
 cam11_train
 cam12_train

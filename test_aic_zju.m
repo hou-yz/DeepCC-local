@@ -6,15 +6,15 @@ opts = get_opts_aic();
 opts.experiment_name = 'aic_zju';
 % opts.detections = 'yolo3';
 % basis setting for DeepCC
-opts.tracklets.window_width = 10;
+opts.tracklets.window_width = 5;
 opts.trajectories.window_width = 30;
 opts.trajectories.overlap = 15;
 opts.identities.window_width = 1000;
 % correlation threshold setting according to `view_distance_distribution(opts)`
 opts.feature_dir = 'det_features_zju_best_test_ssd';
-opts.tracklets.threshold    = 7;
-opts.trajectories.threshold = 7;
-opts.identities.threshold   = 7;
+opts.tracklets.threshold    = 7.3;
+opts.trajectories.threshold = 7.3;
+opts.identities.threshold   = 7.3;
 opts.tracklets.diff_p    = 2.14;
 opts.trajectories.diff_p = 2.14;
 opts.identities.diff_p   = 2.14;
@@ -48,11 +48,11 @@ compute_L1_tracklets_aic(opts);
 
 %% Single-camera trajectories
 % weights
-opts.trajectories.weightSmoothness = 1;
-opts.trajectories.weightVelocityChange = 0.01;
+% opts.trajectories.weightSmoothness = 0.1;
+% opts.trajectories.weightVelocityChange = 0.01;
 % opts.trajectories.weightDistance = 0.01;
 % opts.trajectories.weightShapeChange = 1;
-opts.trajectories.weightIOU = 0.5;
+% opts.trajectories.weightIOU = 0.5;
 
 opts.optimization = 'KL';
 %opts.trajectories.use_indiff = false;
@@ -64,7 +64,7 @@ compute_L2_trajectories_aic(opts);
 % opts.identities.weightSmoothness = 1;
 
 % opts.optimization = 'BIPCC';
-opts.identities.optimal_filter = false;
+% opts.identities.optimal_filter = false;
 opts.identities.consecutive_icam_matrix = ones(40);
 opts.identities.reintro_time_matrix = ones(1,40)*inf;
 opts.identities.appearance_groups = 0;

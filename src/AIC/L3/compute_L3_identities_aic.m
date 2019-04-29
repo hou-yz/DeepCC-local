@@ -11,19 +11,12 @@ function compute_L3_identities_aic(opts)
         motion_model_param = load(fullfile('src','hyper_score/logs',opts.motion_model_name));
     end
 
-    filename = sprintf('%s/%s/L3-identities/L2trajectories.mat',opts.experiment_root, opts.experiment_name);
-
+    all_scenario_ids = [];
+    for scene = opts.seqs{opts.sequence}
     % consturct traj from L2-result
-    trajectories = loadL2trajectories(opts);
-    trajectories = loadTrajectoryFeatures(opts, trajectories);
-    save(filename,'trajectories');
-
-    % load from saved
-    load(filename);
-    % set consecutive_icam_martix && reintro_time_matrix
-    % opts.identities.consecutive_icam_matrix = ones(8);
-    % opts.identities.reintro_time_matrix = opts.identities.window_width*ones(1,8);
-
+    trajectories = loadL2trajectories(opts, scene);
+    trajectories = loadTrajectoryFeatures(opts, scene, trajectories);
+    
     identities = trajectories;
     for k = 1:length(identities)
         iCam = identities(k).trajectories.camera;
@@ -59,10 +52,12 @@ function compute_L3_identities_aic(opts)
 %     end
 %     
 %     identities(to_delete) = [];
+    all_scenario_ids = [all_scenario_ids,identities];
+    end
     
     %% save results
     fprintf('Saving results\n');
-    trackerOutputL3 = identities2mat(identities);
+    trackerOutputL3 = identities2mat(all_scenario_ids);
     for scene = opts.seqs{opts.sequence}
     for iCam = opts.cams_in_scene{scene}
         cam_data = trackerOutputL3(trackerOutputL3(:,1) == iCam,2:end);
@@ -74,11 +69,4 @@ function compute_L3_identities_aic(opts)
             cam_data, 'delimiter', ' ', 'precision', 6);
     end
     end
-
-    % save(sprintf('%s/%s/L3-identities/identities_%s.mat', ...
-    %         opts.experiment_root, ...
-    %         opts.experiment_name, ...
-    %         opts.sequence_names{opts.sequence}), ...
-    %         'identities');
-    
 end
