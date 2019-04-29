@@ -66,8 +66,9 @@ for i = 1 : length(allGroups)
 
 %         appearanceAffinity = appearanceAffinity;
         indifferenceMatrix = 1;
-        impossibilityMatrix = false;%impossibility_frame_overlap([tracklets(indices).startFrame]',[tracklets(indices).endFrame]');    
-
+        impossibilityMatrix = zeros(length(trajectories(indices)));%impossibility_frame_overlap([tracklets(indices).startFrame]',[tracklets(indices).endFrame]');    
+        iCams = [trajectories(indices).camera];
+        impossibilityMatrix = iCams == iCams';
     end
     
     if params.alpha
@@ -75,7 +76,7 @@ for i = 1 : length(allGroups)
         correlationMatrix(impossibilityMatrix) = -Inf;
     else
         correlationMatrix = appearanceCorrelation;
-%         correlationMatrix(impossibilityMatrix) = -Inf;
+        correlationMatrix(impossibilityMatrix) = -Inf;
     end
     
     correlationMatrix(sameLabels) = max(10, correlationMatrix(sameLabels));

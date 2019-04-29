@@ -55,7 +55,7 @@ opts.optimization = 'KL';
 opts.optimization = 'KL';
 %opts.trajectories.use_indiff = false;
 opts.trajectories.appearance_groups = 0;
-compute_L2_trajectories_aic(opts);
+% compute_L2_trajectories_aic(opts);
 opts.eval_dir = 'L2-trajectories';
 evaluate(opts);
 
