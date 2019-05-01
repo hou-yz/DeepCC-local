@@ -1,5 +1,9 @@
-function valid = getAICValidDetections(detections_in_interval, imageROI)
-
+function valid = getAICValidDetections(scene, detections_in_interval, imageROI)
+    if scene == 1 || scene == 2
+        ignore_size = 50;
+    else
+        ignore_size = 70;
+    end
     % Flags valid OpenPose detections
     valid = true(size(detections_in_interval,1),1);
 
@@ -12,7 +16,7 @@ function valid = getAICValidDetections(detections_in_interval, imageROI)
             valid(k) = false;
         end
 
-        if bboxDetection(3)<20 || bboxDetection(4)<20
+        if bboxDetection(3)<ignore_size || bboxDetection(4)<ignore_size
             valid(k) = false;
         end
     end

@@ -118,16 +118,16 @@ trackletsToSmooth  = originalDetections(currentDetectionsIDX,:);
 featuresAppearance = allFeatures.appearance(currentDetectionsIDX);
 smoothedTracklets  = smoothTracklets(opts, trackletsToSmooth, startFrame, params.window_width, featuresAppearance, params.min_length, currentInterval, iCam);
 %% realdata for aic
-if opts.dataset == 2
-    for i = 1:length(smoothedTracklets)
-        realdata = smoothedTracklets(i).realdata;
-        if length(unique(realdata(:,1))) < size(realdata,1)
-            [~,index] = unique(realdata(:,1));
-            realdata = realdata(index,:);
-        end
-        smoothedTracklets(i).data = realdata;
-    end
-end
+% if opts.dataset == 2
+%     for i = 1:length(smoothedTracklets)
+%         realdata = smoothedTracklets(i).realdata;
+%         if length(unique(realdata(:,1))) < size(realdata,1)
+%             [~,index] = unique(realdata(:,1));
+%             realdata = realdata(index,:);
+%         end
+%         smoothedTracklets(i).data = realdata;
+%     end
+% end
 %% bbox enlarge for aic
 if opts.dataset == 2
     for i = 1:length(smoothedTracklets)

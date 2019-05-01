@@ -63,7 +63,7 @@ function compute_L1_tracklets_aic(opts)
             % num_visible          = sum(detections_in_window(:,7)> opts.render_threshold, 2);
 
             % Use only valid detections
-            valid                           = getAICValidDetections(detections_in_window, imageROI);
+            valid                           = getAICValidDetections(scene, detections_in_window, imageROI);
             detections_in_window            = detections_in_window(valid, :);
             if opts.dataset == 2
                 detections_in_window(:,7:8) = detections_in_window(:,10:11);
