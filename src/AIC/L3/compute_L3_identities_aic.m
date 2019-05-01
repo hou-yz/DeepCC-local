@@ -44,14 +44,13 @@ function compute_L3_identities_aic(opts)
     end
     
 %     to_delete = [];
-%     
 %     for index = 1:length(identities)
-%         if length(identities(index).iCams) > 8
+%         if length(unique(identities(index).iCams)) == 1
 %             to_delete = [to_delete, index];
 %         end
 %     end
-%     
 %     identities(to_delete) = [];
+    
     all_scenario_ids = [all_scenario_ids,identities];
     end
     

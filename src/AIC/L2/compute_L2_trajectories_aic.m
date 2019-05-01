@@ -12,7 +12,7 @@ else
     motion_model_param = load(fullfile('src','hyper_score/logs',opts.motion_model_name));
 end
 for scene = opts.seqs{opts.sequence}
-    for i = length(opts.cams_in_scene{scene}):-1:1
+    for i = 1:length(opts.cams_in_scene{scene})
     iCam = opts.cams_in_scene{scene}(i);
     opts.current_camera = iCam;
 
@@ -23,7 +23,8 @@ for scene = opts.seqs{opts.sequence}
 %     endFrame       = detections(end, 1);
 
     % Initialize
-    load(fullfile(opts.experiment_root, opts.experiment_name, 'L1-tracklets', sprintf('tracklets%d_%s.mat',iCam,opts.sequence_names{opts.sequence})));
+    tracklets = load(fullfile(opts.experiment_root, opts.experiment_name, 'L1-tracklets', sprintf('tracklets%d_%s.mat',iCam,opts.sequence_names{opts.sequence})));
+    tracklets = tracklets.tracklets;
     if opts.fft
         tracklets = fft_tracklet_feat(opts, tracklets);
     end
@@ -48,10 +49,8 @@ for scene = opts.seqs{opts.sequence}
     
     % Convert trajectories
     trackerOutputRaw = trajectoriesToTop(trajectories);
-    % Interpolate missing detections
-    trackerOutputFilled = fillTrajectories(trackerOutputRaw);
     % Remove spurius tracks
-    [trackerOutputRemoved, removedIDs] = removeShortTracks(trackerOutputFilled, opts.minimum_trajectory_length);
+    [trackerOutputRemoved, removedIDs] = removeShortTracks(trackerOutputRaw, opts.minimum_trajectory_length);
     % Make identities 1-indexed
     [~, ~, ic] = unique(trackerOutputRemoved(:,2));
     trackerOutputRemoved(:,2) = ic;

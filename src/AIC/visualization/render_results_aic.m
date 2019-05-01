@@ -54,27 +54,27 @@ for i = 1:length(opts.cams_in_scene{scene})
     start_frame     = detections(1, 1);
     end_frame       = detections(end, 1);
     
-    %     tic
+%         tic
     for frame = start_frame-1:end_frame-1
         %IDFP
-        %         if mod(iFrame,100)==1
-        %             t_100 = toc
-        %             tic
-        %             fprintf('Cam %d:  %d/%d\n', iCam, iFrame, global2local(opts.start_frames(iCam),sequence_interval(end)));
-        %         end
-        fprintf('Cam %d:  %d/%d\n', iCam, frame, end_frame);
-        image  = opts.reader.getFrame(iCam, frame);
+        if mod(frame,100)==1
+%             t_100 = toc
+            tic
+            fprintf('Cam %d:  %d/%d\n', iCam, frame, end_frame);
+        end
+%         fprintf('Cam %d:  %d/%d\n', iCam, frame, end_frame);
+        img  = opts.reader.getFrame(iCam, frame);
+        img_size    = size(img);
         
         rows        = find(predMatViz(:, 1) == frame);
-        if isempty(rows)
-            writeVideo(video, image);
-            continue
-        end
         identities  = predMatViz(rows, 2);
-        positions   = [predMatViz(rows, 3),  predMatViz(rows, 4), predMatViz(rows, 5), predMatViz(rows, 6)];
+        positions   = predMatViz(rows, 3:6);
+        positions(:,1:2) = min(max(positions(:,1:2),1),img_size(2:-1:1)-1);
+        positions(:,3:4) = max(min(positions(:,1:2)+positions(:,3:4),img_size(2:-1:1))-positions(:,1:2),1);
+        
         
         if ~isempty(positions) && ~isempty(identities)
-            image = insertObjectAnnotation(image,'rectangle', ...
+            img = insertObjectAnnotation(img,'rectangle', ...
                 positions, identities,'TextBoxOpacity', 0.8, 'FontSize', 16, 'Color', 255*colors(identities,:) );
         end
         
@@ -91,7 +91,7 @@ for i = 1:length(opts.cams_in_scene{scene})
         
         circles = feetposition;
         circles(:,3) = 3;
-        image = insertShape(image,'FilledCircle',circles,'Color', current_tail_colors*255);
+        img = insertShape(img,'FilledCircle',circles,'Color', current_tail_colors*255);
         
         % IDFN
         rows = find((gtMatViz(:, 1) <= frame) & (gtMatViz(:,1) >= frame - tail_size));
@@ -104,11 +104,11 @@ for i = 1:length(opts.cams_in_scene{scene})
         end
         circles = feetposition;
         circles(:,3) = 3;
-        image = insertShape(image,'FilledCircle',circles(~is_TP,:),'Color', current_tail_colors(~is_TP,:)*255);
-        image = insertText(image,[0 0], sprintf('Cam %d - Frame %d',iCam, frame),'FontSize',20);
-        image = insertText(image,[0 40; 60 40; 120 40], {'IDTP', 'IDFP','IDFN'},'FontSize',20,'BoxColor',{'green','blue','black'},'TextColor',{'white','white','white'});
+        img = insertShape(img,'FilledCircle',circles(~is_TP,:),'Color', current_tail_colors(~is_TP,:)*255);
+        img = insertText(img,[0 0], sprintf('Cam %d - Frame %d',iCam, frame),'FontSize',20);
+        img = insertText(img,[0 40; 60 40; 120 40], {'IDTP', 'IDFP','IDFN'},'FontSize',20,'BoxColor',{'green','blue','black'},'TextColor',{'white','white','white'});
         
-        writeVideo(video, image);
+        writeVideo(video, img);
         
     end
     close(video);

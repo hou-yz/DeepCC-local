@@ -49,6 +49,8 @@ for i = 1:numTracklets
 %         newpoints     = resubPredict(motion_model);
         currentTracklet(:,k) = newpoints';
     end
+%     currentTracklet(:,1:2)
+    
     
     % Compute appearance features
     meanFeature    = mean(cell2mat(featuresAppearance(mask,:)),1);

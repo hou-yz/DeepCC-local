@@ -11,7 +11,7 @@ function compute_L1_tracklets_aic(opts)
         motion_model_param = load(fullfile('src','hyper_score/logs',opts.motion_model_name));
     end
     for scene = opts.seqs{opts.sequence}
-    for i = numel(opts.cams_in_scene{scene}):-1:1
+    for i = 1:length(opts.cams_in_scene{scene})
         iCam = opts.cams_in_scene{scene}(i);
         opts.current_camera = iCam;
 
@@ -21,7 +21,7 @@ function compute_L1_tracklets_aic(opts)
         end_frame       = detections(end, 1);
         
 %         imageROI        = imread(sprintf('%s/%s/S%02d/c%03d/roi.jpg', opts.dataset_path, opts.sub_dir{opts.sequence}, scene, iCam));
-        imageROI        = imread(sprintf('%s/ROIs/background/c%02d.png', opts.dataset_path,  iCam));
+        imageROI        = imread(sprintf('%s/ROIs/background/S%02d/c%02d.png', opts.dataset_path, scene, iCam));
         
         % Load features for all detections
         if isempty(opts.feature_dir)

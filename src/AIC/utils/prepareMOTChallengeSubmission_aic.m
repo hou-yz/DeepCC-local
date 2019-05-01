@@ -13,6 +13,10 @@ for scene = opts.seqs{opts.sequence}
     end
 end
 
+too_big = abs(submission_data)>10^4;
+too_big = find(sum(too_big,2));
+submission_data(too_big,:) = [];
+
 % Write duke.txt
 dlmwrite(sprintf('%s/%s/aic19.txt',opts.experiment_root, opts.experiment_name), int32(submission_data), 'delimiter', ' ','precision',6);
 end

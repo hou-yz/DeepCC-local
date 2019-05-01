@@ -13,7 +13,8 @@ classdef MyVideoReader_aic < handle
         PrevFrame = 0;
         Video = [];
         subset_num = [1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4];
-        train_test = {'train','test','train','train','train'};
+%         subset_num = [1, 1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5];
+        train_test = {'train','test','train','train','test'};
     end
     methods
         function obj = MyVideoReader_aic(datasetPath)

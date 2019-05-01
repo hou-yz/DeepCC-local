@@ -6,7 +6,7 @@ opts = get_opts_aic();
 opts.experiment_name = 'aic_og';
 % opts.detections = 'yolo3';
 % basis setting for DeepCC
-opts.tracklets.window_width = 5;
+opts.tracklets.window_width = 10;
 opts.trajectories.window_width = 30;
 opts.trajectories.overlap = 15;
 opts.identities.window_width = 1000;
@@ -56,7 +56,7 @@ compute_L1_tracklets_aic(opts);
 % opts.trajectories.weightIOU = 0.5;
 
 opts.optimization = 'KL';
-%opts.trajectories.use_indiff = false;
+% opts.trajectories.use_indiff = false;
 opts.trajectories.appearance_groups = 0;
 compute_L2_trajectories_aic(opts);
 
