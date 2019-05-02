@@ -4,7 +4,11 @@
 
 figure(3);
 clf('reset')
-imshow(opts.reader.getFrame(opts.current_camera,startFrame));
+if opts.dataset ~=2
+    imshow(opts.reader.getFrame(opts.current_camera,startFrame));
+else
+    imshow(opts.reader.getFrame(opts.current_scene, opts.current_camera,startFrame));
+end
 hold on;
 
 for k = 1:length(ids)

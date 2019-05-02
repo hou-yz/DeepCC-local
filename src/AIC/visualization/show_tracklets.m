@@ -32,7 +32,7 @@ for iCam = opts.cams_in_scene{scene}
         figure(1);
         fig = fig+1;
         clf('reset');
-        i = opts.reader.getFrame(iCam,startFrame);
+        i = opts.reader.getFrame(scene,iCam,startFrame);
         imshow(i);
         pause(1)
 %         axis on;

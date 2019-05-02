@@ -9,7 +9,7 @@ for scene = 1:5
 mkdir(sprintf('%s/aic_label_det/background/S%02d', opts.experiment_root, scene));
 for iCam = opts.cams_in_scene{scene}
     %% load image background
-    imageROI = opts.reader.getFrame(iCam,1);
+    imageROI = opts.reader.getFrame(scene,iCam,1);
     
     %% load gt
     if scene~=2 && scene~=5

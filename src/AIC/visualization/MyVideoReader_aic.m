@@ -12,23 +12,23 @@ classdef MyVideoReader_aic < handle
         PrevCamera = -1;
         PrevFrame = 0;
         Video = [];
-        subset_num = [1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4];
-%         subset_num = [1, 1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5];
+        CurrentScene = 1;
         train_test = {'train','test','train','train','test'};
     end
     methods
         function obj = MyVideoReader_aic(datasetPath)
             obj.DatasetPath = datasetPath;
-            obj.Video = VideoReader(fullfile(sprintf('%s/%s/S%02d/c%03d', obj.DatasetPath, obj.train_test{obj.subset_num(obj.CurrentCamera)}, obj.subset_num(obj.CurrentCamera), obj.CurrentCamera), 'vdo.avi'));
+            obj.Video = VideoReader(fullfile(sprintf('%s/%s/S%02d/c%03d', obj.DatasetPath, obj.train_test{obj.CurrentScene}, obj.CurrentScene, obj.CurrentCamera), 'vdo.avi'));
         end
         
-        function img = getFrame(obj, iCam, iFrame)
+        function img = getFrame(obj, scene, iCam, iFrame)
             % DukeMTMC frames are 1-indexed
             
-            if iCam ~= obj.CurrentCamera
+            if iCam ~= obj.CurrentCamera || scene ~= obj.CurrentScene
+                obj.CurrentScene = scene;
                 obj.CurrentCamera = iCam;
                 obj.PrevFrame = -1;
-                obj.Video = VideoReader(fullfile(sprintf('%s/%s/S%02d/c%03d', obj.DatasetPath, obj.train_test{obj.subset_num(obj.CurrentCamera)}, obj.subset_num(obj.CurrentCamera), obj.CurrentCamera), 'vdo.avi'));
+                obj.Video = VideoReader(fullfile(sprintf('%s/%s/S%02d/c%03d', obj.DatasetPath, obj.train_test{obj.CurrentScene}, obj.CurrentScene, obj.CurrentCamera), 'vdo.avi'));
             end
             
             if iFrame ~= obj.PrevFrame + 1

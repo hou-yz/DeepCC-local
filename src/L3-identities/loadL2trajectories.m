@@ -32,7 +32,11 @@ for iCam = cam_pool
         top = trajectory.data(i,4);
         width = trajectory.data(i,5);
         height = trajectory.data(i,6);
-        img = opts.reader.getFrame(iCam,frame);
+        if opts.dataset ~= 2
+            img = opts.reader.getFrame(iCam,frame);
+        else
+            img = opts.reader.getFrame(scene, iCam,frame);
+        end
         trajectory.snapshot = img(top:top+height,left:left+width,:);
         end
         trajectories(count).trajectories = trajectory;

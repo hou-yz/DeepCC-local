@@ -61,7 +61,7 @@ for i = 1:length(opts.cams_in_scene{scene})
             tic
             fprintf('Cam %d:  %d/%d\n', iCam, frame, max(resMat(:, 1)));
         end
-        img  = opts.reader.getFrame(iCam, frame-1);
+        img  = opts.reader.getFrame(scene,iCam, frame-1);
         img_size    = size(img);
         
         rows        = find(predMatViz(:, 1) == frame);

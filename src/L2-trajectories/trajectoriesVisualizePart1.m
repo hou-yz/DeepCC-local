@@ -4,8 +4,14 @@
 
 % backgroundImage =  imfuse(readFrame(dataset, max(1,startTime)),readFrame(dataset,min(endTime,dataset.endingFrame+syncTimeAcrossCameras(dataset.camera))),'blend','Scaling','joint');
 figure(2)
-startImg = opts.reader.getFrame(opts.current_camera, max(1,startTime));
-endImg = opts.reader.getFrame(opts.current_camera, max(1,endTime));
+
+if opts.dataset ~=2
+    startImg = opts.reader.getFrame(opts.current_camera, max(1,startTime));
+    endImg = opts.reader.getFrame(opts.current_camera, max(1,endTime));
+else
+    startImg = opts.reader.getFrame(opts.current_scene, opts.current_camera, max(1,startTime));
+    endImg = opts.reader.getFrame(opts.current_scene, opts.current_camera, max(1,endTime));
+end
 backgroundImage =  imfuse(startImg, endImg,'blend','Scaling','joint');
 
 imshow(backgroundImage);

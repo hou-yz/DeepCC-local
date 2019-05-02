@@ -1,4 +1,4 @@
-function gps_points = image2gps(opts,image_points,iCam)
+function gps_points = image2gps(opts, image_points, scene, iCam)
 %IMAGE2GPS Summary of this function goes here
 %   Detailed explanation goes here
 param = opts.projection{iCam};
@@ -36,5 +36,5 @@ else
     gps_points = param.homography \ camera_points;
     gps_points = (gps_points(1:2,:)./gps_points(3,:))';
 end
-gps_points = (gps_points - opts.world_center{opts.trainval_scene_by_icam(iCam)}) * opts.world_scale;
+gps_points = (gps_points - opts.world_center{scene}) * opts.world_scale;
 end

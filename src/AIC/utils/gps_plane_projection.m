@@ -31,8 +31,8 @@ for i = length(cam_pool):-1:1
     end
     
     % image2gps
-    gps_pos = image2gps(opts,image_pos,iCam);
-    re_image_pos = gps2image(opts,gps_pos,iCam);
+    gps_pos = image2gps(opts,image_pos,scene,iCam);
+    re_image_pos = gps2image(opts,gps_pos,scene,iCam);
     max(max(image_pos-re_image_pos))
     
     % global time

@@ -1,9 +1,9 @@
-function image_points = gps2image(opts,gps_points,iCam)
-%IMAGE2GPS Summary of this function goes here
+function image_points = gps2image(opts, gps_points, scene, iCam)
+%GPS2IMAGE Summary of this function goes here
 %   Detailed explanation goes here
 param = opts.projection{iCam};
 format long
-gps_points = gps_points / opts.world_scale  + opts.world_center{opts.trainval_scene_by_icam(iCam)}; 
+gps_points = gps_points / opts.world_scale  + opts.world_center{scene}; 
 gps_points = [gps_points,ones(size(gps_points,1),1)]';
 
 if isempty(param.intrinsic)

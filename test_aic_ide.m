@@ -39,8 +39,6 @@ end
 %% Run Tracker
 opts.visualize = true;
 opts.sequence = 6;
-opts.scene_by_icam = [1, 1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5];
-
 
 %% Tracklets
 opts.tracklets.spatial_groups = 0;

@@ -6,8 +6,8 @@ for i = 1:length(opts.seqs)
 
     iCam = opts.seqs(i);
     opts.current_camera = iCam;
-%     detections          = load(sprintf('%s/train/S%02d/c%03d/det/det_%s.txt', opts.dataset_path, opts.trainval_scene_by_icam(iCam), iCam, opts.detections));
-    detections          = load(sprintf('%s/train/S%02d/c%03d/gt/gt.txt', opts.dataset_path, opts.trainval_scene_by_icam(iCam), iCam));
+%     detections          = load(sprintf('%s/train/S%02d/c%03d/det/det_%s.txt', opts.dataset_path, opts.current_scene, iCam, opts.detections));
+    detections          = load(sprintf('%s/train/S%02d/c%03d/gt/gt.txt', opts.dataset_path, opts.current_scene, iCam));
     
     features = zeros(length(detections), 36+2);
     features(:,1) = iCam;
@@ -21,8 +21,8 @@ for i = 1:length(opts.seqs)
         else
             counter = counter + 1;
         end
-%         fig = imread(sprintf('%s/ALL_det_bbox/val/s%02d_c%02d_f%05d_%03d.jpg', opts.dataset_path, opts.trainval_scene_by_icam(iCam), iCam, detections(j, 1), counter));
-        fig = imread(sprintf('%s/ALL_gt_bbox/val/gt_bbox_10_fps/%04d_s%02d_c%02d_f%05d.jpg', opts.dataset_path, detections(j, 2), opts.trainval_scene_by_icam(iCam), iCam, detections(j, 1)));
+%         fig = imread(sprintf('%s/ALL_det_bbox/val/s%02d_c%02d_f%05d_%03d.jpg', opts.dataset_path, opts.current_scene, iCam, detections(j, 1), counter));
+        fig = imread(sprintf('%s/ALL_gt_bbox/val/gt_bbox_10_fps/%04d_s%02d_c%02d_f%05d.jpg', opts.dataset_path, detections(j, 2), opts.current_scene, iCam, detections(j, 1)));
         features(j,3:end) = extractHSVHistogram(fig);
         
     end

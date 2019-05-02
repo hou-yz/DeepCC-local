@@ -21,7 +21,7 @@ for iCam = opts.cams_in_scene{scene}
         labeled_data = [labeled_data;tracklets(i).realdata];
         
         frame = tracklets(i).realdata(1,1);
-        image = opts.reader.getFrame(iCam,frame);
+        image = opts.reader.getFrame(scene,iCam,frame);
         bbox = tracklets(i).realdata(1,3:6);
         det_image=get_bb(image, bbox);
         imwrite(det_image,fullfile(sprintf('%s/aic_label_det/label_bboxs', opts.experiment_root),sprintf('c%d_f%04d_%04d.jpg',iCam,frame,i+10000)))
