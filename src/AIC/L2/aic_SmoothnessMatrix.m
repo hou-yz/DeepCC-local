@@ -75,14 +75,23 @@ for i = 1:length(trackletData)
 %         scatter(xDetected,yDetected)
 %         scatter(xPredicted,yPredicted,'fill')
 %         legend('Detected Position','Predicted Position')
+%         daspect([1 1 1])
         
         %% diff
 %         considered_frame = (frames>frame_i(end)-intervalLength) .* (frames<frame_j(1)+intervalLength);
-%         considered_frame = frames(-intervalLength+length(frame_i):intervalLength+length(frame_i));
-        considered_frame = frames;
+%         [~,index]          = unique(frames,'first');
+%         overlapping_frames = frames(not(ismember(1:numel(frames),index)));
+%         overlapping_index  = find(ismember(frames,overlapping_frames));
+%         if isempty(overlapping_index)
+%             split = [length(frame_i),length(frame_i)];
+%         else
+%             split = [overlapping_index(1),overlapping_index(end)];
+%         end
+%         considered_frames  = frames(max(-intervalLength+split(1),1):min(intervalLength+split(2),length(frames)));
+        considered_frames = frames;
 %         pos_diff = sqrt(((xPredicted - xDetected).^ 2 + (yPredicted - yDetected).^ 2)./ bbox_size.^ 2);
         pos_diff = sqrt((xPredicted - xDetected).^ 2 + (yPredicted - yDetected).^ 2);
-        smoothnessLoss = mean(pos_diff(logical(considered_frame)));
+        smoothnessLoss = mean(pos_diff(ismember(frames,considered_frames)));
         smoothness(i,j) = smoothnessLoss;
     end
 end

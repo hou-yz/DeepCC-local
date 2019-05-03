@@ -27,17 +27,18 @@ for iCam = cam_pool
         trajectory.endFrame = max(trajectory.data(:,1));
         if opts.visualize
         i=floor(length(trajectory.data(:,1))/2);
-        frame = trajectory.data(i,1);
-        left = trajectory.data(i,3);
-        top = trajectory.data(i,4);
-        width = trajectory.data(i,5);
-        height = trajectory.data(i,6);
+        frame = round(trajectory.data(i,1));
+        left = round(max(trajectory.data(i,3),1));
+        top = round(max(trajectory.data(i,4),1));
+        width = round(trajectory.data(i,5));
+        height = round(trajectory.data(i,6));
         if opts.dataset ~= 2
             img = opts.reader.getFrame(iCam,frame);
         else
             img = opts.reader.getFrame(scene, iCam,frame);
         end
-        trajectory.snapshot = img(top:top+height,left:left+width,:);
+        img_size = size(img);
+        trajectory.snapshot = img(top:min(top+height,img_size(1)),left:min(left+width,img_size(2)),:);
         end
         trajectories(count).trajectories = trajectory;
         count = count + 1;

@@ -17,8 +17,7 @@ function compute_L3_identities_aic(opts)
     % consturct traj from L2-result
     trajectories = loadL2trajectories(opts, scene);
     trajectories = loadTrajectoryFeatures(opts, scene, trajectories);
-    
-    identities = trajectories;
+    identities = trajectories;    
     for k = 1:length(identities)
         iCam = identities(k).trajectories.camera;
         frame_offset = opts.frame_offset{opts.current_scene};
@@ -30,20 +29,42 @@ function compute_L3_identities_aic(opts)
         identities(k).iCams = identities(k).trajectories(1).camera;
     end
     identities = sortStruct(identities,'startFrame');        
-
+    
+    %% subscenes
+%     for cams_in_subscene = opts.subscenes{scene}
+%     startFrame     = 1;
+%     endFrame       = 1 + opts.identities.window_width(1) - 1;
+%     while startFrame <= 6000
+%         clc; fprintf('Window %d...%d\n', startFrame, endFrame);
+% 
+%         identities = linkIdentities_subscene(opts, identities, startFrame, endFrame,appear_model_param,motion_model_param,cams_in_subscene{1});
+% 
+%         % advance sliding temporal window
+%         startFrame = endFrame   - opts.identities.window_width(1)/2;
+%         endFrame   = startFrame + opts.identities.window_width(1);
+%     end
+%     end
+    
+    %% all cams in scene
+    if scene <= 2
+        window_width = 500;
+    else
+        window_width = 2400;
+    end
+    
     startFrame     = 1;
-    endFrame       = 1 + opts.identities.window_width - 1;
-
+    endFrame       = 1 + window_width - 1;
     while startFrame <= 6000
         clc; fprintf('Window %d...%d\n', startFrame, endFrame);
 
         identities = linkIdentities(opts, identities, startFrame, endFrame,appear_model_param,motion_model_param);
 
         % advance sliding temporal window
-        startFrame = endFrame   - opts.identities.window_width/2;
-        endFrame   = startFrame + opts.identities.window_width;
+        startFrame = endFrame   - window_width/2;
+        endFrame   = startFrame + window_width;
     end
     
+    %% remove single-camera ones
 %     to_delete = [];
 %     for index = 1:length(identities)
 %         if length(unique(identities(index).iCams)) == 1

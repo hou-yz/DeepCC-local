@@ -71,12 +71,13 @@ for i = 1 : length(allGroups)
         [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinity(tracklets(indices), params.beta, params.speed_limit, params.indifference_time, iCam);
         spacetimeAffinity = spacetimeAffinity-1;
     elseif opts.dataset == 1 || opts.dataset == 2
+%         [spacetimeAffinity, impossibilityMatrix] = aic_VelocityTimeMatrix(opts,dataInTracklets(indices), iCam, params.smoothness_interval_length);
         impossibilityMatrix = zeros(length(dataInTracklets(indices)));
         spacetimeAffinity   = zeros(length(dataInTracklets(indices)));
-%         [velocityChangeLoss,distanceLoss,shapeChangeLoss, iouAffinity, timeIntervalMatrix, impossibilityMatrix] = aic_VelocityTimeMatrix(opts,dataInTracklets(indices), params.smoothness_interval_length);
-%         spacetimeAffinity = - params.weightDistance * distanceLoss + params.weightShapeChange * shapeChangeLoss - params.weightVelocityChange * velocityChangeLoss + params.weightIOU * (iouAffinity-0);
+        
         smoothnessLoss = aic_SmoothnessMatrix(dataInTracklets(indices), params.smoothness_interval_length);
         impossibilityMatrix(smoothnessLoss>2) = 1;
+        impossibilityMatrix = logical(impossibilityMatrix);
         
         
         appearanceAffinity = appearanceAffinity;

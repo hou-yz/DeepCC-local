@@ -57,18 +57,15 @@ for i = 1 : length(allGroups)
     if opts.dataset == 0
     	[spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinityID(opts,trajectories(indices),opts.identities.consecutive_icam_matrix,opts.identities.reintro_time_matrix,opts.identities.optimal_filter);
     elseif opts.dataset == 1 || opts.dataset == 2
-%         spacetimeAffinity = 0;
-%         if params.weightSmoothness ~=0
-%         smoothnessLoss = aic_SmoothnessMatrix(trajectories(indices), params.smoothness_interval_length);
-%         spacetimeAffinity = spacetimeAffinity - params.weightSmoothness .* smoothnessLoss; 
-%         end
-        [spacetimeAffinity, impossibilityMatrix, indifferenceMatrix] = getSpaceTimeAffinityID(opts,trajectories(indices),opts.identities.consecutive_icam_matrix,opts.identities.reintro_time_matrix,opts.identities.optimal_filter);
-
-%         appearanceAffinity = appearanceAffinity;
+        impossibilityMatrix = zeros(length(trajectories(indices)));
+        spacetimeAffinity = 0;
         indifferenceMatrix = 1;
-        impossibilityMatrix = zeros(length(trajectories(indices)));%impossibility_frame_overlap([tracklets(indices).startFrame]',[tracklets(indices).endFrame]');    
         iCams = [trajectories(indices).camera];
-        impossibilityMatrix = iCams == iCams';
+        [~, impossibilityMatrix] = aic_L3_motion_score(opts,trajectories(indices));
+%         smoothnessLoss = aic_SmoothnessMatrix(trajectories(indices), params.smoothness_interval_length);
+%         impossibilityMatrix(smoothnessLoss>10) = 1;
+        impossibilityMatrix(iCams == iCams')  = 1;
+        impossibilityMatrix = logical(impossibilityMatrix);
     end
     
     if params.alpha

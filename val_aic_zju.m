@@ -8,7 +8,7 @@ opts.experiment_name = 'aic_zju';
 % basis setting for DeepCC
 opts.tracklets.window_width = 10;
 opts.trajectories.window_width = 50;
-opts.identities.window_width = 1000;
+opts.identities.window_width = [500,4800];
 % correlation threshold setting according to `view_distance_distribution(opts)`
 opts.feature_dir = 'det_features_zju_best_trainval_ssd';
 opts.tracklets.threshold    = 7.3;
@@ -41,7 +41,7 @@ opts.sequence = 1;
 %% Tracklets
 opts.tracklets.spatial_groups = 0;
 opts.optimization = 'KL';
-compute_L1_tracklets_aic(opts);
+% compute_L1_tracklets_aic(opts);
 
 %% Single-camera trajectories
 opts.trajectories.appearance_groups = 0;
