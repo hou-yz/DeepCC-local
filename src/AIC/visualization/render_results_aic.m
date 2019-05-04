@@ -79,7 +79,7 @@ for i = 1:length(opts.cams_in_scene{scene})
         % Tail Pred
         rows = find((predMatViz(:, 1) <= frame) & (predMatViz(:,1) >= frame - tail_size));
         identities = predMatViz(rows, 2);
-        feetposition = feetPosition(predMatViz(rows,3:6));
+        feet_pos = feetPosition(predMatViz(rows,3:6));
         
         if opts.sequence ~=6
             is_TP = predMatViz(rows,end);
@@ -91,21 +91,21 @@ for i = 1:length(opts.cams_in_scene{scene})
             current_tail_colors = colors(identities,:);
         end
         
-        circles = feetposition;
+        circles = feet_pos;
         circles(:,3) = 3;
         img = insertShape(img,'FilledCircle',circles,'Color', current_tail_colors*255);
         
         % IDFN
         if opts.sequence ~=6
             rows = find((gtMatViz(:, 1) <= frame) & (gtMatViz(:,1) >= frame - tail_size));
-            feetposition = feetPosition(gtMatViz(rows,3:6));
+            feet_pos = feetPosition(gtMatViz(rows,3:6));
         
             is_TP = gtMatViz(rows,end);
             current_tail_colors = [];
             for kkk = 1:length(is_TP)
                 current_tail_colors(kkk,:) = tail_colors(3-is_TP(kkk),:);
             end
-            circles = feetposition;
+            circles = feet_pos;
             circles(:,3) = 3;
             img = insertShape(img,'FilledCircle',circles(~is_TP,:),'Color', current_tail_colors(~is_TP,:)*255);
             img = insertText(img,[0 0], sprintf('Cam %d - Frame %d',iCam, frame),'FontSize',20);

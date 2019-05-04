@@ -46,6 +46,7 @@ for iCam = 1:8
     trackerOutputFilled = fillTrajectories(trackerOutputRaw);
     % Remove spurius tracks
     [trackerOutputRemoved, removedIDs] = removeShortTracks(trackerOutputFilled, opts.minimum_trajectory_length);
+    trajectories(removedIDs) = [];
     % Make identities 1-indexed
     [~, ~, ic] = unique(trackerOutputRemoved(:,2));
     trackerOutputRemoved(:,2) = ic;
@@ -67,7 +68,7 @@ for iCam = 1:8
         opts.experiment_name, ...
         iCam, ...
         opts.sequence_names{opts.sequence}), ...
-        'trajectories', 'removedIDs');
+        'trajectories');
 
 
 end

@@ -15,7 +15,6 @@ filename = sprintf('%s/%s/L3-identities/L2trajectories.mat',opts.experiment_root
 
 % consturct traj from L2-result
 trajectories = loadL2trajectories(opts);
-trajectories = loadTrajectoryFeatures(opts, trajectories);
 save(filename,'trajectories');
 
 % load from saved

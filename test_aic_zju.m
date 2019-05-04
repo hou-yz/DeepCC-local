@@ -7,8 +7,8 @@ opts.experiment_name = 'aic_zju';
 % opts.detections = 'yolo3';
 % basis setting for DeepCC
 opts.tracklets.window_width = 10;
-opts.trajectories.window_width = 30;
-opts.identities.window_width = 1000;
+opts.trajectories.window_width = 50;
+opts.identities.window_width = [500,4800];
 % correlation threshold setting according to `view_distance_distribution(opts)`
 opts.feature_dir = 'det_features_zju_best_test_ssd';
 opts.tracklets.threshold    = 7.3;
@@ -46,6 +46,9 @@ compute_L1_tracklets_aic(opts);
 %% Single-camera trajectories
 opts.trajectories.appearance_groups = 0;
 compute_L2_trajectories_aic(opts);
+
+%% remove waiting cars
+removeWaiting(opts);
 
 %% Multi-camera identities
 opts.identities.consecutive_icam_matrix = ones(40);

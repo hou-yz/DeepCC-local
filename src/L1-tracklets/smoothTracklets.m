@@ -45,11 +45,21 @@ for i = 1:numTracklets
         det_points    = detections(:,k);
         motion_model  = polyfit(frames,det_points,2);
         newpoints     = polyval(motion_model, datapoints);
-%         motion_model  = fitrgp(frames,det_points,'Basis','linear','FitMethod','exact','PredictMethod','exact');
-%         newpoints     = resubPredict(motion_model);
         currentTracklet(:,k) = newpoints';
     end
-%     currentTracklet(:,1:2)
+    %% realdata for aic
+    if opts.dataset == 2
+        unique_frames   = unique(frames);
+        if length(unique_frames)<length(frames)
+            currentTracklet = zeros(length(unique(frames)),8);
+            for j = 1:length(unique_frames)
+                frame = unique_frames(j);
+                currentTracklet(j,:) = mean(detections(detections(:,1)==frame,:),1);
+            end
+        else
+            currentTracklet = detections;
+        end
+    end
     
     
     % Compute appearance features

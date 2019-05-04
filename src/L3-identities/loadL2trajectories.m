@@ -8,9 +8,15 @@ elseif opts.dataset == 2
     cam_pool = opts.cams_in_scene{scene};
 end
 for iCam = cam_pool
-    tracker_output = dlmread(fullfile(opts.experiment_root, opts.experiment_name, 'L2-trajectories', sprintf('cam%d_%s.txt',iCam, opts.sequence_names{opts.sequence})));
-    
+    if opts.dataset <= 1
+        tracker_output = dlmread(fullfile(opts.experiment_root, opts.experiment_name, 'L2-trajectories', sprintf('cam%d_%s.txt',iCam, opts.sequence_names{opts.sequence})));
+    elseif opts.dataset == 2
+        tracker_output = dlmread(fullfile(opts.experiment_root, opts.experiment_name, 'L2-trajectories', sprintf('cam%d_%s_no_wait.txt',iCam, opts.sequence_names{opts.sequence})));
+    end
     ids = unique(tracker_output(:,2));
+    
+    traj_for_iCam = load(fullfile(opts.experiment_root, opts.experiment_name, 'L2-trajectories', sprintf('trajectories%d_%s.mat',iCam, opts.sequence_names{opts.sequence})));
+    traj_for_iCam = traj_for_iCam.trajectories;
     
     for idx = 1:length(ids)
         id = ids(idx);
@@ -25,6 +31,7 @@ for iCam = cam_pool
         trajectory.camera = iCam;
         trajectory.startFrame = min(trajectory.data(:,1));
         trajectory.endFrame = max(trajectory.data(:,1));
+        trajectory.feature = traj_for_iCam(id).feature;
         if opts.visualize
         i=floor(length(trajectory.data(:,1))/2);
         frame = round(trajectory.data(i,1));

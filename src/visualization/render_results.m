@@ -74,27 +74,27 @@ for iCam = 1:opts.num_cam
         rows = find((predMatViz(:, 1) <= iFrame) & (predMatViz(:,1) >= iFrame - tail_size));
         identities = predMatViz(rows, 2);
         
-        feetposition = feetPosition(predMatViz(rows,3:6));
+        feet_pos = feetPosition(predMatViz(rows,3:6));
         is_TP = predMatViz(rows,end);
         current_tail_colors = [];
         for kkk = 1:length(is_TP)
             current_tail_colors(kkk,:) = tail_colors(is_TP(kkk)+1,:);
         end
         
-        circles = feetposition;
+        circles = feet_pos;
         circles(:,3) = 3;
         image = insertShape(image,'FilledCircle',circles,'Color', current_tail_colors*255);
         
         % IDFN
         rows = find((gtMatViz(:, 1) <= iFrame) & (gtMatViz(:,1) >= iFrame - tail_size));
-        feetposition = feetPosition(gtMatViz(rows,3:6));
+        feet_pos = feetPosition(gtMatViz(rows,3:6));
         
         is_TP = gtMatViz(rows,end);
         current_tail_colors = [];
         for kkk = 1:length(is_TP)
             current_tail_colors(kkk,:) = tail_colors(3-is_TP(kkk),:);
         end
-        circles = feetposition;
+        circles = feet_pos;
         circles(:,3) = 3;
         image = insertShape(image,'FilledCircle',circles(~is_TP,:),'Color', current_tail_colors(~is_TP,:)*255);
         image = insertText(image,[0 0], sprintf('Cam %d - Frame %d',iCam, iFrame),'FontSize',20);

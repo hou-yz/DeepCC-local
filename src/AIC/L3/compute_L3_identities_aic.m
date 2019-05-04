@@ -16,7 +16,6 @@ function compute_L3_identities_aic(opts)
     opts.current_scene = scene;
     % consturct traj from L2-result
     trajectories = loadL2trajectories(opts, scene);
-    trajectories = loadTrajectoryFeatures(opts, scene, trajectories);
     identities = trajectories;    
     for k = 1:length(identities)
         iCam = identities(k).trajectories.camera;
@@ -31,19 +30,19 @@ function compute_L3_identities_aic(opts)
     identities = sortStruct(identities,'startFrame');        
     
     %% subscenes
-%     for cams_in_subscene = opts.subscenes{scene}
-%     startFrame     = 1;
-%     endFrame       = 1 + opts.identities.window_width(1) - 1;
-%     while startFrame <= 6000
-%         clc; fprintf('Window %d...%d\n', startFrame, endFrame);
-% 
-%         identities = linkIdentities_subscene(opts, identities, startFrame, endFrame,appear_model_param,motion_model_param,cams_in_subscene{1});
-% 
-%         % advance sliding temporal window
-%         startFrame = endFrame   - opts.identities.window_width(1)/2;
-%         endFrame   = startFrame + opts.identities.window_width(1);
-%     end
-%     end
+    for cams_in_subscene = opts.subscenes{scene}
+    startFrame     = 1;
+    endFrame       = 1 + opts.identities.window_width(1) - 1;
+    while startFrame <= 6000
+        clc; fprintf('Window %d...%d\n', startFrame, endFrame);
+
+        identities = linkIdentities_subscene(opts, identities, startFrame, endFrame,appear_model_param,motion_model_param,cams_in_subscene{1});
+
+        % advance sliding temporal window
+        startFrame = endFrame   - opts.identities.window_width(1)/2;
+        endFrame   = startFrame + opts.identities.window_width(1);
+    end
+    end
     
     %% all cams in scene
     if scene <= 2

@@ -42,7 +42,7 @@ if params.appearance_groups == 0
         freq = [histc(appearanceGroups(:),uid)];
         largestGroupSize = max(freq);
         % The BIP solver might run out of memory for large graphs
-        if largestGroupSize <= 30
+        if largestGroupSize <= 150
             break
         end
     end

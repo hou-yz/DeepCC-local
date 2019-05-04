@@ -42,6 +42,7 @@ opts.frame_offset = get_frame_offset(opts);
 opts.world_center = {[42.525678, -90.723601],[42.491916, -90.723723],[42.498780, -90.686393],[42.498780, -90.686393],[42.498780, -90.686393]};
 opts.world_scale = 6371000/180*pi;
 opts.detections = 'ssd512';
+opts.static_speed = 6/3.6;
 
 
 % Tracklets

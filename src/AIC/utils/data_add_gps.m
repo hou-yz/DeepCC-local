@@ -2,7 +2,7 @@ clear
 clc
 
 opts = get_opts_aic();
-scene = 4;
+scene = 5;
 gt = 0;
 
 % opts.detections = 'yolo3';
@@ -20,20 +20,20 @@ for i = length(cam_pool):-1:1
     end
     bboxs = data(:,3:6);
     % feet pos
-    image_pos = [bboxs(:,1) + 0.5*bboxs(:,3), bboxs(:,2) + 0.9*bboxs(:,4)];
+    feet_pos = feetPosition(bboxs);
     
     % Show window detections
     if opts.visualize
     startFrame = 100;
-    detectionCenters = image_pos((data(:,1) >= startFrame) & (data(:,1) <= (startFrame+opts.tracklets.window_width)),:);
+    detectionCenters = feet_pos((data(:,1) >= startFrame) & (data(:,1) <= (startFrame+opts.tracklets.window_width)),:);
     spatialGroupIDs = ones(length(detectionCenters),1);
     trackletsVisualizePart1;
     end
     
     % image2gps
-    gps_pos = image2gps(opts,image_pos,scene,iCam);
+    gps_pos = image2gps(opts,feet_pos,scene,iCam);
     re_image_pos = gps2image(opts,gps_pos,scene,iCam);
-    max(max(image_pos-re_image_pos))
+    max(max(feet_pos-re_image_pos))
     
     % global time
     frame_offset = opts.frame_offset{scene} .* opts.fps;

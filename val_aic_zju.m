@@ -41,13 +41,16 @@ opts.sequence = 1;
 %% Tracklets
 opts.tracklets.spatial_groups = 0;
 opts.optimization = 'KL';
-% compute_L1_tracklets_aic(opts);
+compute_L1_tracklets_aic(opts);
 
 %% Single-camera trajectories
 opts.trajectories.appearance_groups = 0;
 compute_L2_trajectories_aic(opts);
 opts.eval_dir = 'L2-trajectories';
 evaluate(opts);
+
+%% remove waiting cars
+removeWaiting(opts);
 
 %% Multi-camera identities
 opts.identities.consecutive_icam_matrix = ones(40);
