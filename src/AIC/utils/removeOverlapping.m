@@ -1,4 +1,4 @@
-function removeWaiting(opts)
+function removeOverlapping(opts)
 %REMOVEWAITING Summary of this function goes here
 %   Detailed explanation goes here
 colors = distinguishable_colors(5000);
@@ -17,23 +17,29 @@ traj_data  = cell(1,length(ids));
 traj_speed = cell(1,length(ids));
 for i = 1:length(ids)
     id = ids(i);
-    id_data = tracker_output(tracker_output(:,2)==id,:);
+    line_ids = find(tracker_output(:,2)==id);
+    id_data = tracker_output(line_ids,:);
     id_speed  = zeros(size(id_data,1),1);
     for j = 1:size(id_data,1)
         start_index   = max(1,j-4);
         end_index     = min(size(id_data,1),j);
         id_speed(j) = pdist2(id_data(end_index,7:8),id_data(start_index,7:8));
-        id_speed(j) = id_speed(j)/(id_data(end_index,1)-id_data(start_index,1))*10;
+        id_speed(j) = id_speed(j)/(id_data(end_index,1)-id_data(start_index,1)+10^-12)*10;
     end
     traj_data{i}  = id_data;
     traj_speed{i} = [id_data(:,1),id_speed];
+    if max(id_speed)<opts.static_speed
+        to_remove = [to_remove;line_ids];
+    end
 end
 
 for i = 1:length(frames)
     %% all in frame
     frame    = frames(i);
+    if mod(frame,100) == 0
     clc; fprintf('iCam: %d\n', iCam);
     fprintf('frame: %d\n', frame);
+    end
     line_ids = find(tracker_output(:,1)==frame);
     data     = tracker_output(line_ids,:);
     ids      = unique(data(:,2));
@@ -45,14 +51,10 @@ for i = 1:length(frames)
         id = ids(j);
         speed(j) = traj_speed{id}(traj_speed{id}(:,1)==frame,2);
     end
-    bboxs = data(:,3:6);
+    enlarged_bboxs = data(:,3:6); bboxs = enlarged_bboxs;
+    bboxs(:,1:2) = enlarged_bboxs(:,1:2)+20; bboxs(:,3:4) = enlarged_bboxs(:,3:4)-40;
     feets = feetPosition(bboxs);
     
-    %% static in frame
-    static_indices = find(speed < opts.static_speed);
-    if sum(static_indices) == 0
-        continue
-    end
     % visualize
     if opts.visualize
         
@@ -70,34 +72,36 @@ for i = 1:length(frames)
         end
         imshow(img)
     end
-    static_feets       = feets(static_indices,:);
-    [~,idx]            = sortrows(static_feets,2);
-    static_indices     = static_indices(idx);
+    %% all in frame
+    [~,indices]            = sortrows(feets,2);
 %     % the most close bbox to viewpoint
 %     [~,closest_index]  = max(static_feets(:,2));
 %     closest_index      = static_indices(closest_index);
 % %     candidate_ids     = ids; candidate_ids(candidate_ids == closest_id) = [];
 %     closest_bbox       = bboxs(closest_index,:);
     in = false(length(line_ids),1); 
-    for j = 1:length(static_indices)
-    static_index = static_indices(j);
-    static_bbox  = bboxs(static_index,:);
-    %% iou
+    for j = 1:length(indices)
+    index = indices(j);
+    bbox  = bboxs(index,:);
+%     %% iou
 %     ious         = bboxOverlapRatio(bboxs,static_bbox,'Min');
 %     in(ious>0.5) = 1;
 %     in(static_indices(j:end)) = 0;
     %% feet
-    bbox_xv = [static_bbox(:,1),static_bbox(:,1)+static_bbox(:,3)]; 
-    bbox_yv = [static_bbox(:,2),static_bbox(:,2)+static_bbox(:,4)];
+    bbox_xv = [bbox(:,1),bbox(:,1)+bbox(:,3)]; 
+    bbox_yv = [bbox(:,2),bbox(:,2)+bbox(:,4)];
     feet_xq = feets(:,1); feet_yq = feets(:,2);
     in = in + inpolygon(feet_xq,feet_yq,bbox_xv,bbox_yv);
     
-    in(static_indices(j:end)) = 0;
+    in(indices(j:end)) = 0;
     end
     in = logical(in);
     to_remove = [to_remove;line_ids(in)];
 end
-tracker_output(to_remove,:) = [];
+
+    
+    
+tracker_output(unique(to_remove),:) = [];
 dlmwrite(fullfile(opts.experiment_root, opts.experiment_name, 'L2-trajectories', sprintf('cam%d_%s_no_wait.txt',iCam, opts.sequence_names{opts.sequence})), ...
         tracker_output, 'delimiter', ' ', 'precision', 6);
 end

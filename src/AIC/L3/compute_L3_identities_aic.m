@@ -30,17 +30,22 @@ function compute_L3_identities_aic(opts)
     identities = sortStruct(identities,'startFrame');        
     
     %% subscenes
+    if scene <= 2
+        window_width = 500;
+    else
+        window_width = 1200;
+    end
     for cams_in_subscene = opts.subscenes{scene}
     startFrame     = 1;
-    endFrame       = 1 + opts.identities.window_width(1) - 1;
+    endFrame       = 1 + window_width - 1;
     while startFrame <= 6000
         clc; fprintf('Window %d...%d\n', startFrame, endFrame);
 
         identities = linkIdentities_subscene(opts, identities, startFrame, endFrame,appear_model_param,motion_model_param,cams_in_subscene{1});
 
         % advance sliding temporal window
-        startFrame = endFrame   - opts.identities.window_width(1)/2;
-        endFrame   = startFrame + opts.identities.window_width(1);
+        startFrame = endFrame   - window_width/2;
+        endFrame   = startFrame + window_width;
     end
     end
     
@@ -48,7 +53,7 @@ function compute_L3_identities_aic(opts)
     if scene <= 2
         window_width = 500;
     else
-        window_width = 2400;
+        window_width = 4800;
     end
     
     startFrame     = 1;

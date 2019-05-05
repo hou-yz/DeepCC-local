@@ -48,7 +48,7 @@ opts.trajectories.appearance_groups = 0;
 compute_L2_trajectories_aic(opts);
 
 %% remove waiting cars
-removeWaiting(opts);
+removeOverlapping(opts);
 
 %% Multi-camera identities
 opts.identities.consecutive_icam_matrix = ones(40);

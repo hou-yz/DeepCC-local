@@ -19,7 +19,7 @@ opts.sequence = 1;
 folder = 'video-results';
 mkdir([opts.experiment_root, filesep, opts.experiment_name, filesep, folder]);
 % Load ground truth
-if opts.sequence ~=6
+if ~ismember(opts.sequence,[3,4,6])
     load(fullfile(opts.dataset_path, 'ground_truth', 'train.mat'));
 end
 % Render one video per camera
@@ -37,7 +37,7 @@ for i = 1:length(opts.cams_in_scene{scene})
     resdata = dlmread(sprintf('%s/%s/L3-identities/cam%d_%s.txt',opts.experiment_root, opts.experiment_name, iCam,opts.sequence_names{opts.sequence}));
     resMat = resdata;
     
-    if opts.sequence ~=6
+    if ~ismember(opts.sequence,[3,4,6])
         % Load relevant ground truth
         gtdata = trainData;
         filter = gtdata(:,1) == iCam;
@@ -81,7 +81,7 @@ for i = 1:length(opts.cams_in_scene{scene})
         identities = predMatViz(rows, 2);
         feet_pos = feetPosition(predMatViz(rows,3:6));
         
-        if opts.sequence ~=6
+        if ~ismember(opts.sequence,[3,4,6])
             is_TP = predMatViz(rows,end);
             current_tail_colors = [];
             for kkk = 1:length(is_TP)
@@ -96,7 +96,7 @@ for i = 1:length(opts.cams_in_scene{scene})
         img = insertShape(img,'FilledCircle',circles,'Color', current_tail_colors*255);
         
         % IDFN
-        if opts.sequence ~=6
+        if ~ismember(opts.sequence,[3,4,6])
             rows = find((gtMatViz(:, 1) <= frame) & (gtMatViz(:,1) >= frame - tail_size));
             feet_pos = feetPosition(gtMatViz(rows,3:6));
         
@@ -108,12 +108,11 @@ for i = 1:length(opts.cams_in_scene{scene})
             circles = feet_pos;
             circles(:,3) = 3;
             img = insertShape(img,'FilledCircle',circles(~is_TP,:),'Color', current_tail_colors(~is_TP,:)*255);
-            img = insertText(img,[0 0], sprintf('Cam %d - Frame %d',iCam, frame),'FontSize',20);
             img = insertText(img,[0 40; 60 40; 120 40], {'IDTP', 'IDFP','IDFN'},'FontSize',20,'BoxColor',{'green','blue','black'},'TextColor',{'white','white','white'});
         end
-            
-        writeVideo(video, img);
+        img = insertText(img,[0 0], sprintf('Cam %d - Frame %d',iCam, frame),'FontSize',20);
         
+        writeVideo(video, img);
     end
     close(video);
     

@@ -23,6 +23,8 @@ function compute_L1_tracklets_aic(opts)
         
 %         imageROI        = imread(sprintf('%s/%s/S%02d/c%03d/roi.jpg', opts.dataset_path, opts.sub_dir{opts.sequence}, scene, iCam));
         imageROI        = imread(sprintf('%s/ROIs/background/S%02d/c%02d.png', opts.dataset_path, scene, iCam));
+        imageROI        = rgb2gray(imageROI);
+        imageROI        = imbinarize(imageROI,1-10^-12);
         
         % Load features for all detections
         if isempty(opts.feature_dir)
@@ -64,7 +66,7 @@ function compute_L1_tracklets_aic(opts)
             % num_visible          = sum(detections_in_window(:,7)> opts.render_threshold, 2);
 
             % Use only valid detections
-            valid                           = getAICValidDetections(scene, detections_in_window, imageROI);
+            valid                           = getAICValidDetections(iCam, detections_in_window, imageROI);
             detections_in_window            = detections_in_window(valid, :);
             if opts.dataset == 2
                 detections_in_window(:,7:8) = detections_in_window(:,10:11);

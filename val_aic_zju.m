@@ -50,7 +50,7 @@ opts.eval_dir = 'L2-trajectories';
 evaluate(opts);
 
 %% remove waiting cars
-removeWaiting(opts);
+removeOverlapping(opts);
 
 %% Multi-camera identities
 opts.identities.consecutive_icam_matrix = ones(40);

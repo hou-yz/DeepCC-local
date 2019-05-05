@@ -123,9 +123,8 @@ if opts.dataset == 2
     for i = 1:length(smoothedTracklets)
         % left,top,width,height
         bboxs = smoothedTracklets(i).data(:,3:6);
-        bboxs(:,1:2) = bboxs(:,1:2)-0.2*bboxs(:,3:4);
-        bboxs(:,3) = 1.4*bboxs(:,3);
-        bboxs(:,4) = 1.4*bboxs(:,4);
+        bboxs(:,1:2) = bboxs(:,1:2) - 20;
+        bboxs(:,3:4) = bboxs(:,3:4) + 40;
         smoothedTracklets(i).data(:,3:6) = bboxs;
     end
 end
