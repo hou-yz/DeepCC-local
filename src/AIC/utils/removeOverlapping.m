@@ -74,16 +74,11 @@ for i = 1:length(frames)
     end
     %% all in frame
     [~,indices]            = sortrows(feets,2);
-%     % the most close bbox to viewpoint
-%     [~,closest_index]  = max(static_feets(:,2));
-%     closest_index      = static_indices(closest_index);
-% %     candidate_ids     = ids; candidate_ids(candidate_ids == closest_id) = [];
-%     closest_bbox       = bboxs(closest_index,:);
     in = false(length(line_ids),1); 
     for j = 1:length(indices)
     index = indices(j);
     bbox  = bboxs(index,:);
-%     %% iou
+    %% iou
 %     ious         = bboxOverlapRatio(bboxs,static_bbox,'Min');
 %     in(ious>0.5) = 1;
 %     in(static_indices(j:end)) = 0;

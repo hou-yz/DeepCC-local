@@ -2,7 +2,7 @@ clear
 clc
 
 opts = get_opts_aic();
-scene = 1;
+scene = 4;
 all_gt = [];
 
 for iCam = opts.cams_in_scene{scene}
@@ -17,6 +17,7 @@ pids = unique(all_gt(:,2));
 for i = 1:length(pids)
     figure(1)
     clf('reset');
+    axis equal
     hold on;
     pid = pids(i);
     lines = all_gt(all_gt(:,2) == pid,:);

@@ -3,6 +3,7 @@ function image_points = gps2image(opts, gps_points, scene, iCam)
 %   Detailed explanation goes here
 param = opts.projection{iCam};
 format long
+gps_points = gps_points(:,[2,1]);
 gps_points = gps_points / opts.world_scale  + opts.world_center{scene}; 
 gps_points = [gps_points,ones(size(gps_points,1),1)]';
 

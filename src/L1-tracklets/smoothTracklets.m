@@ -48,18 +48,18 @@ for i = 1:numTracklets
         currentTracklet(:,k) = newpoints';
     end
     %% realdata for aic
-    if opts.dataset == 2
-        unique_frames   = unique(frames);
-        if length(unique_frames)<length(frames)
-            currentTracklet = zeros(length(unique(frames)),8);
-            for j = 1:length(unique_frames)
-                frame = unique_frames(j);
-                currentTracklet(j,:) = mean(detections(detections(:,1)==frame,:),1);
-            end
-        else
-            currentTracklet = detections;
-        end
-    end
+%     if opts.dataset == 2
+%         unique_frames   = unique(frames);
+%         if length(unique_frames)<length(frames)
+%             currentTracklet = zeros(length(unique(frames)),8);
+%             for j = 1:length(unique_frames)
+%                 frame = unique_frames(j);
+%                 currentTracklet(j,:) = mean(detections(detections(:,1)==frame,:),1);
+%             end
+%         else
+%             currentTracklet = detections;
+%         end
+%     end
     
     
     % Compute appearance features

@@ -37,4 +37,5 @@ else
     gps_points = (gps_points(1:2,:)./gps_points(3,:))';
 end
 gps_points = (gps_points - opts.world_center{scene}) * opts.world_scale;
+gps_points = gps_points(:,[2,1]);
 end
