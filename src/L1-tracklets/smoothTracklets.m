@@ -43,7 +43,7 @@ for i = 1:numTracklets
     % Fit left, top, right, bottom, xworld, yworld
     for k = 3:size(tracklets,2)
         det_points    = detections(:,k);
-        motion_model  = polyfit(frames,det_points,2);
+        motion_model  = polyfit(frames,det_points,1);
         newpoints     = polyval(motion_model, datapoints);
         currentTracklet(:,k) = newpoints';
     end

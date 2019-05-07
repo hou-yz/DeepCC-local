@@ -1,7 +1,7 @@
-function [needed_velocities,impossibility] = aic_L3_motion_score(opts,trajectories)
+function [st_affinity,impossibility] = aic_L3_motion_score(opts,trajectories)
 %AIC_L3_MOTION_SCORE Summary of this function goes here
 %   Detailed explanation goes here
-needed_velocities = zeros(length(trajectories));
+st_affinity = zeros(length(trajectories));
 impossibility   = zeros(length(trajectories));
 start_le_end = logical(triu(ones(length(trajectories)),1));
 
@@ -53,9 +53,10 @@ violators = (v_dist_cos > pi/2) | (needed_v_dist_cos > pi/2);
 violators(logical(ismember(iCams,opts.identities.allow_acute_cams) .* ismember(iCams,opts.identities.allow_acute_cams)')) = 0;
 impossibility(violators) = 1;
 
-
-
 impossibility(~start_le_end) = 0;
 impossibility = impossibility + impossibility';
+
+impossibility(iCams == iCams')  = 1;
+impossibility = logical(impossibility);
 end
 

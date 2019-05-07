@@ -1,4 +1,4 @@
-function resdataProc = removeOutliersROI(resdata, cam, dataset_path)
+function resdataProc = removeOutliersROI(resdata, cam, dataset_path,seqmap)
 
 % Fetch data
 if ~exist(fullfile(dataset_path, 'ROIs'),'dir')
@@ -17,8 +17,13 @@ end
 
 resdataProc = [];
 
+if contains(seqmap,'test')
+    folder = 'test';
+else
+    folder = 'train';
+end
 % Read ROI image
-roipath = fullfile(dataset_path, sprintf('ROIs/train/c%03d/roi.jpg', cam));
+roipath = fullfile(dataset_path, sprintf('ROIs/%s/c%03d/roi.jpg', folder, cam));
 
 ROI = imread(roipath);
 % ROI = rgb2gray(ROI);

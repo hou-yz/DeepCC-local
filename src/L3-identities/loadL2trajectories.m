@@ -11,7 +11,7 @@ for iCam = cam_pool
     if opts.dataset <= 1
         tracker_output = dlmread(fullfile(opts.experiment_root, opts.experiment_name, 'L2-trajectories', sprintf('cam%d_%s.txt',iCam, opts.sequence_names{opts.sequence})));
     elseif opts.dataset == 2
-        tracker_output = dlmread(fullfile(opts.experiment_root, opts.experiment_name, 'L2-trajectories', sprintf('cam%d_%s_no_wait.txt',iCam, opts.sequence_names{opts.sequence})));
+        tracker_output = dlmread(fullfile(opts.experiment_root, opts.experiment_name, 'L2-removeOvelapping', sprintf('cam%d_%s.txt',iCam, opts.sequence_names{opts.sequence})));
     end
     ids = unique(tracker_output(:,2));
     

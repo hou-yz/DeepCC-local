@@ -126,8 +126,8 @@ for ind = 1:length(allSequences)
         
     elseif multicam && vehicle
         % CiyFlow parsing
-        if strcmp(seqmap,'AIC19-test.txt')
-            load(fullfile(dataset_path,'ground_truth', 'test.mat'));
+        if strcmp(seqmap,'AIC19-test-easy.txt')
+            load(fullfile(dataset_path,'ground_truth', 'test_easy.mat'));
             gtdata = testData;
         elseif strcmp(seqmap,'AIC19-train.txt')
             load(fullfile(dataset_path,'ground_truth', 'train.mat'));
@@ -225,7 +225,7 @@ for ind = 1:length(allSequences)
         settype = sequenceName(6:end);
         
         % Filter rows by ROI
-        resdata = removeOutliersROI(resdata, cam, dataset_path);
+        resdata = removeOutliersROI(resdata, cam, dataset_path,seqmap);
         resdata = sortrows(resdata,[1 2]);
         resMat{ind} = resdata;
         

@@ -64,8 +64,8 @@ for i = 1 : length(allGroups)
         [~, impossibilityMatrix] = aic_L3_motion_score(opts,trajectories(indices));
 %         smoothnessLoss = aic_SmoothnessMatrix(trajectories(indices), params.smoothness_interval_length);
 %         impossibilityMatrix(smoothnessLoss>10) = 1;
-        impossibilityMatrix(iCams == iCams')  = 1;
-        impossibilityMatrix = logical(impossibilityMatrix);
+%         impossibilityMatrix(iCams == iCams')  = 1;
+%         impossibilityMatrix = logical(impossibilityMatrix);
     end
     
     if params.alpha
@@ -76,7 +76,7 @@ for i = 1 : length(allGroups)
         correlationMatrix(impossibilityMatrix) = -Inf;
     end
     
-    correlationMatrix(sameLabels) = max(10, correlationMatrix(sameLabels));
+    correlationMatrix(sameLabels) = max(1, correlationMatrix(sameLabels));
     
     % show appearance group tracklets
 %     if VISUALIZE, trajectoriesVisualizePart2; end
