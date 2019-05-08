@@ -38,7 +38,7 @@ def main():
     parser.add_argument('--type', type=str, default='gt', choices=['gt', 'det'])
     parser.add_argument('--fft', action='store_true')
     parser.add_argument('--pcb', action='store_true')
-    parser.add_argument('--mot', action='store_true')
+    parser.add_argument('--dataset', '-d', type=str, default='duke', choices=['duke','mot','aic'])
     parser.add_argument('--triplet', action='store_true')
     parser.add_argument('--motion', action='store_true')
     args = parser.parse_args()
@@ -46,7 +46,7 @@ def main():
     #     args.weight_decay = 1e-3
     #     pass
 
-    if args.mot:
+    if args.dataset == 'mot':
         args.lr = 1e-3
         args.data_path = 'MOT'
         args.log_dir = 'og512'
@@ -81,7 +81,7 @@ def main():
     # dataset path
     args.log_dir = osp.join('logs', args.data_path, args.log_dir)
     args.data_path = osp.join(os.path.expanduser('~/Data/DukeMTMC/ground_truth'), args.data_path)
-    if not args.mot:
+    if args.dataset != 'mot':
         if args.type == 'det':
             train_data_path = osp.join(args.data_path, 'hyperGT.h5')
             test_data_path = osp.join(args.data_path, 'hyperGT.h5')

@@ -14,13 +14,15 @@ colors = distinguishable_colors(5000);
 
 opts = get_opts_aic();
 opts.experiment_name = 'aic_zju';
-opts.sequence = 1;
+opts.sequence = 3;
 
 folder = 'video-results';
 mkdir([opts.experiment_root, filesep, opts.experiment_name, filesep, folder]);
 % Load ground truth
-if ~ismember(opts.sequence,[3,4,6])
+if ismember(opts.sequence,[1,7,8])
     load(fullfile(opts.dataset_path, 'ground_truth', 'train.mat'));
+elseif opts.sequence == 3
+    load(fullfile(opts.dataset_path, 'ground_truth', 'test_easy.mat'));
 end
 % Render one video per camera
 for scene = opts.seqs{opts.sequence}
@@ -37,9 +39,13 @@ for i = 1:length(opts.cams_in_scene{scene})
     resdata = dlmread(sprintf('%s/%s/L3-identities/cam%d_%s.txt',opts.experiment_root, opts.experiment_name, iCam,opts.sequence_names{opts.sequence}));
     resMat = resdata;
     
-    if ~ismember(opts.sequence,[3,4,6])
+    if ismember(opts.sequence,[1,3,7,8])
         % Load relevant ground truth
-        gtdata = trainData;
+        if opts.sequence == 3
+            gtdata = testData;
+        else
+            gtdata = trainData;
+        end
         filter = gtdata(:,1) == iCam;
         gtdata = gtdata(filter,:);
         gtdata = gtdata(:,2:end);
@@ -81,7 +87,7 @@ for i = 1:length(opts.cams_in_scene{scene})
         identities = predMatViz(rows, 2);
         feet_pos = feetPosition(predMatViz(rows,3:6));
         
-        if ~ismember(opts.sequence,[3,4,6])
+        if ismember(opts.sequence,[1,3,7,8])
             is_TP = predMatViz(rows,end);
             current_tail_colors = [];
             for kkk = 1:length(is_TP)
@@ -96,7 +102,7 @@ for i = 1:length(opts.cams_in_scene{scene})
         img = insertShape(img,'FilledCircle',circles,'Color', current_tail_colors*255);
         
         % IDFN
-        if ~ismember(opts.sequence,[3,4,6])
+        if ismember(opts.sequence,[1,3,7,8])
             rows = find((gtMatViz(:, 1) <= frame) & (gtMatViz(:,1) >= frame - tail_size));
             feet_pos = feetPosition(gtMatViz(rows,3:6));
         

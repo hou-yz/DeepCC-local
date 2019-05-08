@@ -5,6 +5,9 @@ opts = get_opts_aic();
 opts.experiment_name = 'aic_label_det';
 opts.sequence = 3;
 
+% removeOverlapping(opts);
+
+
 testData = [];
 
 scene = 2;
