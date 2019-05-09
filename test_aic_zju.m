@@ -9,16 +9,16 @@ opts.experiment_name = 'aic_zju';
 opts.tracklets.window_width = 10;
 opts.trajectories.window_width = 50;
 % correlation threshold setting according to `view_distance_distribution(opts)`
-opts.feature_dir = 'det_features_zju_lr001_test_ssd';
-opts.tracklets.threshold    = 4.5;
-opts.trajectories.threshold = 4.5;
-opts.identities.threshold   = 4.9;
-opts.tracklets.diff_p    = 1.82;
-opts.trajectories.diff_p = 1.82;
-opts.identities.diff_p   = 1.82;
-opts.tracklets.diff_n    = 1.82;
-opts.trajectories.diff_n = 1.82;
-opts.identities.diff_n   = 1.82;
+opts.feature_dir = 'det_features_zju_lr001_ensemble_test_ssd';
+opts.tracklets.threshold    = 0.65;
+opts.trajectories.threshold = 0.65;
+opts.identities.threshold   = 0.65;
+opts.tracklets.diff_p    = 0.26;
+opts.trajectories.diff_p = 0.26;
+opts.identities.diff_p   = 0.26;
+opts.tracklets.diff_n    = 0.26;
+opts.trajectories.diff_n = 0.26;
+opts.identities.diff_n   = 0.26;
 
 create_experiment_dir(opts);
 
@@ -30,7 +30,7 @@ end
 
 %% Run Tracker
 % opts.visualize = true;
-opts.sequence = 6;
+opts.sequence = 3;
 
 %% Tracklets
 opts.tracklets.spatial_groups = 0;

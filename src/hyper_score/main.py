@@ -38,7 +38,7 @@ def main():
     parser.add_argument('--type', type=str, default='gt', choices=['gt', 'det'])
     parser.add_argument('--fft', action='store_true')
     parser.add_argument('--pcb', action='store_true')
-    parser.add_argument('--dataset', '-d', type=str, default='duke', choices=['duke','mot','aic'])
+    parser.add_argument('--dataset', '-d', type=str, default='duke', choices=['duke', 'mot', 'aic'])
     parser.add_argument('--triplet', action='store_true')
     parser.add_argument('--motion', action='store_true')
     args = parser.parse_args()
@@ -46,19 +46,7 @@ def main():
     #     args.weight_decay = 1e-3
     #     pass
 
-    if args.dataset == 'mot':
-        args.lr = 1e-3
-        args.data_path = 'MOT'
-        args.log_dir = 'og512'
-        args.features = 512
-        # args.log_dir = 'ide256'
-        # args.features = 256
-
-        train_data_path = '/home/houyz/Data/MOT16/gt_feat/{}/all_seq_feat.h5'.format(args.log_dir)
-        test_data_path = '/home/houyz/Data/MOT16/gt_feat/{}/all_seq_feat.h5'.format(args.log_dir)
-        # train_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_basis_train_1fps/tracklet_features.h5'
-        # test_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_basis_train_1fps/tracklet_features.h5'
-    else:
+    if args.dataset == 'duke':
         if args.triplet:
             args.data_path = '1fps_train_IDE_triplet_40'
             train_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_triplet_basis_train_1fps/tracklet_features.h5'
@@ -77,11 +65,29 @@ def main():
         else:
             train_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_basis_train_1fps/tracklet_features.h5'
             test_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_basis_train_1fps/tracklet_features.h5'
+    elif args.dataset == 'mot':
+        args.lr = 1e-3
+        args.data_path = 'MOT'
+        args.log_dir = 'og512'
+        args.features = 512
+        # args.log_dir = 'ide256'
+        # args.features = 256
+        train_data_path = '/home/houyz/Data/MOT16/gt_feat/{}/all_seq_feat.h5'.format(args.log_dir)
+        test_data_path = '/home/houyz/Data/MOT16/gt_feat/{}/all_seq_feat.h5'.format(args.log_dir)
+        # train_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_basis_train_1fps/tracklet_features.h5'
+        # test_data_path = '/home/houyz/Data/DukeMTMC/L0-features/gt_features_ide_basis_train_1fps/tracklet_features.h5'
+    else:  # aic
+        args.log_dir = 'gt_10fps'
+        args.features = 3072
+        args.lr = 2e-3
+        args.data_path = 'AIC_ensemble'
+        train_data_path = '/home/houyz/Data/AIC19/L0-features/gt_features_zju_lr001_ensemble/tracklet_features.h5'
+        test_data_path = '/home/houyz/Data/AIC19/L0-features/gt_features_zju_lr001_ensemble/tracklet_features.h5'
 
     # dataset path
     args.log_dir = osp.join('logs', args.data_path, args.log_dir)
     args.data_path = osp.join(os.path.expanduser('~/Data/DukeMTMC/ground_truth'), args.data_path)
-    if args.dataset != 'mot':
+    if args.dataset == 'duke':
         if args.type == 'det':
             train_data_path = osp.join(args.data_path, 'hyperGT.h5')
             test_data_path = osp.join(args.data_path, 'hyperGT.h5')
@@ -116,10 +122,10 @@ def main():
 
     trainset = SiameseHyperFeat(HyperFeat(train_data_path, trainval='trainval' if args.combine_trainval else 'train',
                                           feature_dim=args.features, motion_dim=motion_dim, L=args.L,
-                                          window=args.window, mot='MOT' in train_data_path))
+                                          window=args.window, dataset=args.dataset))
     testset = SiameseHyperFeat(HyperFeat(test_data_path, trainval='val',
                                          feature_dim=args.features, motion_dim=motion_dim, L=args.L,
-                                         window='Inf', mot='MOT' in test_data_path))
+                                         window='Inf', dataset=args.dataset))
 
     train_loader = DataLoader(trainset, batch_size=args.batch_size,
                               num_workers=args.num_workers, pin_memory=True, shuffle=True)

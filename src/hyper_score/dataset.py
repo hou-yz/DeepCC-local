@@ -7,7 +7,7 @@ from torch.utils.data import Dataset
 
 
 class HyperFeat(Dataset):
-    def __init__(self, root, feature_dim=256, motion_dim=9, trainval='train', L='L2', window='75', mot=False):
+    def __init__(self, root, feature_dim=256, motion_dim=9, trainval='train', L='L2', window='75', dataset='duke'):
         self.root = root
         h5file = h5py.File(self.root, 'r')
         if motion_dim == 9:
@@ -21,17 +21,12 @@ class HyperFeat(Dataset):
         else:
             self.window = np.inf
         # iCam, pid, centerFrame, SpaGrpID, pos*2, v*2, 0, 256-dim feat
-        self.feat_col = list(range(motion_dim, feature_dim + motion_dim))
-        self.motion_col = [0, 2, 4, 5, 6, 7]
-        if mot:
-            self.frame_range = [-np.inf, np.inf]
-            if trainval == 'train':
-                self.cam_range = [4, 10]
-            elif trainval == 'val':
-                self.cam_range = [2, 5, 9, 11, 13]
-            else:
-                self.cam_range = [2, 4, 5, 9, 10, 11, 13]
+        self.feat_col = list(range(motion_dim, self.data.shape[1]))
+        if motion_dim == 9:
+            self.motion_col = [0, 2, 4, 5, 6, 7]
         else:
+            self.motion_col = [0, 2]
+        if dataset == 'duke':
             self.cam_range = list(range(1, 9))
             # train frame: [47720:187540]; val frame: [187541:227540]
             if trainval == 'train':
@@ -40,6 +35,23 @@ class HyperFeat(Dataset):
                 self.frame_range = [187541, 227540]
             else:
                 self.frame_range = [47720, 227540]
+        elif dataset == 'mot':
+            self.frame_range = [-np.inf, np.inf]
+            if trainval == 'train':
+                self.cam_range = [4, 10]
+            elif trainval == 'val':
+                self.cam_range = [2, 5, 9, 11, 13]
+            else:
+                self.cam_range = [2, 4, 5, 9, 10, 11, 13]
+        else:
+            self.frame_range = [-np.inf, np.inf]
+            if trainval == 'train':
+                self.cam_range = list(range(10, 41))
+            elif trainval == 'val':
+                self.cam_range = list(range(1, 6))
+            else:
+                self.cam_range = list(range(1, 6)) + list(range(10, 41))
+
         self.data = self.data[np.nonzero((self.data[:, 2] >= self.frame_range[0])
                                          & (self.data[:, 2] <= self.frame_range[1])
                                          & np.isin(self.data[:, 0], self.cam_range))[0], :]

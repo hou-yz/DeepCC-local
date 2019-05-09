@@ -13,7 +13,7 @@ elseif dataset == 1
 elseif dataset == 2
     opts = get_opts_aic();
     opts.sequence = 1;
-    opts.net.experiment_root = 'experiments/zju_lr001_gt_trainval';%'experiments/zju_best_labeled_trainval';
+    opts.net.experiment_root = 'experiments/zju_lr001_ensemble_gt_trainval';%'experiments/zju_best_labeled_trainval';
 end
 type='mid' %'1x'%
 
