@@ -57,6 +57,7 @@ for i = 1:length(frames)
     enlarged_bboxs = data(:,3:6); bboxs = enlarged_bboxs;
     bboxs(:,1:2) = enlarged_bboxs(:,1:2)+20; bboxs(:,3:4) = enlarged_bboxs(:,3:4)-40;
     feets = feetPosition(bboxs);
+    bboxs(:,1:2) = bboxs(:,1:2)+5; bboxs(:,3:4) = bboxs(:,3:4)-10;
     
     %% sort <line_idx, feet, bboxs> as feet position
     [feets,indices] = sortrows(feets,2);

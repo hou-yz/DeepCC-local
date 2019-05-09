@@ -14,17 +14,17 @@ end
 % select tracklets that will be selected in association. 
 inAssociation = []; trajectories = []; trajectoryLabels = [];
 for i = 1 : length(currentIdentities)
-   for k = 1 : length(currentIdentities(i).trajectories) 
-       trajectories        = [trajectories; currentIdentities(i).trajectories(k)]; %#ok
-       trajectoryLabels   = [trajectoryLabels; i]; %#ok
+    for k = 1 : length(currentIdentities(i).trajectories) 
+        trajectories        = [trajectories; currentIdentities(i).trajectories(k)]; %#ok
+        trajectoryLabels   = [trajectoryLabels; i]; %#ok
        
 %        % For previously computed trajectories we select only the last three tracklets.
 %        inAssociation(length(trajectoryLabels)) = false; %#ok
 %        if k >= length(currentIdentities(i).trajectories) - 5
 %            inAssociation(length(trajectoryLabels)) = true; %#ok
 %        end
-       inAssociation(length(trajectoryLabels)) = true; % select all trajs in ID for comparison
-   end
+        inAssociation(length(trajectoryLabels)) = true; % select all trajs in ID for comparison
+    end
 end
 inAssociation = logical(inAssociation);
 

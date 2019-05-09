@@ -3,7 +3,7 @@ clc
 
 %% Options
 opts = get_opts_aic();
-opts.experiment_name = 'aic_zju';
+opts.experiment_name = 'aic_zju_ensemble';
 % opts.detections = 'yolo3';
 % basis setting for DeepCC
 opts.tracklets.window_width = 10;
@@ -12,7 +12,7 @@ opts.trajectories.window_width = 50;
 opts.feature_dir = 'det_features_zju_lr001_ensemble_test_ssd';
 opts.tracklets.threshold    = 0.65;
 opts.trajectories.threshold = 0.65;
-opts.identities.threshold   = 0.65;
+opts.identities.threshold   = 0.71;
 opts.tracklets.diff_p    = 0.26;
 opts.trajectories.diff_p = 0.26;
 opts.identities.diff_p   = 0.26;
@@ -20,6 +20,11 @@ opts.tracklets.diff_n    = 0.26;
 opts.trajectories.diff_n = 0.26;
 opts.identities.diff_n   = 0.26;
 
+%% lr001 ensemble
+% 0.65/0.71/0.73
+% s02: 83.9/80.0; s134: 
+
+% fix accute + < 80: 75->80
 create_experiment_dir(opts);
 
 %% Setup Gurobi
@@ -30,7 +35,7 @@ end
 
 %% Run Tracker
 % opts.visualize = true;
-opts.sequence = 3;
+opts.sequence = 4;
 
 %% Tracklets
 opts.tracklets.spatial_groups = 0;

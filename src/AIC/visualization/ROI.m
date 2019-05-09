@@ -2,18 +2,22 @@ clc
 clear
 
 opts = get_opts_aic();
-all_colors = distinguishable_colors(1000)*255;
+opts.experiment_name = 'aic_zju';
+opts.sequence = 6;
+all_colors = distinguishable_colors(5000)*255;
 
 %% print background
-% for scene = 1:5
+% for scene = 5%1:5
 % mkdir(sprintf('%s/aic_label_det/background/S%02d', opts.experiment_root, scene));
-% for iCam = opts.cams_in_scene{scene}
+% for iCam = 33%opts.cams_in_scene{scene}
 %     %% load image background
 %     imageROI = opts.reader.getFrame(scene,iCam,1);
 %     
 %     %% load gt
 %     if scene~=2 && scene~=5
-%     gt = load(sprintf('%s/%s/S%02d/c%03d/gt/gt.txt', opts.dataset_path, opts.folder_by_scene{scene}, scene, iCam));
+%         gt = load(sprintf('%s/%s/S%02d/c%03d/gt/gt.txt', opts.dataset_path, opts.folder_by_scene{scene}, scene, iCam));
+%     else
+%         gt = load(sprintf('%s/%s/L3-identities/cam%d_%s.txt',opts.experiment_root, opts.experiment_name, iCam,opts.sequence_names{opts.sequence}));
 %     bboxs = gt(:,3:6);
 %     % gt2det bbox
 %     bboxs(:,1:2) = bboxs(:,1:2)+20; bboxs(:,3:4) = bboxs(:,3:4)-40; 

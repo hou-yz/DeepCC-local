@@ -14,14 +14,13 @@ opts.feature_dir = 'det_features_zju_lr001_test_ssd';
 
 %% lr001 
 % 4.5/4.9/5.3
-% s02: 81.4/72.6; s134: 81.6/80.1
+% s02: 81.4/72.6; s134: 81.6/80.9
 % 3.9/4.1/5.3
 % s02: 59.5/58.5; s134: 82.9/82.2
 
-% fix acute cam:      72->74
-% no acute cam:       72->76
-% speed change < 100: 72->74
-% no accute + < 100:  72->77
+% fix acute cam:     72->74
+% speed change < 80: 72->74
+% fix accute + < 80: 72->77
 
 create_experiment_dir(opts);
 %% Setup Gurobi

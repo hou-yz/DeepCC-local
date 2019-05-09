@@ -10,11 +10,11 @@ clear
 tail_colors = [0 0 1; 0 1 0; 0 0 0];
 tail_size = 100;
 
-colors = distinguishable_colors(5000);
+colors = distinguishable_colors(7000);
 
 opts = get_opts_aic();
-opts.experiment_name = 'aic_zju';
-opts.sequence = 3;
+opts.experiment_name = 'aic_label_det';
+opts.sequence = 6;
 
 folder = 'video-results';
 mkdir([opts.experiment_root, filesep, opts.experiment_name, filesep, folder]);
@@ -25,9 +25,10 @@ elseif opts.sequence == 3
     load(fullfile(opts.dataset_path, 'ground_truth', 'test_easy.mat'));
 end
 % Render one video per camera
-for scene = opts.seqs{opts.sequence}
-for i = 1:length(opts.cams_in_scene{scene})
-    iCam = opts.cams_in_scene{scene}(i);
+for scene = 5%opts.seqs{opts.sequence}
+    cams = [27,28,33,34,35];
+for i = 1:length(cams)%1:length(opts.cams_in_scene{scene})
+    iCam = cams(i)%opts.cams_in_scene{scene}(i);
     
     % Create video
     filename = sprintf('%s/%s/%s/cam%d_%s',opts.experiment_root, opts.experiment_name, folder, iCam, opts.sequence_names{opts.sequence});

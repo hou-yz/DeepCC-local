@@ -53,7 +53,7 @@ for i = 1:length(trajectories)
 end
 impossibility(v_dist_euc > opts.identities.speed_limit(1)) = 1;
 violators = (v_dist_cos > pi/2) | (needed_v_dist_cos > pi/2);  %
-% violators(logical(ismember(iCams,opts.identities.allow_acute_cams) .* ismember(iCams,opts.identities.allow_acute_cams)')) = 0;
+violators(logical(ismember(iCams,opts.identities.allow_acute_cams) + ismember(iCams,opts.identities.allow_acute_cams)')) = 0;
 impossibility(violators) = 1;
 
 impossibility(~start_le_end) = 0;

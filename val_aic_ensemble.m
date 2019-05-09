@@ -12,6 +12,11 @@ opts.identities.window_width = [500,4800];
 % correlation threshold setting according to `view_distance_distribution(opts)`
 opts.feature_dir = 'det_features_zju_lr001_ensemble_test_ssd';
 
+%% lr001 ensemble
+% 0.65/0.71/0.73
+% s02: 83.9/80.0; s134: 
+% fix accute + < 80: 75->80
+
 create_experiment_dir(opts);
 %% Setup Gurobi
 if ~exist('setup_done','var')
@@ -49,21 +54,21 @@ opts.identities.diff_n   = 0.26;
 % opts.identities.alpha   = 1;
 
 %% Tracklets
-% opts.tracklets.spatial_groups = 0;
-% compute_L1_tracklets_aic(opts);
-% 
-% %% Single-camera trajectories
-% opts.trajectories.appearance_groups = 0;
-% compute_L2_trajectories_aic(opts);
-% opts.eval_dir = 'L2-trajectories';
-% [~, metsSCT, ~] = evaluate(opts);
-% l2_scts(i,:) = metsSCT(1:3);
-% 
-% %% remove waiting cars
-% removeOverlapping(opts);
-% opts.eval_dir = 'L2-removeOvelapping';
-% [~, metsSCT, ~] = evaluate(opts);
-% removed_scts(i,:) = metsSCT(1:3);
+opts.tracklets.spatial_groups = 0;
+compute_L1_tracklets_aic(opts);
+
+%% Single-camera trajectories
+opts.trajectories.appearance_groups = 0;
+compute_L2_trajectories_aic(opts);
+opts.eval_dir = 'L2-trajectories';
+[~, metsSCT, ~] = evaluate(opts);
+l2_scts(i,:) = metsSCT(1:3);
+
+%% remove waiting cars
+removeOverlapping(opts);
+opts.eval_dir = 'L2-removeOvelapping';
+[~, metsSCT, ~] = evaluate(opts);
+removed_scts(i,:) = metsSCT(1:3);
 
 %% Multi-camera identities
 opts.identities.consecutive_icam_matrix = ones(40);

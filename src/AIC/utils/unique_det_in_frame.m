@@ -3,10 +3,11 @@ clear
 
 opts = get_opts_aic();
 opts.experiment_name = 'aic_label_det';
-opts.sequence = 3;
-scene = 2;
-
-for iCam = opts.cams_in_scene{scene}
+opts.sequence = 6;
+scene = 5;
+cams = [27,28,33,34,35];
+for i = 1:length(cams)%1:length(opts.cams_in_scene{scene})
+    iCam = cams(i)%opts.cams_in_scene{scene}(i);
     resdata = dlmread(sprintf('%s/%s/L3-identities/cam%d_%s.txt',opts.experiment_root, opts.experiment_name, iCam,opts.sequence_names{opts.sequence}));
     %% det bboxs to og size
 %     bboxs = resdata(:,3:6);

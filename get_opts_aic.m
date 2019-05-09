@@ -22,8 +22,8 @@ opts.current_camera = -1;
 opts.minimum_trajectory_length = 2;
 opts.optimization = 'KL'; 
 opts.sequence = 1;
-opts.sequence_names = {'trainval', 'trainval_mini', 'test_easy', 'test_hard', 'trainval_nano','test_all','train','val'};
-opts.seqs = {[1,3,4],[],2,5,[],[2,5],[3,4],1};
+opts.sequence_names = {'trainval', 'trainval_test_easy', 'test_easy', 'test_hard', 'trainval_nano','test_all','train','val'};
+opts.seqs = {[1,3,4],1:4,2,5,[],[2,5],[3,4],1};
 opts.folder_by_scene = {'train', 'test','train', 'train','test'};
 opts.cams_in_scene = {1:5,6:9,10:15,16:40,[10,16:29,33:36]};
 opts.subscenes = {{1:5},{6:9},{10:15},{16:17,18:21,22:26,27:28,29:32,33:36,37:40},{[10,16,17],18:21,22:26,27:28,29,33:36}};
@@ -32,7 +32,7 @@ opts.current_scene = -1;
 opts.render_threshold = -10;
 opts.load_tracklets = 1;
 opts.load_trajectories = 1;
-opts.appear_model_name = 'AIC_ensemble/gt_10fps/model_param_L2_75.mat';
+opts.appear_model_name = 'AIC_ensemble/gt_10fps/model_param_L2_50.mat';
 opts.soft = 0.1;
 opts.fft = false;
 opts.fps = 10;
@@ -52,13 +52,14 @@ tracklets.alpha = 0;
 tracklets.beta = 0.02;
 tracklets.cluster_coeff = 0.75;
 tracklets.nearest_neighbors = 8;
-tracklets.speed_limit = 150/3.6;
+tracklets.speed_limit = 180/3.6;
 tracklets.threshold = 8;
 tracklets.diff_p = 0;
 tracklets.diff_n = 0;
 tracklets.step = false;
 tracklets.og_appear_score = true;
 tracklets.og_motion_score = true;
+tracklets.less_smooth_cams = [16,17,29];
 
 
 % Trajectories
@@ -83,6 +84,7 @@ trajectories.weightDistance = 0;
 trajectories.weightShapeChange = 0;
 trajectories.weightIOU = 0;
 trajectories.allow_acute_cams = [7,8,10];
+trajectories.less_smooth_cams = [16,17,29];
 
 % Identities
 identities = [];
@@ -90,7 +92,7 @@ identities.window_width = [200,200];
 identities.appearance_groups = 0; % determined automatically when zero
 identities.alpha = 0;
 identities.beta = 0.01;
-identities.speed_limit = [100,10]/3.6;
+identities.speed_limit = [80,10]/3.6;
 identities.allow_acute_cams = [2,5,7,8,10];
 identities.indifference_time = 1000;
 identities.threshold = 8;

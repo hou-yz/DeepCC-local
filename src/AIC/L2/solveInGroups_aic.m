@@ -76,7 +76,11 @@ for i = 1 : length(allGroups)
         spacetimeAffinity   = zeros(length(dataInTracklets(indices)));
         
         smoothnessLoss = aic_SmoothnessMatrix(dataInTracklets(indices), params.smoothness_interval_length);
-        impossibilityMatrix(smoothnessLoss>2) = 1;
+        if ~ismember(iCam,opts.trajectories.less_smooth_cams) 
+            impossibilityMatrix(smoothnessLoss>2) = 1;
+        else
+            impossibilityMatrix(smoothnessLoss>4) = 1;
+        end
         impossibilityMatrix = logical(impossibilityMatrix);
         
         

@@ -3,7 +3,7 @@ clc
 
 %% Options
 opts = get_opts_aic();
-opts.experiment_name = 'aic_zju_ensemble_M2';
+opts.experiment_name = 'aic_zju_ensemble_Metric';
 % opts.detections = 'yolo3';
 % basis setting for DeepCC
 opts.tracklets.window_width = 10;
@@ -68,6 +68,9 @@ opts.eval_dir = 'L2-removeOvelapping';
 removed_scts(i,:) = metsSCT(1:3);
 
 %% Multi-camera identities
+opts.trajectories.og_appear_score = false;
+opts.soft = 0.1;
+opts.appear_model_name = 'AIC_ensemble/gt_10fps/model_param_L3_600.mat';
 opts.identities.consecutive_icam_matrix = ones(40);
 opts.identities.reintro_time_matrix = ones(1,40)*inf;
 opts.identities.appearance_groups = 0;
