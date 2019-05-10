@@ -41,7 +41,7 @@ thres = thresholds(i);
 
 opts.tracklets.threshold    = 0.65;
 opts.trajectories.threshold = 0.65;
-opts.identities.threshold   = 0.71;
+opts.identities.threshold   = 0.68;
 opts.tracklets.diff_p    = 0.26;
 opts.trajectories.diff_p = 0.26;
 opts.identities.diff_p   = 0.26;
@@ -52,14 +52,14 @@ opts.identities.diff_n   = 0.26;
 % alpha
 % opts.tracklets.alpha    = 1;
 % opts.trajectories.alpha = 1;
-% opts.identities.alpha   = 1;
+% opts.identities.alpha   = 0.01;
 
 %% Tracklets
 opts.tracklets.spatial_groups = 0;
 compute_L1_tracklets_aic(opts);
 
 %% Single-camera trajectories
-opts.trajectories.appearance_groups = 0;
+opts.trajectories.appearance_groups = 1;
 compute_L2_trajectories_aic(opts);
 opts.eval_dir = 'L2-trajectories';
 [~, metsSCT, ~] = evaluate(opts);
@@ -67,17 +67,17 @@ l2_scts(i,:) = metsSCT(1:3);
 
 %% remove waiting cars
 removeOverlapping(opts);
-opts.eval_dir = 'L2-removeOvelapping';
+opts.eval_dir = 'L2-removeOverlapping';
 [~, metsSCT, ~] = evaluate(opts);
 removed_scts(i,:) = metsSCT(1:3);
 
 %% Multi-camera identities
 opts.identities.consecutive_icam_matrix = ones(40);
 opts.identities.reintro_time_matrix = ones(1,40)*inf;
-opts.identities.appearance_groups = 0;
+opts.identities.appearance_groups = 1;
 compute_L3_identities_aic(opts);
 opts.eval_dir = 'L3-identities';
-[~, metsSCT, metMCT] = evaluate(opts);
+[~, metsSCT, metsMCT] = evaluate(opts);
 l3_scts(i,:) = metsSCT(1:3);
-l3_mcts(i,:) = metMCT;
+l3_mcts(i,:) = metsMCT;
 end

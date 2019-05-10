@@ -16,6 +16,14 @@ for scene = opts.seqs{opts.sequence}
     for i = 1:length(opts.cams_in_scene{scene})
     iCam = opts.cams_in_scene{scene}(i);
     opts.current_camera = iCam;
+    
+    if ismember(iCam,[27,33,35,36])
+        opts.trajectories.window_width = 30;
+    else
+        opts.trajectories.window_width = 50;
+    end
+        
+    
 
     % Load OpenPose detections for current camera
     detections      = load(sprintf('%s/%s/S%02d/c%03d/det/det_%s.txt', opts.dataset_path, opts.sub_dir{opts.sequence}, scene, iCam, opts.detections));

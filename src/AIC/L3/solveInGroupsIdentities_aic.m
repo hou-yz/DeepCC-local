@@ -61,7 +61,7 @@ for i = 1 : length(allGroups)
         spacetimeAffinity = 0;
         indifferenceMatrix = 1;
         iCams = [trajectories(indices).camera];
-        [~, impossibilityMatrix] = aic_L3_motion_score(opts,trajectories(indices),start_indicator(indices),end_indicator(indices));
+        [spacetimeAffinity, impossibilityMatrix] = aic_L3_motion_score(opts,trajectories(indices),start_indicator(indices),end_indicator(indices));
 %         smoothnessLoss = aic_SmoothnessMatrix(trajectories(indices), params.smoothness_interval_length);
 %         impossibilityMatrix(smoothnessLoss>10) = 1;
 %         impossibilityMatrix(iCams == iCams')  = 1;

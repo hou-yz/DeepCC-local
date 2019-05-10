@@ -2,14 +2,14 @@ clc
 clear
 
 opts = get_opts_aic();
-opts.experiment_name = 'aic_zju';
+opts.experiment_name = 'aic_zju_ensemble';
 opts.sequence = 6;
 all_colors = distinguishable_colors(5000)*255;
 
 %% print background
 % for scene = 5%1:5
 % mkdir(sprintf('%s/aic_label_det/background/S%02d', opts.experiment_root, scene));
-% for iCam = 33%opts.cams_in_scene{scene}
+% for iCam = 29%opts.cams_in_scene{scene}
 %     %% load image background
 %     imageROI = opts.reader.getFrame(scene,iCam,1);
 %     
@@ -32,7 +32,7 @@ all_colors = distinguishable_colors(5000)*255;
 
 
 %% color to binary
-for scene = 1:5
+for scene = 5
 mkdir(sprintf('%s/ROIs/background/S%02d', opts.dataset_path, scene));
 for iCam = opts.cams_in_scene{scene}
     imageROI        = imread(fullfile(sprintf('%s/aic_label_det/background/S%02d', opts.experiment_root, scene),sprintf('c%02d.png',iCam)));

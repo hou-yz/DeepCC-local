@@ -3,7 +3,7 @@ clc
 
 %% Options
 opts = get_opts_aic();
-opts.experiment_name = 'aic_zju_ensemble';
+opts.experiment_name = 'aic_zju_test';
 % opts.detections = 'yolo3';
 % basis setting for DeepCC
 opts.tracklets.window_width = 10;
@@ -43,20 +43,20 @@ opts.optimization = 'KL';
 compute_L1_tracklets_aic(opts);
 
 %% Single-camera trajectories
-opts.trajectories.appearance_groups = 0;
+opts.trajectories.appearance_groups = 1;
 compute_L2_trajectories_aic(opts);
 opts.eval_dir = 'L2-trajectories';
 evaluate(opts);
 
 %% remove waiting cars
 removeOverlapping(opts);
-opts.eval_dir = 'L2-removeOvelapping';
+opts.eval_dir = 'L2-removeOverlapping';
 evaluate(opts);
 
 %% Multi-camera identities
 opts.identities.consecutive_icam_matrix = ones(40);
 opts.identities.reintro_time_matrix = ones(1,40)*inf;
-opts.identities.appearance_groups = 0;
+opts.identities.appearance_groups = 1;
 compute_L3_identities_aic(opts);
 opts.eval_dir = 'L3-identities';
 evaluate(opts);

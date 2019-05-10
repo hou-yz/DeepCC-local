@@ -1,4 +1,5 @@
 #include <mex.h>
+#include <math.h>
 #include <matrix.h>
 #include <vector>
 #include <algorithm>

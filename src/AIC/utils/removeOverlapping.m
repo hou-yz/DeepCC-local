@@ -2,16 +2,23 @@ function removeOverlapping(opts)
 %REMOVEWAITING Summary of this function goes here
 %   Detailed explanation goes here
 colors = distinguishable_colors(5000);
-mkdir(fullfile(opts.experiment_root, opts.experiment_name, 'L2-removeOvelapping'))
+mkdir(fullfile(opts.experiment_root, opts.experiment_name, 'L2-removeOverlapping'))
 for scene = opts.seqs{opts.sequence}
 opts.current_scene = scene;
 for iCam = opts.cams_in_scene{scene}
+    
 opts.current_camera = iCam;
 tracker_output      = dlmread(fullfile(opts.experiment_root, opts.experiment_name, 'L2-trajectories', sprintf('cam%d_%s.txt',iCam, opts.folder_by_seq{opts.sequence})));
 ids                 = unique(tracker_output(:,2));
 frames              = min(tracker_output(:,1)):max(tracker_output(:,1));
 to_remove = [];
 
+
+if iCam > 22
+dlmwrite(fullfile(opts.experiment_root, opts.experiment_name, 'L2-removeOverlapping', sprintf('cam%d_%s.txt',iCam, opts.folder_by_seq{opts.sequence})), ...
+        tracker_output, 'delimiter', ' ', 'precision', 6);
+continue;
+end
 
 %% traj data
 traj_data  = cell(1,length(ids));
@@ -31,7 +38,9 @@ for i = 1:length(ids)
     traj_speed{i} = [id_data(:,1),id_speed];
     
     traj_dist = pdist2(id_data(1,7:8),id_data(end,7:8));
-    if traj_dist < 2
+    dist_vector = id_data(end,7:8)-id_data(1,7:8);
+    dist_angle = atan(dist_vector(2)/dist_vector(1));
+    if (dist_angle>pi/3 || dist_angle<-pi/3) && iCam==28
         to_remove = [to_remove;line_indices];
     end
 end
@@ -57,7 +66,7 @@ for i = 1:length(frames)
     enlarged_bboxs = data(:,3:6); bboxs = enlarged_bboxs;
     bboxs(:,1:2) = enlarged_bboxs(:,1:2)+20; bboxs(:,3:4) = enlarged_bboxs(:,3:4)-40;
     feets = feetPosition(bboxs);
-    bboxs(:,1:2) = bboxs(:,1:2)+5; bboxs(:,3:4) = bboxs(:,3:4)-10;
+%     bboxs(:,1:2) = bboxs(:,1:2)+5; bboxs(:,3:4) = bboxs(:,3:4)-10;
     
     %% sort <line_idx, feet, bboxs> as feet position
     [feets,indices] = sortrows(feets,2);
@@ -94,7 +103,7 @@ for i = 1:length(frames)
     bbox_xv = [static_bbox(:,1),static_bbox(:,1)+static_bbox(:,3)]; 
     bbox_yv = [static_bbox(:,2),static_bbox(:,2)+static_bbox(:,4)];
     feet_xq = feets(:,1); feet_yq = feets(:,2);
-    in = in + inpolygon(feet_xq,feet_yq,bbox_xv,bbox_yv);
+    in = in + inpolygon(feet_xq,feet_yq,bbox_xv,bbox_yv) ;%& (rectint(bboxs,static_bbox)./(bboxs(:,3).*bboxs(:,4)))>2/3;
     
     in(static_indices(j:end)) = 0;
     end
@@ -105,7 +114,7 @@ end
     
     
 tracker_output(unique(to_remove),:) = [];
-dlmwrite(fullfile(opts.experiment_root, opts.experiment_name, 'L2-removeOvelapping', sprintf('cam%d_%s.txt',iCam, opts.folder_by_seq{opts.sequence})), ...
+dlmwrite(fullfile(opts.experiment_root, opts.experiment_name, 'L2-removeOverlapping', sprintf('cam%d_%s.txt',iCam, opts.folder_by_seq{opts.sequence})), ...
         tracker_output, 'delimiter', ' ', 'precision', 6);
 end
 end

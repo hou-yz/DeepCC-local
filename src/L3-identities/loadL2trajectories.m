@@ -12,7 +12,7 @@ for iCam = cam_pool
         tracker_output = dlmread(fullfile(opts.experiment_root, opts.experiment_name, 'L2-trajectories', sprintf('cam%d_%s.txt',iCam, opts.sequence_names{opts.sequence})));
         traj_for_iCam = load(fullfile(opts.experiment_root, opts.experiment_name, 'L2-trajectories', sprintf('trajectories%d_%s.mat',iCam, opts.sequence_names{opts.sequence})));
     elseif opts.dataset == 2
-        tracker_output = dlmread(fullfile(opts.experiment_root, opts.experiment_name, 'L2-removeOvelapping', sprintf('cam%d_%s.txt',iCam, opts.folder_by_seq{opts.sequence})));
+        tracker_output = dlmread(fullfile(opts.experiment_root, opts.experiment_name, 'L2-removeOverlapping', sprintf('cam%d_%s.txt',iCam, opts.folder_by_seq{opts.sequence})));
         traj_for_iCam = load(fullfile(opts.experiment_root, opts.experiment_name, 'L2-trajectories', sprintf('trajectories%d_%s.mat',iCam, opts.folder_by_seq{opts.sequence})));
     end
     ids = unique(tracker_output(:,2));
@@ -24,8 +24,8 @@ for iCam = cam_pool
         trajectory = [];
         trajectory.data = tracker_output(tracker_output(:,2)==id,:);
         if opts.dataset~=2
-        feet_world = image2world(feetPosition(trajectory.data(:,[3:6])), iCam);
-        trajectory.data(:,[7,8]) = feet_world;
+            feet_world = image2world(feetPosition(trajectory.data(:,[3:6])), iCam);
+            trajectory.data(:,[7,8]) = feet_world;
         end
         trajectory.mcid = count;
         trajectory.scid = id;

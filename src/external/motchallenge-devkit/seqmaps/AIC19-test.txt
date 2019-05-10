@@ -3,13 +3,6 @@ cam6_test
 cam7_test
 cam8_test
 cam9_test
-cam10_test
-cam16_test
-cam17_test
-cam18_test
-cam19_test
-cam20_test
-cam21_test
 cam22_test
 cam23_test
 cam24_test
@@ -17,8 +10,6 @@ cam25_test
 cam26_test
 cam27_test
 cam28_test
-cam29_test
 cam33_test
 cam34_test
 cam35_test
-cam36_test

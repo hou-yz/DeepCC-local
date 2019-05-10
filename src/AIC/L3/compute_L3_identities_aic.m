@@ -14,6 +14,12 @@ function compute_L3_identities_aic(opts)
     all_scenario_ids = [];
     for scene = opts.seqs{opts.sequence}
     opts.current_scene = scene;
+    if ismember(scene,[1,2])
+        opts.identities.threshold = 0.71;
+    else
+        opts.identities.threshold = 0.68;
+    end
+    
     % consturct traj from L2-result
     trajectories = loadL2trajectories(opts, scene);
     identities = trajectories;    
@@ -32,10 +38,10 @@ function compute_L3_identities_aic(opts)
     %% subscenes
     for cams_in_subscene = opts.subscenes{scene}
         
-    if ismember(cams_in_subscene{1},10)
-        window_width = 1200;
-    else
+    if intersect(cams_in_subscene{1},[6,7,8,9,27,35])
         window_width = 500;
+    else
+        window_width = 1200;
     end
         
     startFrame     = 0;
@@ -55,7 +61,7 @@ function compute_L3_identities_aic(opts)
     if scene <= 2
         window_width = 500;
     else
-        window_width = 2400;
+        window_width = 4800;
     end
     
     startFrame     = 0;

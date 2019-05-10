@@ -63,7 +63,7 @@ l2_scts(i,:) = metsSCT(1:3);
 
 %% remove waiting cars
 removeOverlapping(opts);
-opts.eval_dir = 'L2-removeOvelapping';
+opts.eval_dir = 'L2-removeOverlapping';
 [~, metsSCT, ~] = evaluate(opts);
 removed_scts(i,:) = metsSCT(1:3);
 
