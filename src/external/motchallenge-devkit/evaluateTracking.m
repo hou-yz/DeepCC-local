@@ -211,7 +211,7 @@ for ind = 1:length(allSequences)
         resMat{ind} = resdata;
         
     elseif multicam && vehicle
-        % Duke data format
+        % AIC data format
         sequenceName = allSequences{ind};
         resFilename = fullfile(resDir, [sequenceName,  '.txt']);
         s = dir(resFilename);
@@ -220,7 +220,7 @@ for ind = 1:length(allSequences)
         else
             resdata = zeros(0,9);
         end
-        cam = regexp(sequenceName,'\d','Match');
+        cam = regexp(sequenceName,'\d+','Match');
         cam = str2num(cam{1});
         settype = sequenceName(6:end);
         

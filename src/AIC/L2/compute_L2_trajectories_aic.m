@@ -57,6 +57,9 @@ for scene = opts.seqs{opts.sequence}
     [~, ~, ic] = unique(trackerOutputRemoved(:,2));
     trackerOutputRemoved(:,2) = ic;
     trackerOutput = sortrows(trackerOutputRemoved,[2 1]);
+    
+    trajectories = rmfield(trajectories,'tracklets');
+    trajectories = rmfield(trajectories,'features');
 
     %% Save output
     fprintf('Saving results\n');
@@ -74,7 +77,7 @@ for scene = opts.seqs{opts.sequence}
         opts.experiment_name, ...
         iCam, ...
         opts.sequence_names{opts.sequence}), ...
-        'trajectories', '-v7.3');
+        'trajectories');
 
 
     end

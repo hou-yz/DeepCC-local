@@ -67,7 +67,7 @@ for idx1 = 1 : length(trajectories)-1
             %if sum(A_speed.^2) > opts.identities.speed_limit(2) & sum(B_speed.^2) > opts.identities.speed_limit(2) & sum(N_speed.^2) > opts.identities.speed_limit(2)
             impossibility(idx1,idx2) = AB_v_cos > pi/2 | AN_v_cos > pi/2 | BN_v_cos > pi/2;
             %end
-            impossibility(idx1,idx2) = impossibility(idx1,idx2) | AB_v_euc > opts.identities.speed_limit(1);
+            impossibility(idx1,idx2) = impossibility(idx1,idx2) | AB_v_euc > opts.identities.speed_limit(1); %| sum(N_speed.^2) > opts.identities.speed_limit(1);
         end
         
     end

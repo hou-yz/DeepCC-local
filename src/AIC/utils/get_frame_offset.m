@@ -1,5 +1,5 @@
 function frame_offset = get_frame_offset(opts)
-frame_offset = cell(1,5);
+frame_offset = cell(1,6);
 for scene = 1:5
     fpath = fullfile(opts.dataset_path,'cam_timestamp',sprintf('S%02d.txt',scene));
     fileID = fopen(fpath,'r');
@@ -9,6 +9,7 @@ for scene = 1:5
     frame_offsets = round(time_offsets * opts.fps);
     frame_offset{scene} = frame_offsets;
 end
+frame_offset{6} = frame_offset{5};
 fclose('all');
 end
 
