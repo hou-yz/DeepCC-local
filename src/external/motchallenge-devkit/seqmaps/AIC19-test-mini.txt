@@ -1,0 +1,6 @@
+name
+cam27_test_mini
+cam28_test_mini
+cam33_test_mini
+cam34_test_mini
+cam35_test_mini

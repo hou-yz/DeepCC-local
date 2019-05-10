@@ -27,7 +27,7 @@ end
 %% Run Tracker
 opts.optimization = 'KL';
 % opts.visualize = true;
-opts.sequence = 3;
+opts.sequence = 2;
 
 %% GRID SEARCH
 thresholds = 1%0.8:-0.03:0.5;

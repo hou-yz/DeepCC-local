@@ -1,65 +1,81 @@
-function [st_affinity,impossibility] = aic_L3_motion_score(opts,trajectories)
+function [st_affinity,impossibility] = aic_L3_motion_score(opts,trajectories,start_indicator,end_indicator)
 %AIC_L3_MOTION_SCORE Summary of this function goes here
 %   Detailed explanation goes here
 st_affinity = zeros(length(trajectories));
 impossibility   = zeros(length(trajectories));
-start_le_end = logical(triu(ones(length(trajectories)),1));
-
-intervals    = zeros(length(trajectories),2);
-start_points = zeros(length(trajectories),2);
-end_points   = zeros(length(trajectories),2);
-
-start_speeds = zeros(length(trajectories),2);
-end_speeds   = zeros(length(trajectories),2);
-for i = 1:length(trajectories)
-    intervals(i,:)    = [trajectories(i).data(1,9),trajectories(i).data(end,9)];
-    start_points(i,:) = trajectories(i).data(1,7:8);
-    end_points(i,:)   = trajectories(i).data(end,7:8);
-    frames            = trajectories(i).data(:,9);
-    traj_length       = length(frames);
-    start_indices     = 1:min(1+4,traj_length);
-    end_indices       = max(1,traj_length-4):traj_length;
-    start_speeds(i,:) = trajectories(i).data(start_indices(end),7:8) - trajectories(i).data(start_indices(1),7:8);
-    
-    end_speeds(i,:)   = trajectories(i).data(end_indices(end),7:8) - trajectories(i).data(end_indices(1),7:8);
-    
-end
 iCams = [trajectories.camera];
 
-long_time       = intervals(:,2)' - intervals(:,1);
-consider = long_time>0; consider_nt = ~consider'; % not & tracpose
-long_distance_x = end_points(:,1)' - start_points(:,1);
-long_distance_y = end_points(:,2)' - start_points(:,2);
-long_distance = sqrt(long_distance_x.^2 + long_distance_y.^2);
-needed_v   = long_distance./(long_time+10^-12)*10;
-needed_v_x = long_distance_x./(long_time+10^-12)*10;
-needed_v_y = long_distance_y./(long_time+10^-12)*10;
-needed_v_x(~consider) = 0; needed_v_y(~consider) = 0;
-long_time(~consider) = 0;  long_distance(~consider) = 0;
-% impossibility((long_distance - 10)./(long_time+10^-12) * 10 > opts.identities.speed_limit(1)) = 1;
-% impossibility((long_distance + 10)./(long_time+10^-12) * 10 < opts.identities.speed_limit(2)) = 1;
+for idx1 = 1 : length(trajectories)-1
+    for idx2 = idx1+1 : length(trajectories)
+        
+        % temporal ordering is required here (A observed before B)
+        if trajectories(idx1).data(1, 9) < trajectories(idx2).data(end, 9)
+            A = trajectories(idx1);
+            B = trajectories(idx2);
+            former_idx = idx1; latter_idx = idx2;
+        else
+            A = trajectories(idx2);
+            B = trajectories(idx1);
+            former_idx = idx2; latter_idx = idx1;
+        end
+        
+        if ~(start_indicator(latter_idx) && end_indicator(former_idx))
+            continue;
+        else
+            % former:A -> end speed
+            indices = max(1,size(A.data,1)-inf):size(A.data,1);
+            A_speed = A.data(indices(end),7:8) - A.data(indices(1),7:8);
+            A_speed = A_speed/(A.data(indices(end),9)-A.data(indices(1),9)+10^-12)*10;
+            % latter:B -> start speed
+            indices = 1:min(1+inf,size(B.data,1));
+            B_speed = B.data(indices(end),7:8) - B.data(indices(1),7:8);
+            B_speed = B_speed/(B.data(indices(end),9)-B.data(indices(1),9)+10^-12)*10;
+        end
+        
+        [overlapping_frames,ia,ib] = intersect(A.data(:,9),B.data(:,9));
+        if false%~isempty(overlapping_frames)
+            xDetected = [A.data(ia,7);B.data(ib,7)];
+            yDetected = [A.data(ia,8);B.data(ib,8)];
+            frames    = [A.data(ia,9);B.data(ib,9)];
+            
+            xModel = polyfit(frames,xDetected,2);
+            xPredicted = polyval(xModel, frames);
+            yModel = polyfit(frames,yDetected,2);
+            yPredicted = polyval(yModel, frames);
+            pos_diff = sqrt((xPredicted - xDetected).^ 2 + (yPredicted - yDetected).^ 2);
+            smoothnessLoss = mean(pos_diff);
+            
+%             figure(4)
+%             clf('reset');
+%             hold on
+%             scatter(xDetected,yDetected)
+%             scatter(xPredicted,yPredicted,'fill')
+%             legend('Detected Position','Predicted Position')
+%             daspect([1 1 1])
 
+            if smoothnessLoss > 20
+                impossibility(idx1,idx2) = true;
+            end
+        else
+            AB_v_cos = pdist2(A_speed,B_speed,'cosine');
+            AB_v_euc = pdist2(A_speed,B_speed,'euclidean');
+            distance = B.data(end, [7 8]) - A.data(1, [7 8]);
+            N_speed = distance./(B.data(end, 9) - A.data(1, 9)+10^-12)*10;
+            AN_v_cos = pdist2(A_speed,N_speed,'cosine');
+            BN_v_cos = pdist2(B_speed,N_speed,'cosine');
 
-
-traj_velocities = (end_points-start_points)./(intervals(:,2) - intervals(:,1))*10;
-v_dist_euc = pdist2(traj_velocities,traj_velocities,'euclidean');
-v_dist_cos = pdist2(traj_velocities,traj_velocities,'cosine');
-needed_v_dist_euc = zeros(length(trajectories));
-needed_v_dist_cos = zeros(length(trajectories));
-for i = 1:length(trajectories)
-    needed_v_i = [needed_v_x(i,:);needed_v_y(i,:)]';
-    needed_v_dist_euc(i,:) = pdist2(traj_velocities(i,:),needed_v_i,'euclidean');
-    needed_v_dist_cos(i,:) = pdist2(traj_velocities(i,:),needed_v_i,'cosine');    
+            %if sum(A_speed.^2) > opts.identities.speed_limit(2) & sum(B_speed.^2) > opts.identities.speed_limit(2) & sum(N_speed.^2) > opts.identities.speed_limit(2)
+            impossibility(idx1,idx2) = AB_v_cos > pi/2 | AN_v_cos > pi/2 | BN_v_cos > pi/2;
+            %end
+            impossibility(idx1,idx2) = impossibility(idx1,idx2) | AB_v_euc > opts.identities.speed_limit(1);
+        end
+        
+    end
 end
-impossibility(v_dist_euc > opts.identities.speed_limit(1)) = 1;
-violators = (v_dist_cos > pi/2) | (needed_v_dist_cos > pi/2);  %
-violators(logical(ismember(iCams,opts.identities.allow_acute_cams) + ismember(iCams,opts.identities.allow_acute_cams)')) = 0;
-impossibility(violators) = 1;
-
-impossibility(~start_le_end) = 0;
 impossibility = impossibility + impossibility';
 
 impossibility(iCams == iCams')  = 1;
+impossibility(logical(eye(length(trajectories))))  = 0;
 impossibility = logical(impossibility);
 end
 

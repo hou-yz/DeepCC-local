@@ -23,8 +23,10 @@ function compute_L1_tracklets_aic(opts)
         
 %         imageROI        = imread(sprintf('%s/%s/S%02d/c%03d/roi.jpg', opts.dataset_path, opts.sub_dir{opts.sequence}, scene, iCam));
         imageROI        = imread(sprintf('%s/ROIs/background/S%02d/c%02d.png', opts.dataset_path, scene, iCam));
-        imageROI        = rgb2gray(imageROI);
-        imageROI        = imbinarize(imageROI,1-10^-12);
+        if length(size(imageROI)) >2
+            imageROI        = rgb2gray(imageROI);
+            imageROI        = imbinarize(imageROI,1-10^-12);
+        end
         
         % Load features for all detections
         if isempty(opts.feature_dir)

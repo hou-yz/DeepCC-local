@@ -61,7 +61,7 @@ function compute_L3_identities_aic(opts)
     while startFrame <= 6000
         clc; fprintf('Window %d...%d\n', startFrame, endFrame);
 
-        identities = linkIdentities(opts, identities, startFrame, endFrame,appear_model_param,motion_model_param);
+        identities = linkIdentities_aic(opts, identities, startFrame, endFrame,appear_model_param,motion_model_param);
 
         % advance sliding temporal window
         startFrame = endFrame   - window_width/2;

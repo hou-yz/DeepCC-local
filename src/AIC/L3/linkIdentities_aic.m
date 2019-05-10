@@ -1,8 +1,8 @@
-function outputIdentities = linkIdentities_subscene( opts, inputIdentities, startTime, endTime, appear_model_param,motion_model_param,cams_in_subscene)
+function outputIdentities = linkIdentities_aic( opts, inputIdentities, startTime, endTime, appear_model_param,motion_model_param)
 
 
 % find current, old, and future tracklets
-currentIdentitiesInd    = findIdentitiesInWindowInSubScene(inputIdentities, startTime, endTime, cams_in_subscene);
+currentIdentitiesInd    = findTrajectoriesInWindow(inputIdentities, startTime, endTime);
 currentIdentities       = inputIdentities(currentIdentitiesInd);
 
 % safety check
@@ -37,6 +37,8 @@ for i = 1 : length(currentIdentities)
     end
 end
 inAssociation = logical(inAssociation);
+start_indicator = logical(start_indicator);
+end_indicator = logical(end_indicator);
 
 % show all tracklets
 % if VISUALIZE, trajectoriesVisualizePart1; end
