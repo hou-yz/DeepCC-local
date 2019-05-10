@@ -14,7 +14,7 @@ opts.sequence = 2;
 % 
 % 
 % for iCam = opts.cams_in_scene{scene}
-%     resdata = dlmread(sprintf('%s/%s/L3-identities/cam%d_%s.txt',opts.experiment_root, opts.experiment_name, iCam,opts.sequence_names{opts.sequence}));
+%     resdata = dlmread(sprintf('%s/%s/L3-identities/cam%d_%s.txt',opts.experiment_root, opts.experiment_name, iCam,opts.folder_by_seq{opts.sequence}));
 %     resdata = round(resdata);
 %     resdata(:,[1,2]) = resdata(:,[2,1]);
 %     resdata(:,[7:end]) = [];

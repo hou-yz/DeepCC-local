@@ -1,5 +1,5 @@
 name
-cam6_test_easy
-cam7_test_easy
-cam8_test_easy
-cam9_test_easy
+cam6_test
+cam7_test
+cam8_test
+cam9_test

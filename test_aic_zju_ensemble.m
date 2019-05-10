@@ -34,21 +34,21 @@ end
 
 %% Run Tracker
 % opts.visualize = true;
-opts.sequence = 4;
+opts.sequence = 3;
 
 %% Tracklets
-opts.tracklets.spatial_groups = 0;
-opts.optimization = 'KL';
-compute_L1_tracklets_aic(opts);
-
-%% Single-camera trajectories
-opts.trajectories.appearance_groups = 0;
-compute_L2_trajectories_aic(opts);
+% opts.tracklets.spatial_groups = 0;
+% opts.optimization = 'KL';
+% compute_L1_tracklets_aic(opts);
+% 
+% %% Single-camera trajectories
+% opts.trajectories.appearance_groups = 0;
+% compute_L2_trajectories_aic(opts);
 % opts.eval_dir = 'L2-trajectories';
 % evaluate(opts);
-
-%% remove waiting cars
-removeOverlapping(opts);
+% 
+% %% remove waiting cars
+% removeOverlapping(opts);
 % opts.eval_dir = 'L2-removeOvelapping';
 % evaluate(opts);
 

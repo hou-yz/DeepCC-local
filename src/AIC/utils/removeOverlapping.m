@@ -7,7 +7,7 @@ for scene = opts.seqs{opts.sequence}
 opts.current_scene = scene;
 for iCam = opts.cams_in_scene{scene}
 opts.current_camera = iCam;
-tracker_output      = dlmread(fullfile(opts.experiment_root, opts.experiment_name, 'L2-trajectories', sprintf('cam%d_%s.txt',iCam, opts.sequence_names{opts.sequence})));
+tracker_output      = dlmread(fullfile(opts.experiment_root, opts.experiment_name, 'L2-trajectories', sprintf('cam%d_%s.txt',iCam, opts.folder_by_seq{opts.sequence})));
 ids                 = unique(tracker_output(:,2));
 frames              = min(tracker_output(:,1)):max(tracker_output(:,1));
 to_remove = [];
@@ -105,7 +105,7 @@ end
     
     
 tracker_output(unique(to_remove),:) = [];
-dlmwrite(fullfile(opts.experiment_root, opts.experiment_name, 'L2-removeOvelapping', sprintf('cam%d_%s.txt',iCam, opts.sequence_names{opts.sequence})), ...
+dlmwrite(fullfile(opts.experiment_root, opts.experiment_name, 'L2-removeOvelapping', sprintf('cam%d_%s.txt',iCam, opts.folder_by_seq{opts.sequence})), ...
         tracker_output, 'delimiter', ' ', 'precision', 6);
 end
 end

@@ -31,13 +31,13 @@ for i = 1:length(cams)%1:length(opts.cams_in_scene{scene})
     iCam = cams(i)%opts.cams_in_scene{scene}(i);
     
     % Create video
-    filename = sprintf('%s/%s/%s/cam%d_%s',opts.experiment_root, opts.experiment_name, folder, iCam, opts.sequence_names{opts.sequence});
+    filename = sprintf('%s/%s/%s/cam%d_%s',opts.experiment_root, opts.experiment_name, folder, iCam, opts.folder_by_seq{opts.sequence});
     video = VideoWriter(filename);
     video.FrameRate = 10;
     open(video);
     
     % Load result
-    resdata = dlmread(sprintf('%s/%s/L3-identities/cam%d_%s.txt',opts.experiment_root, opts.experiment_name, iCam,opts.sequence_names{opts.sequence}));
+    resdata = dlmread(sprintf('%s/%s/L3-identities/cam%d_%s.txt',opts.experiment_root, opts.experiment_name, iCam,opts.folder_by_seq{opts.sequence}));
     resMat = resdata;
     
     if ismember(opts.sequence,[1,3,7,8])

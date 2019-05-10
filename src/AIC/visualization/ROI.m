@@ -17,7 +17,7 @@ all_colors = distinguishable_colors(5000)*255;
 %     if scene~=2 && scene~=5
 %         gt = load(sprintf('%s/%s/S%02d/c%03d/gt/gt.txt', opts.dataset_path, opts.folder_by_scene{scene}, scene, iCam));
 %     else
-%         gt = load(sprintf('%s/%s/L3-identities/cam%d_%s.txt',opts.experiment_root, opts.experiment_name, iCam,opts.sequence_names{opts.sequence}));
+%         gt = load(sprintf('%s/%s/L3-identities/cam%d_%s.txt',opts.experiment_root, opts.experiment_name, iCam,opts.folder_by_seq{opts.sequence}));
 %     bboxs = gt(:,3:6);
 %     % gt2det bbox
 %     bboxs(:,1:2) = bboxs(:,1:2)+20; bboxs(:,3:4) = bboxs(:,3:4)-40; 

@@ -1,6 +1,6 @@
 name
-cam1_val
-cam2_val
-cam3_val
-cam4_val
-cam5_val
+cam1_train
+cam2_train
+cam3_train
+cam4_train
+cam5_train

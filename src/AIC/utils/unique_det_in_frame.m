@@ -8,7 +8,7 @@ scene = 5;
 cams = 34%[27,28,33,34,35];
 for i = 1:length(cams)%1:length(opts.cams_in_scene{scene})
     iCam = cams(i)%opts.cams_in_scene{scene}(i);
-    resdata = dlmread(sprintf('%s/%s/L3-identities/cam%d_%s.txt',opts.experiment_root, opts.experiment_name, iCam,opts.sequence_names{opts.sequence}));
+    resdata = dlmread(sprintf('%s/%s/L3-identities/cam%d_%s.txt',opts.experiment_root, opts.experiment_name, iCam,opts.folder_by_seq{opts.sequence}));
     %% det bboxs to og size
 %     bboxs = resdata(:,3:6);
 %     og_wh = bboxs(:,3:4)/1.4;
@@ -41,6 +41,6 @@ for i = 1:length(cams)%1:length(opts.cams_in_scene{scene})
         to_remove = [to_remove;line_idx(dup_idx)];
     end
     resdata(to_remove,:) = [];
-    dlmwrite(sprintf('%s/%s/L3-identities/cam%d_%s.txt',opts.experiment_root, opts.experiment_name, iCam,opts.sequence_names{opts.sequence}),...
+    dlmwrite(sprintf('%s/%s/L3-identities/cam%d_%s.txt',opts.experiment_root, opts.experiment_name, iCam,opts.folder_by_seq{opts.sequence}),...
         resdata, 'delimiter', ' ', 'precision', 6);
 end
