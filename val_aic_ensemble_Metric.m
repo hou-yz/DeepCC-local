@@ -7,7 +7,7 @@ opts.experiment_name = 'aic_zju_ensemble_Metric';
 % opts.detections = 'yolo3';
 % basis setting for DeepCC
 opts.tracklets.window_width = 10;
-opts.trajectories.window_width = 50;
+opts.trajectories.window_width = 30;
 opts.identities.window_width = [500,4800];
 % correlation threshold setting according to `view_distance_distribution(opts)`
 opts.feature_dir = 'det_features_zju_lr001_ensemble_test_ssd';
