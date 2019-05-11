@@ -14,11 +14,6 @@ function compute_L3_identities_aic(opts)
     all_scenario_ids = [];
     for scene = opts.seqs{opts.sequence}
     opts.current_scene = scene;
-    if ismember(scene,[1,2])
-        opts.identities.threshold = 0.71;
-    else
-        opts.identities.threshold = 0.68;
-    end
     
     % consturct traj from L2-result
     trajectories = loadL2trajectories(opts, scene);
@@ -43,7 +38,8 @@ function compute_L3_identities_aic(opts)
     else
         window_width = 1200;
     end
-        
+    
+	
     startFrame     = 0;
     endFrame       = window_width;
     while startFrame <= 6000

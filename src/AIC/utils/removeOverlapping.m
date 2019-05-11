@@ -13,13 +13,6 @@ ids                 = unique(tracker_output(:,2));
 frames              = min(tracker_output(:,1)):max(tracker_output(:,1));
 to_remove = [];
 
-
-if iCam > 22
-dlmwrite(fullfile(opts.experiment_root, opts.experiment_name, 'L2-removeOverlapping', sprintf('cam%d_%s.txt',iCam, opts.folder_by_seq{opts.sequence})), ...
-        tracker_output, 'delimiter', ' ', 'precision', 6);
-continue;
-end
-
 %% traj data
 traj_data  = cell(1,length(ids));
 traj_speed = cell(1,length(ids));
