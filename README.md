@@ -1,6 +1,6 @@
 # DeepCC-local
 
-This repo is based on Ergys Ristani's DeepCC \[[code](https://github.com/ergysr/DeepCC), [CVPR 2018 paper](http://openaccess.thecvf.com/content_cvpr_2018/papers/Ristani_Features_for_Multi-Target_CVPR_2018_paper.pdf)\]. This tracker is based on *MATLAB*.
+This repo is based on Ergys Ristani's DeepCC \[[code](https://github.com/ergysr/DeepCC), [paper](http://openaccess.thecvf.com/content_cvpr_2018/papers/Ristani_Features_for_Multi-Target_CVPR_2018_paper.pdf)\]. This tracker is based on *MATLAB*.
 
 We added multiple functions for performance and utilities, including our *locality-aware* setting reported in our CVPR 2019 workshop paper (to be released). 
 
@@ -22,7 +22,7 @@ After that, open up *MATLAB* at the code root directory, first run `get_opts_aic
 
 
 ### Running Demo 
-To run the demo, please open up *MATLAB* and run `val_aic_ensemble.m`. This should give you 79.7 IDF1 on the `train` set. 
+To run the demo, please open up *MATLAB* and run `val_aic_ensemble.m`. This should give you about 79.7 SCT IDF1 and 78.1 MCT IDF1 on the `train` set. 
 
 For the `test` set, please run `test_aic_ensemble.m`. However, the test set result must be uploaded to the AI-City server for online test. To do that, please run `prepareMOTChallengeSubmission_aic.m`.
 
