@@ -1,5 +1,0 @@
-name
-cam6_test
-cam7_test
-cam8_test
-cam9_test
