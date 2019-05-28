@@ -46,12 +46,12 @@ compute_L1_tracklets_aic(opts);
 opts.trajectories.appearance_groups = 1;
 compute_L2_trajectories_aic(opts);
 opts.eval_dir = 'L2-trajectories';
-evaluate(opts);
+% evaluate(opts);
 
 %% remove waiting cars
 removeOverlapping(opts);
 opts.eval_dir = 'L2-removeOverlapping';
-evaluate(opts);
+% evaluate(opts);
 
 %% Multi-camera identities
 opts.identities.consecutive_icam_matrix = ones(40);
@@ -59,7 +59,7 @@ opts.identities.reintro_time_matrix = ones(1,40)*inf;
 opts.identities.appearance_groups = 1;
 compute_L3_identities_aic(opts);
 opts.eval_dir = 'L3-identities';
-evaluate(opts);
+% evaluate(opts);
 
 prepareMOTChallengeSubmission_aic(opts);
 

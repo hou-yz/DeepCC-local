@@ -2,7 +2,7 @@ clc
 clear
 
 opts = get_opts_aic();
-opts.experiment_name = 'aic_label_det';
+opts.experiment_name = 'aic_util';
 opts.sequence = 6;
 scene = 5;
 cams = 22:27%[27,28,33,34,35];

@@ -127,7 +127,7 @@ for ind = 1:length(allSequences)
     elseif multicam && vehicle
         % CiyFlow parsing
         if contains(seqmap,'test')
-            load(fullfile(dataset_path,'ground_truth', 'test_labeled.mat'));
+            load(fullfile(dataset_path,'ground_truth', 'test.mat'));
             gtdata = testData;
         elseif strcmp(seqmap,'AIC19-train.txt')
             load(fullfile(dataset_path,'ground_truth', 'train.mat'));

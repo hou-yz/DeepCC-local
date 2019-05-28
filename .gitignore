@@ -2,6 +2,7 @@ experiments/
 src/external/mexopencv/
 src/hyper_score/.idea/*
 src/hyper_score/logs/*
+src/external/motchallenge-devkit/seqmaps/AIC19-test*
 script/
 *.mex*
 *.asv

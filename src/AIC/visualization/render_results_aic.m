@@ -13,22 +13,19 @@ tail_size = 100;
 colors = distinguishable_colors(7000);
 
 opts = get_opts_aic();
-opts.experiment_name = 'aic_label_det';
-opts.sequence = 6;
+opts.experiment_name = 'aic_ensemble';
+opts.sequence = 1;
 
 folder = 'video-results';
 mkdir([opts.experiment_root, filesep, opts.experiment_name, filesep, folder]);
 % Load ground truth
 if ismember(opts.sequence,[1,7,8])
     load(fullfile(opts.dataset_path, 'ground_truth', 'train.mat'));
-elseif opts.sequence == 3
-    load(fullfile(opts.dataset_path, 'ground_truth', 'test_easy.mat'));
 end
 % Render one video per camera
-for scene = 5%opts.seqs{opts.sequence}
-    cams = [27,28,33,34,35];
-for i = 1:length(cams)%1:length(opts.cams_in_scene{scene})
-    iCam = cams(i)%opts.cams_in_scene{scene}(i);
+for scene = opts.seqs{opts.sequence}
+for 1:length(opts.cams_in_scene{scene})
+    iCam = opts.cams_in_scene{scene}(i);
     
     % Create video
     filename = sprintf('%s/%s/%s/cam%d_%s',opts.experiment_root, opts.experiment_name, folder, iCam, opts.folder_by_seq{opts.sequence});
@@ -40,7 +37,7 @@ for i = 1:length(cams)%1:length(opts.cams_in_scene{scene})
     resdata = dlmread(sprintf('%s/%s/L3-identities/cam%d_%s.txt',opts.experiment_root, opts.experiment_name, iCam,opts.folder_by_seq{opts.sequence}));
     resMat = resdata;
     
-    if ismember(opts.sequence,[1,3,7,8])
+    if ismember(opts.sequence,[1,7,8])
         % Load relevant ground truth
         if opts.sequence == 3
             gtdata = testData;
@@ -88,7 +85,7 @@ for i = 1:length(cams)%1:length(opts.cams_in_scene{scene})
         identities = predMatViz(rows, 2);
         feet_pos = feetPosition(predMatViz(rows,3:6));
         
-        if ismember(opts.sequence,[1,3,7,8])
+        if ismember(opts.sequence,[1,7,8])
             is_TP = predMatViz(rows,end);
             current_tail_colors = [];
             for kkk = 1:length(is_TP)
@@ -103,7 +100,7 @@ for i = 1:length(cams)%1:length(opts.cams_in_scene{scene})
         img = insertShape(img,'FilledCircle',circles,'Color', current_tail_colors*255);
         
         % IDFN
-        if ismember(opts.sequence,[1,3,7,8])
+        if ismember(opts.sequence,[1,7,8])
             rows = find((gtMatViz(:, 1) <= frame) & (gtMatViz(:,1) >= frame - tail_size));
             feet_pos = feetPosition(gtMatViz(rows,3:6));
         

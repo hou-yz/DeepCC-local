@@ -2,7 +2,7 @@ clc
 clear
 
 opts = get_opts_aic();
-opts.experiment_name = 'aic_label_det';
+opts.experiment_name = 'aic_util';
 opts.sequence = 2;
 
 % removeOverlapping(opts);
@@ -31,4 +31,4 @@ testData = sortrows(testData,[1,3]);
 % s05.testData(:,2) = s05.testData(:,2) + max_id;
 % testData = [s02.testData;s05.testData];
 
-save(fullfile(opts.dataset_path,'ground_truth', 'test_labeled.mat'),'testData');
+save(fullfile(opts.dataset_path,'ground_truth', 'test.mat'),'testData');

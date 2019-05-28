@@ -2,10 +2,9 @@ clear
 clc
 
 opts = get_opts_aic();
-scene = 5;
+for scene = 1:5
 gt = 0;
 
-% opts.detections = 'yolo3';
 cam_pool = opts.cams_in_scene{scene};
 all_detections = cell(1,length(cam_pool));
 
@@ -49,4 +48,4 @@ for i = length(cam_pool):-1:1
         dlmwrite(sprintf('%s/%s/S%02d/c%03d/det/det_%s_gps.txt', opts.dataset_path, opts.folder_by_scene{scene}, scene, iCam, opts.detections),data,'precision',10);
     end
 end
-
+end
